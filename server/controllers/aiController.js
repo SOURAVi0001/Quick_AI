@@ -127,7 +127,7 @@ export const generateImage = async (req, res) => {
             console.log(req.auth);
 
             const  {userId}  = req.auth(); 
-            const { prompt } = req.body;
+            const { prompt,publish } = req.body;
             const plan = req.plan;
 
             console.log("HEYYY");
@@ -226,7 +226,7 @@ export const removeImageBackground = async (req, res) => {
             try {
   await sql`
     INSERT INTO creations (user_id, prompt, content, type)
-    VALUES (${userId}, 'Remove background from image', ${imageUrl}, 'image')
+    VALUES (${userId}, 'Remove background from image', ${secure_url}, 'image')
   `;
   console.log("✅ Saved to database!");
 } catch (error) {
