@@ -16,11 +16,11 @@ const Community = () => {
 
   const fetchCreations = async () => {
     try{
-      const {data}=await axios.get('/api.user/get-published-creations',{
+      const {data}=await axios.get('/api/user/get-published-creations',{
          headers:{Authorization:`Bearer ${await getToken()}`}
       })
       if(data.success){
-        setContent(data.content)
+        setCreations(data.content)
       }
       else{
         toast.error(data.message)
@@ -33,7 +33,7 @@ const Community = () => {
 
   const imageLikeToggle = async (id)=>{
     try{
-      const {data}=await axios.get('/api.user/toggle-like-creations',{
+      const {data}=await axios.get('/api/user/toggle-like-creations',{
          headers:{Authorization:`Bearer ${await getToken()}`}
       })
       if(data.success){
@@ -86,7 +86,7 @@ const Community = () => {
     </div>
   ):(
     <div className='flex justify-center items-center h-full'>
-      <span classNAme='w-10 h-10 my-1 rounded-full border-3 border-primary border-t-transparent animate-spin'></span>
+      <span className='w-10 h-10 my-1 rounded-full border-3 border-primary border-t-transparent animate-spin'></span>
     </div>
   )
 }

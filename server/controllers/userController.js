@@ -3,21 +3,22 @@ import sql from "../configs/db.js";
 export const getUserCreations=async(req,res)=>{
       try{
             const {userId}=req.auth()
-            const creations=await sql`SELECT * FROM creations WHERE user_id=${user_id} ORDER BY created_at DESC`;
-            res.json({success:true,creations});
+            const creations=await sql`SELECT * FROM creations WHERE user_id=${userId} ORDER BY created_at DESC`;
+           return  res.json({success:true,content:creations});
       }catch(error){
-            res.json({success:false,message:error.message});
+           return  res.json({success:false,message:error.message});
       }
 }
 export const getPublishedCreations=async(req,res)=>{
       try{
             
             const creations=await sql`SELECT * FROM creations WHERE publish=true ORDER BY created_at DESC`;
-            res.json({success:true,creations});
+            res.json({success:true,content:creations});
       }catch(error){
             res.json({success:false,message:error.message});
       }
 }
+
 export const toggleLikeCreations=async(req,res)=>{
       try{
              const {userId}=req.auth()
@@ -41,7 +42,7 @@ export const toggleLikeCreations=async(req,res)=>{
              const formattedArray=`{${updatedLikes.join(',')}}`
              await sql`UPDATE creations SET likes=${formattedArray}::text[] WHERE id=${id}`
           
-            res.json({success:true,creations});
+            res.json({success:true,content:creations});
       }catch(error){
             res.json({success:false,message:error.message});
       }

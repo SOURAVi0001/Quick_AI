@@ -7,43 +7,50 @@ import Markdown from 'react-markdown';
 axios.defaults.baseURL=import.meta.env.VITE_BASE_URL;
 
 const RemoveObject = () => {
-
-  const blogCategories=['General','Technology','Business','Health','Lifestyle','Education','Travel','Food']
-  
-  const [selectedCategory, setselectedCategory] = useState({})
-  const [input, setInput] = useState('')
+  const [input, setInput] = useState(null) // ✅ Changed to null
   const [object, setObject] = useState('')
-  const [loading,setLoading]=useState(false);
-    const [content,setContent]=useState('');
-    const {getToken}=useAuth();
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+  const { getToken } = useAuth();
   
-  const onSubmitHandler = async(e)=>{
+  const onSubmitHandler = async(e) => {
     e.preventDefault();
-    try{
+    try {
       setLoading(true)
-      if(object.split(' ').length>1){
-        return toast('Please enter only one object to remove')
+      
+      if (!input) {
+        toast.error('Please select an image');
+        setLoading(false);
+        return;
       }
-      const formData=new FormData();
-      formData.append('image',input);
-      formData.append('object',object);
-    
-      const { data }=await axios.post('/api/ai/remove-image-object',formData,{
-        headers:{Authorization:`Bearer ${await getToken()}`}
+      
+      if (object.split(' ').length > 1) {
+        toast.error('Please enter only one object to remove');
+        setLoading(false);
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('object', object);  // ✅ Text field first
+      formData.append('image', input);    // ✅ File is now the actual File object
+      
+      console.log('📤 Sending file:', input.name, input.type);
+      
+      const { data } = await axios.post('/api/ai/remove-image-object', formData, {
+        headers: { Authorization: `Bearer ${await getToken()}` }
       })
-
-      if(data.success){
+      
+      if (data.success) {
         setContent(data.content)
-      }
-      else{
+        toast.success('Object removed successfully!');
+      } else {
         toast.error(data.message)
       }
-
     }
-    catch(error){
+    catch (error) {
+      console.error('Error:', error);
       toast.error(error.message);
     }
-    
     setLoading(false);
   }
 
@@ -54,67 +61,47 @@ const RemoveObject = () => {
           <Scissors className='w-6 text-[#4A7AFF]' />
           <h1 className='text-xl font-semibold'>Object Removal</h1>
         </div>
-        <p className='mt-6 text-sm font-medium'>Keyword</p>
+        <p className='mt-6 text-sm font-medium'>Image</p>
         <input
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e) => setInput(e.target.files[0])}  // ✅ FIXED! Use files[0]
           type='file'
+          accept='image/*'  // ✅ Added accept
           className='w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300'
-          placeholder='The future of artificial intelligence is...'
           required
         />
-
-        <p className='mt-4 text-sm font-medium'>Describe object to remove</p>
-        <div className='mt-4 flex gap-3 flex-wrap sm:max-w-full'>
-          {blogCategories.map((item) => (
-            <span
-              
-              onClick={() => setselectedCategory(item)}
-              className={`text-xs px-4 py-1 border rounded-full cursor-pointer ${
-                selectedCategory === item
-                  ? 'bg-blue-50 text-purple-700 border-purple-700'
-                  : 'text-gray-500 border-gray-300'
-              }`}
-              key={item} > {item} </span>
-          ))}
-        </div>
         <br />
         <p className='mt-6 text-sm font-medium'>Describe object name to remove</p>
-
         <textarea
           onChange={(e) => setObject(e.target.value)}
           value={object}
           rows={4}
           className='w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300'
-          placeholder='e.g.: watch or spoon , Only single object name...'
+          placeholder='e.g.: watch or spoon, Only single object name...'
           required
         />
         <button disabled={loading} className='w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#417DF6] to-[#8E37EB] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer'>
-           {loading ? <span className='w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin'></span> : <Scissors className='w-5' />}
+          {loading ? <span className='w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin'></span> : <Scissors className='w-5' />}
           Remove Object
         </button>
       </form>
       <div className='w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 '>
-  <div className='flex items-center gap-3'>
-
-    <Scissors className='w-5 h-5 text-[#4A7AFF]' />
-    <h1 className='text-xl font-semibold'>Processes Image</h1>
-  </div>
-{
-  !content?(
-    <div className='flex-1 flex justify-center items-center'>
-    <div className='text-sm flex flex-col items-center gap-5 text-gray-400'>
-      <Scissors className='w-9 h-9' />
-      <p>Upload an image and click "Remove Object" to get started </p>
-      
-    </div>
-  </div>
-  ):(
-    <img src={content} alt="image" className='mt-3 w-full h-full'/>
-  )
-}
-  
-
-</div>
+        <div className='flex items-center gap-3'>
+          <Scissors className='w-5 h-5 text-[#4A7AFF]' />
+          <h1 className='text-xl font-semibold'>Processed Image</h1>
+        </div>
+        {
+          !content ? (
+            <div className='flex-1 flex justify-center items-center'>
+              <div className='text-sm flex flex-col items-center gap-5 text-gray-400'>
+                <Scissors className='w-9 h-9' />
+                <p>Upload an image and click "Remove Object" to get started</p>
+              </div>
+            </div>
+          ) : (
+            <img src={content} alt="image" className='mt-3 w-full h-full'/>
+          )
+        }
+      </div>
     </div>
   )
 }

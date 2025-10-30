@@ -1,88 +1,100 @@
 import React, { useState, useEffect } from 'react' 
-import { Sparkles ,Gem} from 'lucide-react';
-import { dummyCreationData } from '../assets/assets'
+import { Sparkles, Gem } from 'lucide-react';
 import { Protect } from '@clerk/clerk-react';
 import CreationItem from '../components/CreationItems';
 import axios from 'axios'
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
-import Markdown from 'react-markdown';
-axios.defaults.baseURL=import.meta.env.VITE_BASE_URL;
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const Dashboard = () => {
+  const [creations, setCreations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { getToken } = useAuth();
 
-  const [creations,setCreations]=useState([]);
-   const [loading,setLoading]=useState(false);
-    const [content,setContent]=useState('');
-    const {getToken}=useAuth();
-
-  const getDashboardData = async() =>{
+  const getDashboardData = async() => {
     try {
-      const {data} = await axios.get('/api/get-user-creations', {headers:{Authorization:`Bearer ${await getToken()}`}})
-      if(data.success){
-        setContent(data.content)
-      }
-      else{
+      setLoading(true);
+      const { data } = await axios.get('/api/user/get-user-creations', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+      })
+      if (data.success) {
+        setCreations(data.content)
+      } else {
         toast.error(data.message)
       }
-  }catch(error){
-toast.error(error.message);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
   }
-  setLoading(false);
-}
-  useEffect(()=>{
+
+  useEffect(() => {
     getDashboardData();
-  },[])
+  }, [])
 
   return (
-    <div className='h-full overflow-y-scroll p-6'>
-      <div className='flex justify-start gap-4 flex-wrap'>
-        <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200">
+    <div className='h-full overflow-y-scroll p-6 bg-gray-50'>
+      {/* Stats Cards Row */}
+      <div className='flex gap-4 mb-6'>
+        {/* Total Creations Card */}
+        <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className='text-slate-600'>
-            <p className='text-sm'>Total Creations</p>
-            <h2 className='text-xl font-semibold'>{creations.length}</h2>
+            <p className='text-sm font-medium'>Total Creations</p>
+            <h2 className='text-2xl font-bold mt-1'>{creations.length}</h2>
           </div>
-          <div className='w-10 h-10 rounded-lg bg-gradient-to-br from-[#3588F2] to-[#c306e9] text-white flex justify-center items-center'>
-            <Sparkles className='w-5 text-white' />
+          <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-[#3588F2] to-[#c306e9] flex justify-center items-center'>
+            <Sparkles className='w-6 text-white' />
           </div>
         </div>
 
-        {/*Active plan name */}
-        <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200">
+        {/* Active Plan Card */}
+        <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className='text-slate-600'>
-            <p className='text-sm'>Active Plan</p>
-            <h2 className='text-xl font-semibold'>
-              <Protect plan='premium' fallback='Free'>Premium </Protect>
+            <p className='text-sm font-medium'>Active Plan</p>
+            <h2 className='text-2xl font-bold mt-1'>
+              <Protect plan='premium' fallback='Free'>
+                Premium
+              </Protect>
             </h2>
           </div>
-          <div className='w-10 h-10 rounded-lg bg-gradient-to-br from-[#d88d24] to-[#fffb00] text-white flex justify-center items-center'>
-            <Gem className='w-5 text-white' />
+          <div className='w-12 h-12 rounded-xl bg-gradient-to-br from-[#d88d24] to-[#fffb00] flex justify-center items-center'>
+            <Gem className='w-6 text-white' />
           </div>
         </div>
+      </div>
 
-        {/* */}
-        {
-          loading ?(
-           <div className='flex justify-center items-center h-3/4'>
-            <div className='animate-spin rounded-full h-11 w-11 border-3 border-purple-500 border-t-transparent'></div>
-           </div>
-          ):(
-            <div className='space-y-3'>
-          <p className='mt-6 mb-4'>Recent Creations</p>
-          {
-            creations.map((item)=><CreationItem key={item.id} item={item}/>)
-          }
-        </div>
-          )
-        }
+      {/* Recent Creations Section */}
+      <div className='w-full'>
+        <h3 className='text-lg font-semibold text-slate-700 mb-4'>Recent Creations</h3>
         
-
-
-
+        {loading ? (
+          <div className='flex justify-center items-center py-20'>
+            <div className='flex flex-col items-center gap-3'>
+              <div className='animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent'></div>
+              <p className='text-sm text-gray-500'>Loading your creations...</p>
+            </div>
+          </div>
+        ) : creations.length === 0 ? (
+          <div className='flex justify-center items-center py-20'>
+            <div className='text-center text-gray-500'>
+              <Sparkles className='w-12 h-12 mx-auto mb-3 text-gray-400' />
+              <p className='text-lg font-medium'>No creations yet</p>
+              <p className='text-sm mt-1'>Start creating content to see it here</p>
+            </div>
+          </div>
+        ) : (
+          <div className='space-y-3'>
+            {creations.map((item) => (
+              <CreationItem key={item.id} item={item} />
+            ))}
+          </div>
+        )}
       </div>
-
-      </div>
-
+    </div>
   )
 }
+
 export default Dashboard
