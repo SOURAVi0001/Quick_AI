@@ -244,7 +244,7 @@ export const removeImageBackground = async (req, res) => {
 export const resumeReview = async (req, res) => {
       try {
             const  {userId}  = req.auth(); 
-            const { resume } = req.file;
+            const  resume  = req.file;
             const plan = req.plan;
             if (plan !== 'premium' ) {
                   return res.json({ success: false, message: "Limit reached. Upgrade to Premium subscriptions." })
@@ -252,7 +252,7 @@ export const resumeReview = async (req, res) => {
             if(resume.size>5*1024*1024){
                   return res.json({success:false,message:"Resume file size exceeds allowed size 5MB"})
             }
-            const databuffer=fs.readFileSync(resume.path);
+            const dataBuffer=fs.readFileSync(resume.path);
             const pdfData=await pdf(dataBuffer);
             const prompt=`review the following resume and provide constructive feedback on strengths weaknesses and area for improvement resume my content:\n\n${pdfData.text}`
             const response = await AI.chat.completions.create({
