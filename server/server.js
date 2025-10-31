@@ -11,16 +11,30 @@ const app = express();
 // Allow-list origins for credentials=true
 import cors from 'cors';
 
-const whitelist = [process.env.FRONTEND_ORIGIN, 'https://quick-ai-frontend.onrender.com', 'http://localhost:5173'].filter(Boolean);
+const allowedOrigins = [
+  'https://quick-ai-frontend.onrender.com',
+  'http://localhost:5173',
+  process.env.FRONTEND_ORIGIN,
+].filter(Boolean);
+
+app.use((req, res, next) => {
+  console.log('CORS check', {
+    method: req.method,
+    url: req.url,
+    origin: req.headers.origin,
+  });
+  next();
+});
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || whitelist.includes(origin)) return cb(null, true);
+    if (!origin) return cb(null, true); // allow non-browser clients during debug
+    if (allowedOrigins.includes(origin)) return cb(null, true);
     return cb(new Error('Not allowed by CORS'));
   },
   credentials: true,
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
+  allowedHeaders: ['Content-Type','Authorization'],
 }));
 
 
