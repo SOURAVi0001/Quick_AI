@@ -16,11 +16,6 @@ app.use(cors({
 }));
 
 
-app.options('/', cors({
-  origin: allowedOrigin,
-  credentials: true
-}));
-
 console.log("remove BG server");
 await connectionCloudinary();
 
