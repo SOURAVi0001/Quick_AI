@@ -1,22 +1,22 @@
-import React, { useState, useEffect } from 'react' 
+import React, { useState, useEffect } from 'react'
 import { Sparkles, Gem } from 'lucide-react';
 import { Protect } from '@clerk/clerk-react';
 import CreationItem from '../components/CreationItems';
-import axios from 'axios'
+import api from '../lib/api'
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
 
 const Dashboard = () => {
   const [creations, setCreations] = useState([]);
   const [loading, setLoading] = useState(true);
   const { getToken } = useAuth();
 
-  const getDashboardData = async() => {
+  const getDashboardData = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('/api/user/get-user-creations', {
+      const { data } = await api.get('/api/user/get-user-creations', {
         headers: { Authorization: `Bearer ${await getToken()}` }
       })
       if (data.success) {
@@ -69,7 +69,7 @@ const Dashboard = () => {
       {/* Recent Creations Section */}
       <div className='w-full'>
         <h3 className='text-lg font-semibold text-slate-700 mb-4'>Recent Creations</h3>
-        
+
         {loading ? (
           <div className='flex justify-center items-center py-20'>
             <div className='flex flex-col items-center gap-3'>

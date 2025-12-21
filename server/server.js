@@ -4,6 +4,7 @@ import { clerkMiddleware /*, requireAuth */ } from '@clerk/express';
 import 'dotenv/config';
 import aiRouter from './routes/aiRoutes.js';
 import connectionCloudinary from './configs/cloudinary.js';
+import redisClient from './configs/redis.js';
 import userRouter from './routes/userRoutes.js';
 
 const app = express();
@@ -17,14 +18,14 @@ const allowedOrigins = [
   process.env.FRONTEND_ORIGIN,
 ].filter(Boolean);
 
-app.use((req, res, next) => {
-  console.log('CORS check', {
-    method: req.method,
-    url: req.url,
-    origin: req.headers.origin,
-  });
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log('CORS check', {
+//     method: req.method,
+//     url: req.url,
+//     origin: req.headers.origin,
+//   });
+//   next();
+// });
 
 app.use(cors({
   origin: (origin, cb) => {
@@ -33,13 +34,20 @@ app.use(cors({
     return cb(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 
-console.log('remove BG server');
+// console.log('remove BG server');
+// initialize cloudinary and redis
 await connectionCloudinary();
+try {
+  await redisClient.connect();
+  console.log('Redis connected');
+} catch (err) {
+  console.error('Redis connection failed', err.message || err);
+}
 
 app.use(express.json());
 app.use(clerkMiddleware());

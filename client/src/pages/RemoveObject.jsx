@@ -1,10 +1,10 @@
 import { Scissors } from 'lucide-react'
 import React, { useState } from 'react'
-import axios from 'axios'
+import api from '../lib/api'
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import Markdown from 'react-markdown';
-axios.defaults.baseURL=import.meta.env.VITE_BASE_URL;
+// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
 
 const RemoveObject = () => {
   const [input, setInput] = useState(null) // ✅ Changed to null
@@ -12,34 +12,34 @@ const RemoveObject = () => {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
   const { getToken } = useAuth();
-  
-  const onSubmitHandler = async(e) => {
+
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
       setLoading(true)
-      
+
       if (!input) {
         toast.error('Please select an image');
         setLoading(false);
         return;
       }
-      
+
       if (object.split(' ').length > 1) {
         toast.error('Please enter only one object to remove');
         setLoading(false);
         return;
       }
-      
+
       const formData = new FormData();
       formData.append('object', object);  // ✅ Text field first
       formData.append('image', input);    // ✅ File is now the actual File object
-      
+
       console.log('📤 Sending file:', input.name, input.type);
-      
-      const { data } = await axios.post('/api/ai/remove-image-object', formData, {
+
+      const { data } = await api.post('/api/ai/remove-image-object', formData, {
         headers: { Authorization: `Bearer ${await getToken()}` }
       })
-      
+
       if (data.success) {
         setContent(data.content)
         toast.success('Object removed successfully!');
@@ -98,7 +98,7 @@ const RemoveObject = () => {
               </div>
             </div>
           ) : (
-            <img src={content} alt="image" className='mt-3 w-full h-full'/>
+            <img src={content} alt="image" className='mt-3 w-full h-full' />
           )
         }
       </div>

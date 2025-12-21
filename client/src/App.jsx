@@ -13,6 +13,8 @@ import RemoveBackground from './pages/RemoveBackground'
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect } from 'react'
 import {Toaster} from 'react-hot-toast'
+
+
 const App = () => {
   
 

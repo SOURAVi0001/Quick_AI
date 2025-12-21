@@ -2,48 +2,48 @@ import { useUser } from '@clerk/clerk-react'
 import React, { useEffect, useState } from 'react'
 import { Heart } from 'lucide-react'
 import { dummyPublishedCreationData } from '../assets/assets'
-import axios from 'axios'
+import api from '../lib/api'
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import Markdown from 'react-markdown';
-axios.defaults.baseURL=import.meta.env.VITE_BASE_URL;
+// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
 
 const Community = () => {
   const [creations, setCreations] = useState([])
   const { user } = useUser()
-  const [loading,setLoading]=useState(true);
-  const {getToken}=useAuth();
+  const [loading, setLoading] = useState(true);
+  const { getToken } = useAuth();
 
   const fetchCreations = async () => {
-    try{
-      const {data}=await axios.get('/api/user/get-published-creations',{
-         headers:{Authorization:`Bearer ${await getToken()}`}
+    try {
+      const { data } = await api.get('/api/user/get-published-creations', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
       })
-      if(data.success){
+      if (data.success) {
         setCreations(data.content)
       }
-      else{
+      else {
         toast.error(data.message)
       }
-    }catch(error){
+    } catch (error) {
       toast.error(error.message);
     }
     setLoading(false);
   }
 
-  const imageLikeToggle = async (id)=>{
-    try{
-      const {data}=await axios.get('/api/user/toggle-like-creations',{
-         headers:{Authorization:`Bearer ${await getToken()}`}
+  const imageLikeToggle = async (id) => {
+    try {
+      const { data } = await api.get('/api/user/toggle-like-creations', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
       })
-      if(data.success){
+      if (data.success) {
         toast.success(data.message);
         await fetchCreations()
       }
-      else{
+      else {
         toast.error(data.message)
       }
-    }catch(error){
+    } catch (error) {
       toast.error(error.message)
     }
   }
@@ -71,12 +71,11 @@ const Community = () => {
               <p className="text-sm hidden group-hover:block">{creation.prompt}</p>
               <div className="flex gap-1 items-center">
                 <p>{creation.likes.length}</p>
-                <Heart onClick={()=>imageLikeToggle(creation.id)}
-                  className={`min-w-5 h-5 hover:scale-110 cursor-pointer ${
-                    creation.likes.includes(user?.id)
+                <Heart onClick={() => imageLikeToggle(creation.id)}
+                  className={`min-w-5 h-5 hover:scale-110 cursor-pointer ${creation.likes.includes(user?.id)
                       ? 'fill-red-500 text-red-600'
                       : 'text-white'
-                  }`}
+                    }`}
                 />
               </div>
             </div>
@@ -84,7 +83,7 @@ const Community = () => {
         ))}
       </div>
     </div>
-  ):(
+  ) : (
     <div className='flex justify-center items-center h-full'>
       <span className='w-10 h-10 my-1 rounded-full border-3 border-primary border-t-transparent animate-spin'></span>
     </div>
