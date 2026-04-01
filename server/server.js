@@ -62,7 +62,7 @@ app.use('/api/user', userRouter);
 
 // Optional: 404 catch‑all compatible with new matching rules
 app.all('/*splat', (req, res) => res.status(404).send('Not Found')); // or: app.all(/.*/, ...)
-console.log("AUTO DEPLOY WORKING 🚀");
+console.log('AUTO DEPLOY WORKING 🚀');
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('Server is running on port', PORT);
