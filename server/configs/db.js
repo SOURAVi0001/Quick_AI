@@ -1,6 +1,6 @@
-import { getDB } from '../configs/db.js';
+import { neon } from '@neondatabase/serverless';
 
-const sql = getDB();
+let sql;
 
 export function getDB() {
   if (!process.env.DATABASE_URL) {
