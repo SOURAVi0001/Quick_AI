@@ -41,6 +41,3 @@ jobs:
 
       - run: npm install
       - run: npx prettier . --check
-
-      - name: Backend syntax check
-        run: node -e "import('./server.js')"

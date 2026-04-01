@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
-    "pretty": "prettier --write ."
+    "pretty": "prettier --write .",
+    "check": "node --check server.js && node -e \"import('./server.js')\" && npx prettier . --check"
   },
   "repository": {
     "type": "git",
