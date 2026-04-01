@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "multer": "^2.0.2",
     "openai": "^6.7.0",
     "pdf-parse": "^2.4.5",
+    "pretty": "^2.0.0",
     "redis": "^4.6.7"
   },
   "devDependencies": {

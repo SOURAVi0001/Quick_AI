@@ -1,0 +1,29 @@
+{
+  "name": "quick_ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "pretty": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SOURAVi0001/Quick_AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SOURAVi0001/Quick_AI/issues"
+  },
+  "homepage": "https://github.com/SOURAVi0001/Quick_AI#readme",
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  },
+  "dependencies": {
+    "pretty": "^2.0.0"
+  }
+}
