@@ -93,7 +93,7 @@ export const generateArticle = async (req, res) => {
                   INSERT INTO creations (user_id, prompt, content, type)
                   VALUES (${userId}, ${prompt}, ${content}, 'article')
                   `;
-      console.log('✅ Saved to database!');
+        console.log('✅ Saved to database!');
     } catch (error) {
       console.error('❌ Error saving to database:', error);
     }
