@@ -13,3 +13,5 @@ export function getDB() {
 
   return sql;
 }
+
+export default (strings, ...values) => getDB()(strings, ...values);
