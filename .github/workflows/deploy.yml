@@ -10,57 +10,37 @@ on:
 
 jobs:
 
-  # 🔹 FRONTEND CHECK
   frontend:
-    name: Frontend Checks
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: client
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version-file: '.nvmrc'
 
-      - name: Install deps
-        run: npm install
-
-      - name: Prettier check
-        run: npx prettier . --check
-
-      - name: Build frontend
-        run: npm run build
+      - run: npm install
+      - run: npx prettier . --check
+      - run: npm run build
 
 
-  # 🔹 BACKEND CHECK
   backend:
-    name: Backend Checks
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: server
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version-file: '.nvmrc'
 
-      - name: Install deps
-        run: npm install
-
-      - name: Prettier check
-        run: npx prettier . --check
-
-      - name: Run backend (syntax check)
-        run: node -e "require('./server.js')"
+      - run: npm install
+      - run: npx prettier . --check
+      - run: node -e "require('./server.js')"
