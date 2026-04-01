@@ -3,7 +3,7 @@ name: Deploy Full Stack App
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
