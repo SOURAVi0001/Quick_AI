@@ -41,4 +41,4 @@ jobs:
 
       - run: npm install
       - run: npx prettier . --check
-      - run: node --check server.js
+      - run: node server.js
