@@ -6,6 +6,8 @@ on:
       - main
 
 jobs:
+
+  # 🔹 FRONTEND DEPLOY
   deploy-frontend:
     runs-on: ubuntu-latest
 
@@ -14,14 +16,22 @@ jobs:
         working-directory: client
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
 
-      - run: npm install
-      - run: npm run build
+      - name: Install dependencies
+        run: npm install
+
+      # ✅ IMPORTANT: ENV INJECTION HERE
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
 
       - name: Upload to S3
         run: |
@@ -41,11 +51,13 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
 
+
+  # 🔹 BACKEND DEPLOY
   deploy-backend:
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH Deploy to EC2
+      - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
