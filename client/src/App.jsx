@@ -19,7 +19,6 @@ const App = () => {
     <div>
       <Toaster />
       <Routes>
-        <h1>DEPLOY TEST 🚀</h1>
         <Route path="/" element={<Home />} />
         <Route path="/ai" element={<Layout />}>
           <Route index element={<Dashboard />} />
