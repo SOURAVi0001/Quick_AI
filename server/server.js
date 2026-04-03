@@ -14,6 +14,7 @@ import cors from 'cors';
 
 const allowedOrigins = [
   'https://quick-ai-frontend.onrender.com',
+  'https://d30jzk0hgtqxk3.cloudfront.net',
   'http://localhost:5173',
   process.env.FRONTEND_ORIGIN,
 ].filter(Boolean);
