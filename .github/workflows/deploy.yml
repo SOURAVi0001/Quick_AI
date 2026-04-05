@@ -31,6 +31,7 @@ jobs:
         run: npm run build
         env:
           VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
+          VITE_BASE_URL: ${{ secrets.VITE_BASE_URL }}
 
       - name: Upload to S3
         run: |
