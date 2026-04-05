@@ -4,7 +4,7 @@ import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import Markdown from 'react-markdown';
-// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
+import DemoBanner from '../components/DemoBanner';
 
 const BlogTitles = () => {
   const blogCategories = [
@@ -22,6 +22,7 @@ const BlogTitles = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
   const { getToken } = useAuth();
 
   const onSubmitHandler = async (e) => {
@@ -40,6 +41,7 @@ const BlogTitles = () => {
 
       if (data.success) {
         setContent(data.content);
+        setIsDemo(!!data.demo);
       } else {
         toast.error(data.message);
       }
@@ -114,6 +116,7 @@ const BlogTitles = () => {
           </div>
         ) : (
           <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+            <DemoBanner visible={isDemo} />
             <div className="reset-tw">
               <Markdown>{content}</Markdown>
             </div>

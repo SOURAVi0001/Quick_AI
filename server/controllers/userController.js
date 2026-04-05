@@ -1,73 +1,61 @@
 import sql from '../configs/db.js';
-import redisClient from '../configs/redis.js';
+import { safeGet, safeSetEx, safeDel } from '../configs/redis.js';
+import { NotFoundError } from '../middlewares/errors.js';
 
-export const getUserCreations = async (req, res) => {
+export const getUserCreations = async (req, res, next) => {
   try {
     const { userId } = req.auth();
     const cacheKey = `user:creations:${userId}`;
-    try {
-      const cached = await redisClient.get(cacheKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        return res.json({ success: true, content: parsed, cached: true });
-      }
-    } catch (err) {
-      console.error('Redis get failed', err?.message || err);
+
+    const cached = await safeGet(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return res.json({ success: true, content: parsed, cached: true });
     }
 
     const creations =
       await sql`SELECT * FROM creations WHERE user_id=${userId} ORDER BY created_at DESC`;
-    // cache for 5 minutes
-    try {
-      await redisClient.setEx(cacheKey, 5 * 60, JSON.stringify(creations));
-    } catch (err) {
-      console.error('Redis set failed', err?.message || err);
-    }
+    await safeSetEx(cacheKey, 5 * 60, JSON.stringify(creations));
+
     return res.json({ success: true, content: creations });
   } catch (error) {
-    return res.json({ success: false, message: error.message });
+    next(error);
   }
 };
-export const getPublishedCreations = async (req, res) => {
+
+export const getPublishedCreations = async (req, res, next) => {
   try {
     const cacheKey = `creations:published`;
-    try {
-      const cached = await redisClient.get(cacheKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        return res.json({ success: true, content: parsed, cached: true });
-      }
-    } catch (err) {
-      console.error('Redis get failed', err?.message || err);
+
+    const cached = await safeGet(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return res.json({ success: true, content: parsed, cached: true });
     }
 
     const creations =
       await sql`SELECT * FROM creations WHERE publish=true ORDER BY created_at DESC`;
-    // cache for 2 minutes
-    try {
-      await redisClient.setEx(cacheKey, 2 * 60, JSON.stringify(creations));
-    } catch (err) {
-      console.error('Redis set failed', err?.message || err);
-    }
+    await safeSetEx(cacheKey, 2 * 60, JSON.stringify(creations));
+
     res.json({ success: true, content: creations });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-export const toggleLikeCreations = async (req, res) => {
+export const toggleLikeCreations = async (req, res, next) => {
   try {
     const { userId } = req.auth();
     const { id } = req.body;
     const [creation] = await sql`SELECT * FROM creations WHERE id=${id}`;
-    if (!creation) {
-      return res.json({ success: false, message: 'Creation not found' });
-    }
+
+    if (!creation) throw new NotFoundError('Creation');
+
     const currentLikes = creation.likes;
     const userIdStr = userId.toString();
     let updatedLikes;
     let message;
-    // defensive checks for currentLikes being an array
+
     const likesArr = Array.isArray(currentLikes) ? currentLikes : [];
     if (likesArr.includes(userIdStr)) {
       updatedLikes = likesArr.filter((user) => user !== userIdStr);
@@ -79,18 +67,11 @@ export const toggleLikeCreations = async (req, res) => {
     const formattedArray = `{${updatedLikes.join(',')}}`;
     await sql`UPDATE creations SET likes=${formattedArray}::text[] WHERE id=${id}`;
 
-    // invalidate relevant caches: published list and the creator's user creations
-    try {
-      await redisClient.del(`creations:published`);
-      await redisClient.del(`user:creations:${creation.user_id}`);
-    } catch (err) {
-      console.error('Redis del failed', err?.message || err);
-    }
+    await safeDel(`creations:published`, `user:creations:${creation.user_id}`);
 
-    // return updated creation
     const [updated] = await sql`SELECT * FROM creations WHERE id=${id}`;
     res.json({ success: true, content: updated, message });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    next(error);
   }
 };

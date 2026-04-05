@@ -4,7 +4,7 @@ import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import Markdown from 'react-markdown';
-// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
+import DemoBanner from '../components/DemoBanner';
 
 const GenerateImages = () => {
   const ImageStyle = [
@@ -23,6 +23,7 @@ const GenerateImages = () => {
   const [publish, setPublish] = useState(false);
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
   const { getToken } = useAuth();
 
   const onSubmitHandler = async (e) => {
@@ -33,13 +34,14 @@ const GenerateImages = () => {
 
       const { data } = await api.post(
         '/api/ai/generate-image',
-        { prompt },
+        { prompt, publish },
         {
           headers: { Authorization: `Bearer ${await getToken()}` },
         },
       );
       if (data.success) {
         setContent(data.content);
+        setIsDemo(!!data.demo);
       } else {
         toast.error(data.message);
       }
@@ -130,7 +132,8 @@ const GenerateImages = () => {
           </div>
         ) : (
           <div className="mt-3 h-full">
-            <img src={content} alt="image" className="w-full h-full"></img>
+            <DemoBanner visible={isDemo} />
+            <img src={content} alt="Generated image" className="w-full h-full rounded-lg" />
           </div>
         )}
       </div>

@@ -1,17 +1,15 @@
 import { useUser } from '@clerk/clerk-react';
 import React, { useEffect, useState } from 'react';
 import { Heart } from 'lucide-react';
-import { dummyPublishedCreationData } from '../assets/assets';
 import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
-import Markdown from 'react-markdown';
-// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
 
 const Community = () => {
   const [creations, setCreations] = useState([]);
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
+  const [pendingLikes, setPendingLikes] = useState(new Set());
   const { getToken } = useAuth();
 
   const fetchCreations = async () => {
@@ -31,20 +29,51 @@ const Community = () => {
   };
 
   const imageLikeToggle = async (id) => {
+    if (pendingLikes.has(id)) return;
+    setPendingLikes((prev) => new Set(prev).add(id));
+
+    const previousCreations = [...creations];
+
+    setCreations((prev) =>
+      prev.map((creation) => {
+        if (creation.id === id) {
+          const isLiked = creation.likes?.includes(user?.id);
+          const newLikes = isLiked
+            ? (creation.likes || []).filter((uid) => uid !== user?.id)
+            : [...(creation.likes || []), user?.id];
+          return { ...creation, likes: newLikes };
+        }
+        return creation;
+      }),
+    );
+
     try {
-      const { data } = await api.get('/api/user/toggle-like-creations', {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      });
+      const { data } = await api.post(
+        '/api/user/toggle-like-creations',
+        { id },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        },
+      );
+
       if (data.success) {
-        toast.success(data.message);
-        await fetchCreations();
+        setCreations((prev) => prev.map((c) => (c.id === id ? data.content : c)));
       } else {
+        setCreations(previousCreations);
         toast.error(data.message);
       }
     } catch (error) {
+      setCreations(previousCreations);
       toast.error(error.message);
+    } finally {
+      setPendingLikes((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
+
   useEffect(() => {
     if (user) {
       fetchCreations();
@@ -64,11 +93,11 @@ const Community = () => {
             <div className="absolute bottom-0 top-0 right-0 left-3 flex gap-2 items-end justify-end group-hover:justify-between p-3 group-hover:bg-gradient-to-b from-transparent to-black/80 text-white rounded-lg">
               <p className="text-sm hidden group-hover:block">{creation.prompt}</p>
               <div className="flex gap-1 items-center">
-                <p>{creation.likes.length}</p>
+                <p>{creation.likes?.length || 0}</p>
                 <Heart
                   onClick={() => imageLikeToggle(creation.id)}
                   className={`min-w-5 h-5 hover:scale-110 cursor-pointer ${
-                    creation.likes.includes(user?.id) ? 'fill-red-500 text-red-600' : 'text-white'
+                    creation.likes?.includes(user?.id) ? 'fill-red-500 text-red-600' : 'text-white'
                   }`}
                 />
               </div>

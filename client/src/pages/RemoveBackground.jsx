@@ -4,11 +4,12 @@ import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import Markdown from 'react-markdown';
-// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
+import DemoBanner from '../components/DemoBanner';
 const RemoveBackground = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
   const { getToken } = useAuth();
 
   const onSubmitHandler = async (e) => {
@@ -23,8 +24,10 @@ const RemoveBackground = () => {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
 
-      if (data.success) setContent(data.content);
-      else toast.error(data.message);
+      if (data.success) {
+        setContent(data.content);
+        setIsDemo(!!data.demo);
+      } else toast.error(data.message);
     } catch (error) {
       toast.error(error.message);
     }
@@ -79,7 +82,10 @@ const RemoveBackground = () => {
             </div>
           </div>
         ) : (
-          <img src={content} alt="image" className="mt-3 w-full h-full" />
+          <>
+            <DemoBanner visible={isDemo} />
+            <img src={content} alt="Processed image" className="mt-3 w-full h-full rounded-lg" />
+          </>
         )}
       </div>
     </div>

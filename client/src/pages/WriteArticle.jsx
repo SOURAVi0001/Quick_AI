@@ -4,6 +4,7 @@ import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import Markdown from 'react-markdown';
+import DemoBanner from '../components/DemoBanner';
 
 const WriteArticle = () => {
   const articleLength = [
@@ -15,6 +16,7 @@ const WriteArticle = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
   const { getToken } = useAuth();
   const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -32,8 +34,8 @@ const WriteArticle = () => {
       );
       // console.log('📤 Sending file:', input.name, input.type);
       if (data.success) {
-        console.log('Data:', data);
         setContent(data.content);
+        setIsDemo(!!data.demo);
       } else {
         toast.error(data.message);
       }
@@ -107,6 +109,7 @@ const WriteArticle = () => {
           </div>
         ) : (
           <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+            <DemoBanner visible={isDemo} />
             <div className="reset-tw">
               <Markdown>{content}</Markdown>
             </div>

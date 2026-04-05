@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:migrate": "node scripts/migrate.js"
   },
   "keywords": [],
   "author": "",
@@ -17,15 +18,19 @@
     "@google/generative-ai": "^0.24.1",
     "@neondatabase/serverless": "^1.0.2",
     "axios": "^1.13.0",
+    "bullmq": "^5.73.0",
     "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
+    "dotenv-safe": "^9.1.0",
     "express": "^5.1.0",
     "multer": "^2.0.2",
     "openai": "^6.7.0",
     "pdf-parse": "^2.4.5",
     "pretty": "^2.0.0",
-    "redis": "^4.6.7"
+    "redis": "^4.6.7",
+    "socket.io": "^4.8.3",
+    "undici": "^8.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

@@ -4,13 +4,14 @@ import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import Markdown from 'react-markdown';
-// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
+import DemoBanner from '../components/DemoBanner';
 
 const RemoveObject = () => {
   const [input, setInput] = useState(null); // ✅ Changed to null
   const [object, setObject] = useState('');
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
   const { getToken } = useAuth();
 
   const onSubmitHandler = async (e) => {
@@ -42,6 +43,7 @@ const RemoveObject = () => {
 
       if (data.success) {
         setContent(data.content);
+        setIsDemo(!!data.demo);
         toast.success('Object removed successfully!');
       } else {
         toast.error(data.message);
@@ -106,7 +108,10 @@ const RemoveObject = () => {
             </div>
           </div>
         ) : (
-          <img src={content} alt="image" className="mt-3 w-full h-full" />
+          <>
+            <DemoBanner visible={isDemo} />
+            <img src={content} alt="Processed image" className="mt-3 w-full h-full rounded-lg" />
+          </>
         )}
       </div>
     </div>
