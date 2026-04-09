@@ -21,7 +21,7 @@ items-center py-3 px-4 sm:px-20 xl:px-32 cursor-pointer"
           className="flex items-center gap-2 rounded-full text-sm 
     cursor-pointer bg-primary text-white px-10 py-2.5"
         >
-          Get started
+          Get started 12
           <ArrowRight className="w-4 h-4" />
         </button>
       )}
