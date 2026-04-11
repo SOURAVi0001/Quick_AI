@@ -37,6 +37,7 @@ const allowedOrigins = [
   'https://quick-ai-frontend.onrender.com',
   'https://d30jzk0hgtqxk3.cloudfront.net',
   'http://localhost:5173',
+  'https://quickai.store',
   process.env.FRONTEND_ORIGIN,
 ].filter(Boolean);
 
