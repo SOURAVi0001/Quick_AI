@@ -91,7 +91,7 @@ jobs:
 
             docker run -d \
               --name backend \
-              --restart unless-stopped \
+              --restart always \
               -p 3000:3000 \
               --env-file /home/ubuntu/Quick_AI/server/.env \
               ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest
