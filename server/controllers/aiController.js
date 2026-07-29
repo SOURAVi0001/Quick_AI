@@ -58,7 +58,7 @@ export const generateArticle = async (req, res, next) => {
       free_usage,
     });
 
-    // Also run inline for immediate response (best-effort)
+  
     let content;
     let demo = false;
     try {
@@ -110,6 +110,14 @@ export const generateBlogTitle = async (req, res, next) => {
     let { prompt } = req.body;
     const refinedPrompt = `${prompt}. Provide only the top 5 catchy and attractive blog titles.`;
 
+    const taskId = await addTask('generate-blog-title', {
+      type: 'generate-blog-title',
+      userId,
+      prompt: refinedPrompt,
+      plan: req.plan,
+      free_usage: req.free_usage || 0,
+    });
+
     let content;
     let demo = false;
     try {
@@ -129,7 +137,7 @@ export const generateBlogTitle = async (req, res, next) => {
                 VALUES (${userId}, ${refinedPrompt}, ${content}, 'blog-title')`;
       await safeDel(`user:creations:${userId}`);
     } catch (dbError) {
-      return res.json({ success: true, content, demo, warning: 'Failed to save to database' });
+      return res.json({ success: true, content, demo, taskId, warning: 'Failed to save to database' });
     }
 
     if (req.plan !== 'premium') {
@@ -139,7 +147,9 @@ export const generateBlogTitle = async (req, res, next) => {
         });
       } catch (clerkError) {}
     }
-    res.json({ success: true, content, demo });
+
+    emitToUser(req, 'task:completed', { taskId, type: 'blog-title', content, demo });
+    res.json({ success: true, content, demo, taskId });
   } catch (error) {
     next(error);
   }
@@ -158,6 +168,14 @@ export const resumeReview = async (req, res, next) => {
     const pdfText = await parser.getText();
 
     const prompt = `Review the following resume and provide feedback on strengths and weaknesses within 300 words:\n\n${pdfText}`;
+
+    const taskId = await addTask('resume-review', {
+      type: 'resume-review',
+      userId,
+      prompt: 'Resume Review',
+      pdfText,
+      plan: req.plan,
+    });
 
     let content;
     let demo = false;
@@ -180,11 +198,12 @@ export const resumeReview = async (req, res, next) => {
       await safeDel(`user:creations:${userId}`);
     } catch (dbError) {
       if (fs.existsSync(resume.path)) fs.unlinkSync(resume.path);
-      return res.json({ success: true, content, demo, warning: 'Failed to save record' });
+      return res.json({ success: true, content, demo, taskId, warning: 'Failed to save record' });
     }
 
     if (fs.existsSync(resume.path)) fs.unlinkSync(resume.path);
-    res.json({ success: true, content, demo });
+    emitToUser(req, 'task:completed', { taskId, type: 'resume-review', content, demo });
+    res.json({ success: true, content, demo, taskId });
   } catch (error) {
     if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     next(error);
@@ -197,6 +216,14 @@ export const generateImage = async (req, res, next) => {
     const { prompt, publish } = req.body;
 
     if (req.plan !== 'premium') throw new ForbiddenError('Premium required for images.');
+
+    const taskId = await addTask('generate-image', {
+      type: 'generate-image',
+      userId,
+      prompt,
+      publish,
+      plan: req.plan,
+    });
 
     let secure_url;
     let demo = false;
@@ -228,8 +255,8 @@ export const generateImage = async (req, res, next) => {
       if (publish) await safeDel('creations:published');
     } catch (dbError) {}
 
-    emitToUser(req, 'task:completed', { type: 'image', content: secure_url, demo });
-    res.json({ success: true, content: secure_url, demo });
+    emitToUser(req, 'task:completed', { taskId, type: 'image', content: secure_url, demo });
+    res.json({ success: true, content: secure_url, demo, taskId });
   } catch (error) {
     next(error);
   }
@@ -242,6 +269,14 @@ export const removeImageObject = async (req, res, next) => {
     const image = req.file;
 
     if (!image || !object) throw new ValidationError('Missing image or object');
+
+    const taskId = await addTask('remove-image-object', {
+      type: 'remove-image-object',
+      userId,
+      prompt: `Removed ${object}`,
+      object,
+      plan: req.plan,
+    });
 
     let imageUrl;
     let demo = false;
@@ -269,7 +304,8 @@ export const removeImageObject = async (req, res, next) => {
     } catch (dbError) {}
 
     if (fs.existsSync(image.path)) fs.unlinkSync(image.path);
-    res.json({ success: true, content: imageUrl, demo });
+    emitToUser(req, 'task:completed', { taskId, type: 'image', content: imageUrl, demo });
+    res.json({ success: true, content: imageUrl, demo, taskId });
   } catch (error) {
     if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     next(error);
@@ -282,6 +318,13 @@ export const removeImageBackground = async (req, res, next) => {
     const image = req.file;
 
     if (!image) throw new ValidationError('No image provided');
+
+    const taskId = await addTask('remove-image-background', {
+      type: 'remove-image-background',
+      userId,
+      prompt: 'Background removal',
+      plan: req.plan,
+    });
 
     let secure_url;
     let demo = false;
@@ -307,7 +350,8 @@ export const removeImageBackground = async (req, res, next) => {
     } catch (dbError) {}
 
     if (fs.existsSync(image.path)) fs.unlinkSync(image.path);
-    res.json({ success: true, content: secure_url, demo });
+    emitToUser(req, 'task:completed', { taskId, type: 'image', content: secure_url, demo });
+    res.json({ success: true, content: secure_url, demo, taskId });
   } catch (error) {
     if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     next(error);

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
@@ -10,14 +9,24 @@ import ReviewResume from './pages/ReviewResume';
 import RemoveObject from './pages/RemoveObject';
 import GenerateImages from './pages/GenerateImages';
 import RemoveBackground from './pages/RemoveBackground';
-import { useAuth } from '@clerk/clerk-react';
-import { useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   return (
     <div>
-      <Toaster />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            borderRadius: '8px',
+            background: '#fff',
+            color: '#111',
+            border: '1px solid #e5e5e5',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+            fontSize: '14px',
+          },
+        }}
+      />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/ai" element={<Layout />}>

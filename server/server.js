@@ -78,13 +78,13 @@ await connectionCloudinary();
 
 try {
   await redisClient.connect();
-  console.log('✅ Redis connected');
+  console.log('Redis connected');
 
   // Start BullMQ worker only if Redis is available
   startWorker(processAITask);
-  console.log('✅ BullMQ AI Worker started');
+  console.log('BullMQ AI Worker started');
 } catch (err) {
-  console.warn('⚠️  Redis connection failed — running without cache & queues:', err.message || err);
+  console.warn('Redis connection failed — running without cache & queues:', err.message || err);
 }
 
 // ─── Middleware ──────────────────────────────────────────────────────

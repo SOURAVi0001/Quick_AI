@@ -1,0 +1,3925 @@
+
+
+================================================================
+File: client/README.md
+================================================================
+
+# React + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+
+================================================================
+File: client/eslint.config.js
+================================================================
+
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import { defineConfig, globalIgnores } from 'eslint/config';
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+]);
+
+
+================================================================
+File: client/index.html
+================================================================
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quick.AI</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+
+================================================================
+File: client/package.json
+================================================================
+
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@clerk/clerk-react": "^5.53.3",
+    "@tailwindcss/vite": "^4.1.16",
+    "axios": "^1.13.1",
+    "lucide-react": "^0.546.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-hot-toast": "^2.6.0",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.9.4",
+    "socket.io-client": "^4.8.3",
+    "tailwind": "^4.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "globals": "^16.4.0",
+    "vite": "^7.1.7"
+  }
+}
+
+
+================================================================
+File: client/src/App.jsx
+================================================================
+
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import WriteArticle from './pages/WriteArticle';
+import BlogTitles from './pages/BlogTitles';
+import Layout from './pages/Layout';
+import Community from './pages/Community';
+import ReviewResume from './pages/ReviewResume';
+import RemoveObject from './pages/RemoveObject';
+import GenerateImages from './pages/GenerateImages';
+import RemoveBackground from './pages/RemoveBackground';
+import { useAuth } from '@clerk/clerk-react';
+import { useEffect } from 'react';
+import { Toaster } from 'react-hot-toast';
+
+const App = () => {
+  return (
+    <div>
+      <Toaster />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/ai" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="write-article" element={<WriteArticle />} />
+          <Route path="blog-titles" element={<BlogTitles />} />
+          <Route path="generate-images" element={<GenerateImages />} />
+          <Route path="remove-background" element={<RemoveBackground />} />
+          <Route path="remove-object" element={<RemoveObject />} />
+          <Route path="review-resume" element={<ReviewResume />} />
+          <Route path="community" element={<Community />} />
+        </Route>
+      </Routes>
+    </div>
+  );
+};
+
+export default App;
+
+
+================================================================
+File: client/src/assets/assets.js
+================================================================
+
+import logo from './logo.svg';
+import gradientBackground from './gradientBackground.png';
+import user_group from './user_group.png';
+import star_icon from './star_icon.svg';
+import star_dull_icon from './star_dull_icon.svg';
+import profile_img_1 from './profile_img_1.png';
+import arrow_icon from './arrow_icon.svg';
+import { SquarePen, Hash, Image, Eraser, Scissors, FileText } from 'lucide-react';
+import ai_gen_img_1 from './ai_gen_img_1.png';
+import ai_gen_img_2 from './ai_gen_img_2.png';
+import ai_gen_img_3 from './ai_gen_img_3.png';
+
+export const assets = {
+  logo,
+  gradientBackground,
+  user_group,
+  star_icon,
+  star_dull_icon,
+  profile_img_1,
+  arrow_icon,
+};
+
+export const AiToolsData = [
+  {
+    title: 'AI Article Writer',
+    description:
+      'Generate high-quality, engaging articles on any topic with our AI writing technology.',
+    Icon: SquarePen,
+    bg: { from: '#3588F2', to: '#0BB0D7' },
+    path: '/ai/write-article',
+  },
+  {
+    title: 'Blog Title Generator',
+    description:
+      'Find the perfect, catchy title for your blog posts with our AI-powered generator.',
+    Icon: Hash,
+    bg: { from: '#B153EA', to: '#E549A3' },
+    path: '/ai/blog-titles',
+  },
+  {
+    title: 'AI Image Generation',
+    description:
+      'Create stunning visuals with our AI image generation tool, Experience the power of AI ',
+    Icon: Image,
+    bg: { from: '#20C363', to: '#11B97E' },
+    path: '/ai/generate-images',
+  },
+  {
+    title: 'Background Removal',
+    description: 'Effortlessly remove backgrounds from your images with our AI-driven tool.',
+    Icon: Eraser,
+    bg: { from: '#F76C1C', to: '#F04A3C' },
+    path: '/ai/remove-background',
+  },
+  {
+    title: 'Object Removal',
+    description:
+      'Remove unwanted objects from your images seamlessly with our AI object removal tool.',
+    Icon: Scissors,
+    bg: { from: '#5C6AF1', to: '#427DF5' },
+    path: '/ai/remove-object',
+  },
+  {
+    title: 'Resume Reviewer',
+    description:
+      'Get your resume reviewed by AI to improve your chances of landing your dream job.',
+    Icon: FileText,
+    bg: { from: '#12B7AC', to: '#08B6CE' },
+    path: '/ai/review-resume',
+  },
+];
+
+export const dummyTestimonialData = [
+  {
+    image: assets.profile_img_1,
+    name: 'John Doe',
+    title: 'Marketing Director, TechCorp',
+    content:
+      'ContentAI has revolutionized our content workflow. The quality of the articles is outstanding, and it saves us hours of work every week.',
+    rating: 4,
+  },
+  {
+    image: assets.profile_img_1,
+    name: 'Jane Smith',
+    title: 'Content Creator, TechCorp',
+    content:
+      'ContentAI has made our content creation process effortless. The AI tools have helped us produce high-quality content faster than ever before.',
+    rating: 5,
+  },
+  {
+    image: assets.profile_img_1,
+    name: 'David Lee',
+    title: 'Content Writer, TechCorp',
+    content:
+      'ContentAI has transformed our content creation process. The AI tools have helped us produce high-quality content faster than ever before.',
+    rating: 4,
+  },
+];
+
+export const dummyCreationData = [
+  {
+    id: 9,
+    user_id: 'user_2yMX02PRbyMtQK6PebpjnxvRNIA',
+    prompt: 'Generate a blog title for the keyword blog in the category Technology.',
+    content:
+      'Here are a few blog title options for a technology blog, playing with different angles:\n\n**General & Broad:**\n\n*   The Tech Blog: News, Reviews, and Insights\n*   Technology Today: Your Daily Dose of Tech\n*   The Future is Now: Exploring the World of Technology\n*   Tech Talk: Unpacking the Latest Innovations\n\n**More Specific & Intriguing:**\n\n*   Decoding Tech: Making Sense of the Digital World\n*   Beyond the Gadgets: The',
+    type: 'blog-title',
+    publish: false,
+    likes: [],
+    created_at: '2025-07-01T11:09:50.492Z',
+    updated_at: '2025-07-01T11:09:50.492Z',
+  },
+  {
+    id: 8,
+    user_id: 'user_2yMX02PRbyMtQK6PebpjnxvRNIA',
+    prompt: 'Generate a blog title for the keyword blog in the category General.',
+    content:
+      'Here are a few blog title options for a blog about blogs in the General category, ranging from straightforward to a bit more creative:\n\n**Straightforward:**\n\n*   The Blog Blog: Everything You Need to Know About Blogging\n*   Blogging Insights: Tips, Tricks, and Trends\n*   Your Guide to the World of Blogging\n\n**More Creative:**\n\n*   Beyond the Post: Exploring the Art of Blogging\n*   Blogosphere Unlocked: Navigating the World of Online Writing',
+    type: 'blog-title',
+    publish: false,
+    likes: [],
+    created_at: '2025-07-01T11:08:10.450Z',
+    updated_at: '2025-07-01T11:08:10.450Z',
+  },
+  {
+    id: 7,
+    user_id: 'user_2yMX02PRbyMtQK6PebpjnxvRNIA',
+    prompt: 'Write an article about AI With Coding in Short (500-800 word).',
+    content:
+      "## AI and Coding: A Symbiotic Partnership Reshaping the Future\n\nArtificial intelligence (AI) and coding, once distinct disciplines, are now deeply intertwined, forging a powerful symbiotic relationship that's revolutionizing industries and accelerating innovation. Understanding this connection is crucial for anyone seeking to navigate the future of technology.\n\nAt its core, AI is the ability of a machine to mimic intelligent human behavior. This is achieved through algorithms, which are essentially sets of instructions meticulously crafted by programmers – coders. Coding, therefore, is the backbone of AI, providing the language and structure necessary to bring these algorithms to life.\n\n**Coding Fuels AI: Building the Foundation**\n\nAI models don't magically appear. They are built, trained, and deployed using code. Here's how:\n\n*   **Data Preprocessing:** Raw data, the lifeblood of AI, is often messy and unusable in its original form. Coders use programming languages like Python with libraries like Pandas and NumPy to clean, transform, and prepare this data for training. This involves handling missing values, removing inconsistencies, and formatting data into a suitable structure.\n*   **Model Development:** Coders utilize programming languages like Python and R, coupled with machine learning libraries like TensorFlow, PyTorch, and scikit-learn, to build and train AI models. These libraries provide pre-built functionalities and tools that simplify the process of creating complex algorithms.\n*   **Deployment and Integration:** Once trained, AI models need to be deployed and integrated into real-world applications. This involves writing code to connect the model to existing systems, handle user input, and present the results in a user-friendly manner.\n*   **Maintenance and Optimization:** AI models are not static entities. They require constant monitoring, maintenance, and optimization to ensure they remain accurate and effective. Coders play a vital role in identifying and addressing performance issues, retraining models with new data, and adapting them to changing requirements.\n\n**AI Empowers Coding: Revolutionizing Development**\n\nThe relationship isn't just one-way. AI is also transforming the way coding is done, making developers more efficient and productive.\n\n*   **Code Completion and Suggestion:** AI-powered tools like GitHub Copilot and Tabnine analyze code context and suggest code snippets, reducing repetitive tasks and accelerating development. These tools learn from vast code repositories and can predict what a developer is likely to write next, saving significant time and effort.\n*   **Automated Testing and Debugging:** AI can automate the process of testing code and identifying bugs. By analyzing code patterns and identifying potential vulnerabilities, AI tools can help developers catch errors early and improve code quality.\n*   **Code Generation:** AI is increasingly capable of generating code from natural language descriptions. This allows developers to focus on the higher-level aspects of software design and leave the more tedious coding tasks to AI.\n*   **Personalized Learning:** AI can personalize the learning experience for aspiring coders by tailoring educational content and providing individualized feedback. This can make learning to code more effective and engaging.\n\n**The Future: Collaboration and Specialization**\n\nThe future of AI and coding is one of increasing collaboration and specialization. As AI becomes more sophisticated, coders will need to focus on higher-level tasks such as designing AI architectures, managing data pipelines, and ensuring ethical considerations are addressed.\n\nThe demand for skilled professionals who understand both AI and coding is rapidly growing. Individuals with this skillset are well-positioned to lead the charge in developing innovative AI-powered solutions across a wide range of industries.\n\n**In conclusion,** AI and coding are not separate entities but rather two sides of the same coin. Coding provides the foundation for AI, while AI empowers coding, leading to a more efficient and innovative development process. Understanding this symbiotic relationship is essential for anyone seeking to thrive in the rapidly evolving landscape of technology. As AI continues to advance, the demand for skilled professionals who can bridge",
+    type: 'article',
+    publish: false,
+    likes: [],
+    created_at: '2025-07-01T11:07:51.312Z',
+    updated_at: '2025-07-01T11:07:51.312Z',
+  },
+];
+
+export const dummyPublishedCreationData = [
+  {
+    id: 1,
+    user_id: 'user_2yMX02PRbyMtQK6PebpjnxvRNIA',
+    prompt: 'Generate an image of A Boy is on Boat , and fishing in the style Anime style.',
+    content: ai_gen_img_1,
+    type: 'image',
+    publish: true,
+    likes: ['user_2yMX02PRbyMtQK6PebpjnxvRNIA', 'user_2yaW5EHzeDfQbXdAJWYFnZo2bje'],
+    created_at: '2025-06-19T09:02:25.035Z',
+    updated_at: '2025-06-19T09:58:37.552Z',
+  },
+  {
+    id: 2,
+    user_id: 'user_2yMX02PRbyMtQK6PebpjnxvRNIA',
+    prompt:
+      'Generate an image of A Boy Riding a bicycle on road and bicycle is from year 2201  in the style Anime style.',
+    content: ai_gen_img_2,
+    type: 'image',
+    publish: true,
+    likes: ['user_2yMX02PRbyMtQK6PebpjnxvRNIA', 'user_2yaW5EHzeDfQbXdAJWYFnZo2bje'],
+    created_at: '2025-06-19T08:16:54.614Z',
+    updated_at: '2025-06-19T09:58:40.072Z',
+  },
+  {
+    id: 3,
+    user_id: 'user_2yaW5EHzeDfQbXdAJWYFnZo2bje',
+    prompt: 'Generate an image of a boy riding a car on sky in the style Realistic.',
+    content: ai_gen_img_3,
+    type: 'image',
+    publish: true,
+    likes: ['user_2yaW5EHzeDfQbXdAJWYFnZo2bje'],
+    created_at: '2025-06-23T11:29:23.351Z',
+    updated_at: '2025-06-23T11:29:44.434Z',
+    __v: 1,
+  },
+];
+
+
+================================================================
+File: client/src/components/AiTools.jsx
+================================================================
+
+import React from 'react';
+import { AiToolsData } from '../assets/assets';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
+
+const AiTools = () => {
+  const navigate = useNavigate();
+  const { user } = useUser();
+  return (
+    <div className="px-4 sm:px-20 xl:px-32 my-24">
+      <div className="text-center">
+        <h2 className="text-slate-700 text-[42px] font-semibold">Powerful AI Tools</h2>
+        <p className="text-gray-500 max-w-lg mx-auto">
+          Everything you need to create, enhance, and optimize your content with cutting-edge AI
+          technology.
+        </p>
+      </div>
+      <div className="flex flex-wrap mt-10 justify-center">
+        {AiToolsData.map((tool, index) => (
+          <div
+            key={index}
+            className="p-8 m-4 max-w-xs rounded-lg bg-[#FDFDFE] shadow-lg border border-gray-100 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+            onClick={() => user && navigate(tool.path)}
+          >
+            <tool.Icon
+              className="w-12 h-12 p-3 text-white rounded-xl"
+              style={{
+                background: `linear-gradient(to bottom, ${tool.bg.from}, ${tool.bg.to})`,
+              }}
+            />
+            <h3 className="mt-6 mb-3 text-lg font-semibold">{tool.title}</h3>
+            <p className="text-gray-400 text-sm max-w-[95%]">{tool.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default AiTools;
+
+
+================================================================
+File: client/src/components/CreationItems.jsx
+================================================================
+
+import React, { useState } from 'react';
+import Markdown from 'react-markdown';
+
+const CreationItem = ({ item }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div
+      onClick={() => setExpanded(!expanded)}
+      className="p-4 max-w-5xl text-sm bg-white border border-gray-200 rounded-lg cursor-pointer hover:shadow-md transition-shadow duration-200"
+    >
+      <div className="flex justify-between items-center gap-4">
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate">{item.prompt}</h2>
+          <p className="text-gray-500">
+            {item.type} - {new Date(item.created_at).toLocaleDateString()}
+          </p>
+        </div>
+        <button className="bg-[#EFF6FF] border border-[#BFDBFE] text-[#1E40AF] px-4 py-1 rounded-full text-xs shrink-0">
+          {item.type}
+        </button>
+      </div>
+      {expanded && (
+        <div>
+          {item.type === 'image' ? (
+            <div className="mt-3">
+              {/* Loading skeleton */}
+              {!imgLoaded && !imgError && (
+                <div className="w-full max-w-md h-64 bg-gray-100 rounded-lg animate-pulse flex items-center justify-center">
+                  <svg
+                    className="w-8 h-8 text-gray-300"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+              )}
+              {/* Error state */}
+              {imgError && (
+                <div className="w-full max-w-md h-40 bg-red-50 border border-red-200 rounded-lg flex items-center justify-center text-red-400 text-sm">
+                  Failed to load image
+                </div>
+              )}
+              {/* Actual image */}
+              <img
+                src={item.content}
+                alt={item.prompt || 'Generated image'}
+                loading="lazy"
+                onLoad={() => setImgLoaded(true)}
+                onError={() => setImgError(true)}
+                className={`w-full max-w-md rounded-lg shadow-sm transition-opacity duration-300 ${
+                  imgLoaded ? 'opacity-100' : 'opacity-0 h-0'
+                }`}
+              />
+            </div>
+          ) : (
+            <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-700">
+              <div className="reset-tw">
+                <Markdown>{item.content}</Markdown>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+export default CreationItem;
+
+
+================================================================
+File: client/src/components/DemoBanner.jsx
+================================================================
+
+import React from 'react';
+import { Info } from 'lucide-react';
+
+/**
+ * Subtle banner shown when content was generated using demo fallback,
+ * e.g. when API keys are exhausted. Transparent and professional.
+ */
+const DemoBanner = ({ visible }) => {
+  if (!visible) return null;
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 mt-2 mb-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-700 text-xs">
+      <Info className="w-4 h-4 shrink-0" />
+      <span>
+        <strong>Demo Mode</strong> — API quota reached. Showing sample content to demonstrate the
+        full workflow.
+      </span>
+    </div>
+  );
+};
+
+export default DemoBanner;
+
+
+================================================================
+File: client/src/components/Footer.jsx
+================================================================
+
+import { assets } from '../assets/assets';
+export default function Footer() {
+  return (
+    <footer className="px-6 md:px-16 lg:px-24 xl:px-32 pt-8 w-full text-gray-500 mt-20">
+      <div className="flex flex-col md:flex-row justify-between w-full gap-10 border-b border-gray-500/30 pb-6">
+        <div className="md:max-w-96">
+          <img className="h-9" src={assets.logo} alt="logo" />
+          <p className="mt-6 text-sm">
+            Experience the power of AI with QuickAi.
+            <br /> Transform your content creation with our suite of premium AI tools right article
+            season eight images and enhance your workflow.
+          </p>
+        </div>
+        <div className="flex-1 flex items-start md:justify-end gap-20">
+          <div>
+            <h2 className="font-semibold mb-5 text-gray-800">Company</h2>
+            <ul className="text-sm space-y-2">
+              <li>
+                <a href="#">Home</a>
+              </li>
+              <li>
+                <a href="#">About us</a>
+              </li>
+              <li>
+                <a href="#">Contact us</a>
+              </li>
+              <li>
+                <a href="#">Privacy policy</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h2 className="font-semibold text-gray-800 mb-5">Subscribe to our newsletter</h2>
+            <div className="text-sm space-y-2">
+              <p>The latest news, articles, and resources, sent to your inbox weekly.</p>
+              <div className="flex items-center gap-2 pt-4">
+                <input
+                  className="border border-gray-500/30 placeholder-gray-500 focus:ring-2 ring-indigo-600 outline-none w-full max-w-64 h-9 rounded px-2"
+                  type="email"
+                  placeholder="Enter your email"
+                />
+                <button className="bg-primary w-24 h-9 text-white rounded cursor-pointer">
+                  Subscribe
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p className="pt-4 text-center text-xs md:text-sm pb-5">
+        Copyright 2025 © <a href="https://prebuiltui.com">Sourav</a>. All Right Reserved.
+      </p>
+    </footer>
+  );
+}
+
+
+================================================================
+File: client/src/components/Hero.jsx
+================================================================
+
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { assets } from '../assets/assets';
+
+const Hero = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="px-4 sm:px-20 xl:px-32 relative inline-flex flex-col w-full justify-center bg-[url(/gradientBackground.png)] bg-cover bg-no-repeat min-h-screen">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl 2xl:text-7xl font-semibold mx-auto leading-[1.2]">
+          Create amazing content <br /> with <span className="text-primary">AI tools</span>
+        </h1>
+        <p className="mt-4 max-w-xs sm:max-w-lg 2xl:max-w-xl m-auto max-sm:text-xs text-gray-600">
+          Transform your content creation with our suite of premium AI tools. Write articles,
+          generate images, and enhance your workflow.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap justify-center gap-4 text-sm max-sm:text-xs">
+        <button
+          onClick={() => navigate('/ai')}
+          className="bg-primary text-white px-10 py-3 rounded-lg hover:scale-105 active:scale-95 transition cursor-pointer"
+        >
+          Start creating now
+        </button>
+        <button className="bg-white px-10 py-3 rounded-lg border border-gray-300 hover:scale-105 active:scale-95 transition cursor-pointer">
+          Watch demo
+        </button>
+      </div>
+      <div className="flex items-center gap-4 mt-8 mx-auto text-gray-600">
+        <img src={assets.user_group} alt="" className="h-8" />
+        Trusted by 10K+ people
+      </div>
+    </div>
+  );
+};
+
+export default Hero;
+
+
+================================================================
+File: client/src/components/Navbar.jsx
+================================================================
+
+import React from 'react';
+import { assets } from '../assets/assets';
+import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useClerk, UserButton, useUser } from '@clerk/clerk-react';
+const Navbar = () => {
+  const navigate = useNavigate();
+  const { user } = useUser();
+  const { openSignIn } = useClerk();
+  return (
+    <div
+      className="fixed top-0 left-0 w-full z-50 backdrop-blur-2xl flex justify-between 
+items-center py-3 px-4 sm:px-20 xl:px-32 cursor-pointer"
+    >
+      <img src={assets.logo} alt="logo" className="w-32 sm:w-44" onClick={() => navigate('/')} />
+      {user ? (
+        <UserButton />
+      ) : (
+        <button
+          onClick={openSignIn}
+          className="flex items-center gap-2 rounded-full text-sm 
+    cursor-pointer bg-primary text-white px-10 py-2.5"
+        >
+          Get started 12
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default Navbar;
+
+
+================================================================
+File: client/src/components/Plan.jsx
+================================================================
+
+import React from 'react';
+import { PricingTable } from '@clerk/clerk-react';
+const Plan = () => {
+  return (
+    <div className="max-w-2xl mx-auto z-20 my-30">
+      <div className="text-center">
+        <h2 className="text-slate-700 text-[42px] font-semibold">Choose Your Plan</h2>
+        <p className="text-gray-500 max-w-lg mx-auto">
+          Start for free and scale up as you grow. Find the perfect plan for your content creation
+          needs.
+        </p>
+      </div>
+
+      <div className="mt-14 max-sm:mx-8">
+        <PricingTable />
+      </div>
+    </div>
+  );
+};
+
+export default Plan;
+
+
+================================================================
+File: client/src/components/Sidebar.jsx
+================================================================
+
+import { Protect, useClerk, useUser } from '@clerk/clerk-react';
+import {
+  Eraser,
+  FileText,
+  Hash,
+  House,
+  Image,
+  LogOut,
+  Scissors,
+  SquarePen,
+  Users,
+} from 'lucide-react';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+
+const navItems = [
+  { to: '/ai', label: 'Dashboard', Icon: House },
+  { to: '/ai/write-article', label: 'Write Article', Icon: SquarePen },
+  { to: '/ai/blog-titles', label: 'Blog Titles', Icon: Hash },
+  { to: '/ai/generate-images', label: 'Generate Images', Icon: Image },
+  { to: '/ai/remove-background', label: 'Remove Background', Icon: Eraser },
+  { to: '/ai/remove-object', label: 'Remove Object', Icon: Scissors },
+  { to: '/ai/review-resume', label: 'Review Resume', Icon: FileText },
+  { to: '/ai/community', label: 'Community', Icon: Users },
+];
+
+const Sidebar = ({ sidebar, setSidebar }) => {
+  const { user } = useUser();
+  const { signOut, openUserProfile } = useClerk();
+
+  return (
+    <div
+      className={`w-60 bg-white border-r border-gray-200 flex flex-col justify-between items-center max:sm:absolute top-14 bottom-0 ${
+        sidebar ? 'translate-x-0' : 'max-sm:-translate-x-full'
+      } transition-all duration-300 ease-in-out`}
+    >
+      <div className="my-7 w-full">
+        <img src={user.imageUrl} alt="User Avatar" className="w-13 rounded-full mx-auto" />
+        <h1 className="mt-1 text-center">{user.fullName}</h1>
+        <div className="px-6 mt-5 text-sm text-gray-600 font-medium">
+          {navItems.map(({ to, label, Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/ai'}
+              onClick={() => setSidebar(false)}
+              className={({ isActive }) =>
+                `px-3.5 py-2.5 flex items-center gap-3 rounded ${
+                  isActive ? 'bg-gradient-to-r from-[#3C81F6] to-[#9234EA] text-white' : ''
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
+                  {label}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+      <div className="w-full border-t border-gray-200 p-4 px-7 flex items-center justify-between">
+        <div onClick={openUserProfile} className="flex gap-2 items-center cursor-pointer">
+          <img src={user.imageUrl} className="w-8 rounded-full" alt="" />
+          <div>
+            <h1 className="text-sm font-medium">{user.fullName}</h1>
+            <p>
+              <Protect plan="premium" fallback="Free">
+                Premium
+              </Protect>
+              Plan
+            </p>
+          </div>
+        </div>
+        <LogOut
+          onClick={signOut}
+          className="w-4.5 text-gray-400 hover:text-gray-700 transition cursor-pointer"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;
+
+
+================================================================
+File: client/src/components/Testimonial.jsx
+================================================================
+
+import { assets } from '../assets/assets';
+
+const Testimonial = () => {
+  const dummyTestimonialData = [
+    {
+      image: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200',
+      name: 'John Doe',
+      title: 'Marketing Director, TechCorp',
+      content:
+        'ContentAI has revolutionized our content workflow. The quality of the articles is outstanding, and it saves us hours of work every week.',
+      rating: 4,
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200',
+      name: 'Jane Smith',
+      title: 'Content Creator, TechCorp',
+      content:
+        'ContentAI has made our content creation process effortless. The AI tools have helped us produce high-quality content faster than ever before.',
+      rating: 5,
+    },
+    {
+      image:
+        'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&h=200&auto=format&fit=crop',
+      name: 'David Lee',
+      title: 'Content Writer, TechCorp',
+      content:
+        'ContentAI has transformed our content creation process. The AI tools have helped us produce high-quality content faster than ever before.',
+      rating: 4,
+    },
+  ];
+
+  return (
+    <div className="px-4 sm:px-20 xl:px-32 py-24">
+      <div className="text-center">
+        <h2 className="text-slate-700 text-[42px] font-semibold">Loved by Creators</h2>
+        <p className="text-gray-500 max-w-lg mx-auto">
+          Don't just take our word for it. Here's what our users are saying.
+        </p>
+      </div>
+      <div className="flex flex-wrap mt-10 justify-center">
+        {dummyTestimonialData.map((testimonial, index) => (
+          <div
+            key={index}
+            className="p-8 m-4 max-w-xs rounded-lg bg-[#FDFDFE] shadow-lg border border-gray-100 hover:-translate-y-1 transition duration-300 cursor-pointer"
+          >
+            <div className="flex items-center gap-1">
+              {Array(5)
+                .fill(0)
+                .map((_, index) => (
+                  <img
+                    key={index}
+                    src={index < testimonial.rating ? assets.star_icon : assets.star_dull_icon}
+                    className="w-4 h-4"
+                    alt="star"
+                  />
+                ))}
+            </div>
+            <p className="text-gray-500 text-sm my-5">"{testimonial.content}"</p>
+            <hr className="mb-5 border-gray-300" />
+            <div className="flex items-center gap-4">
+              <img src={testimonial.image} className="w-12 object-contain rounded-full" alt="" />
+              <div className="text-sm text-gray-600">
+                <h3 className="font-medium">{testimonial.name}</h3>
+                <p className="text-xs text-gray-500">{testimonial.title}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+export default Testimonial;
+
+
+================================================================
+File: client/src/index.css
+================================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+@import 'tailwindcss';
+* {
+  font-family: 'Outfit', sans-serif;
+}
+@theme {
+  --color-primary: #5044e5;
+}
+.reset-tw,
+.reset-tw * {
+  all: revert !important;
+}
+.cl-drawerRoot {
+  z-index: 50;
+}
+
+
+================================================================
+File: client/src/lib/api.js
+================================================================
+
+import axios from 'axios';
+
+const baseURL = import.meta.env.VITE_SERVER_URL || import.meta.env.VITE_BASE_URL || '';
+
+const api = axios.create({
+  baseURL,
+  withCredentials: true,
+});
+
+export default api;
+
+
+================================================================
+File: client/src/main.jsx
+================================================================
+
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
+import { BrowserRouter } from 'react-router-dom';
+import { ClerkProvider } from '@clerk/clerk-react';
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+if (!PUBLISHABLE_KEY) {
+  throw new Error('Missing Publishable Key');
+}
+createRoot(document.getElementById('root')).render(
+  <BrowserRouter>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <App />
+    </ClerkProvider>
+  </BrowserRouter>,
+);
+
+
+================================================================
+File: client/src/pages/BlogTitles.jsx
+================================================================
+
+import { Sparkles, Hash } from 'lucide-react';
+import React, { useState } from 'react';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
+import DemoBanner from '../components/DemoBanner';
+
+const BlogTitles = () => {
+  const blogCategories = [
+    'General',
+    'Technology',
+    'Business',
+    'Health',
+    'Lifestyle',
+    'Education',
+    'Travel',
+    'Food',
+  ];
+
+  const [selectedCategory, setselectedCategory] = useState({});
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
+  const { getToken } = useAuth();
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const prompt = `Generate the blog tittle for the keyword ${input}in the category ${selectedCategory}}`;
+
+      const { data } = await api.post(
+        '/api/ai/generate-blog-title',
+        { prompt },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        },
+      );
+
+      if (data.success) {
+        setContent(data.content);
+        setIsDemo(!!data.demo);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div className="h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4 text-slate-700">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+      >
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-6 text-[#8E37EB]" />
+          <h1 className="text-xl font-semibold">AI Title Generator</h1>
+        </div>
+        <p className="mt-6 text-sm font-medium">Keyword</p>
+        <input
+          onChange={(e) => setInput(e.target.value)}
+          value={input}
+          type="text"
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          placeholder="The future of artificial intelligence is..."
+          required
+        />
+
+        <p className="mt-4 text-sm font-medium">Category</p>
+        <div className="mt-4 flex gap-3 flex-wrap sm:max-w-full">
+          {blogCategories.map((item) => (
+            <span
+              onClick={() => setselectedCategory(item)}
+              className={`text-xs px-4 py-1 border rounded-full cursor-pointer ${
+                selectedCategory === item
+                  ? 'bg-blue-50 text-purple-700 border-purple-700'
+                  : 'text-gray-500 border-gray-300'
+              }`}
+              key={item}
+            >
+              {' '}
+              {item}{' '}
+            </span>
+          ))}
+        </div>
+        <br />
+        <button
+          disabled={loading}
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#C341F6] to-[#8E37EB] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer"
+        >
+          {loading ? (
+            <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+          ) : (
+            <Hash className="w-5" />
+          )}
+          Generate title
+        </button>
+      </form>
+      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 ">
+        <div className="flex items-center gap-3">
+          <Hash className="w-5 h-5 text-[#8E37EB]" />
+          <h1 className="text-xl font-semibold">Generated titles</h1>
+        </div>
+        {!content ? (
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <Hash className="w-9 h-9" />
+              <p>Enter a topic and click "Generate title" to get started</p>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+            <DemoBanner visible={isDemo} />
+            <div className="reset-tw">
+              <Markdown>{content}</Markdown>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default BlogTitles;
+
+
+================================================================
+File: client/src/pages/Community.jsx
+================================================================
+
+import { useUser } from '@clerk/clerk-react';
+import React, { useEffect, useState } from 'react';
+import { Heart } from 'lucide-react';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+
+const Community = () => {
+  const [creations, setCreations] = useState([]);
+  const { user } = useUser();
+  const [loading, setLoading] = useState(true);
+  const [pendingLikes, setPendingLikes] = useState(new Set());
+  const { getToken } = useAuth();
+
+  const fetchCreations = async () => {
+    try {
+      const { data } = await api.get('/api/user/get-published-creations', {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (data.success) {
+        setCreations(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setLoading(false);
+  };
+
+  const imageLikeToggle = async (id) => {
+    if (pendingLikes.has(id)) return;
+    setPendingLikes((prev) => new Set(prev).add(id));
+
+    const previousCreations = [...creations];
+
+    setCreations((prev) =>
+      prev.map((creation) => {
+        if (creation.id === id) {
+          const isLiked = creation.likes?.includes(user?.id);
+          const newLikes = isLiked
+            ? (creation.likes || []).filter((uid) => uid !== user?.id)
+            : [...(creation.likes || []), user?.id];
+          return { ...creation, likes: newLikes };
+        }
+        return creation;
+      }),
+    );
+
+    try {
+      const { data } = await api.post(
+        '/api/user/toggle-like-creations',
+        { id },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        },
+      );
+
+      if (data.success) {
+        setCreations((prev) => prev.map((c) => (c.id === id ? data.content : c)));
+      } else {
+        setCreations(previousCreations);
+        toast.error(data.message);
+      }
+    } catch (error) {
+      setCreations(previousCreations);
+      toast.error(error.message);
+    } finally {
+      setPendingLikes((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchCreations();
+    }
+  }, [user]);
+
+  return !loading ? (
+    <div className="flex-1 h-full flex flex-col gap-4 p-6">
+      Creations
+      <div className="bg-white h-full w-full rounded-xl overflow-y-scroll">
+        {creations.map((creation, index) => (
+          <div
+            key={index}
+            className="relative group inline-block pl-3 pt-3 w-full sm:max-w-1/2 lg:max-w-1/3"
+          >
+            <img src={creation.content} alt="" className="w-full h-full object-cover rounded-lg" />
+            <div className="absolute bottom-0 top-0 right-0 left-3 flex gap-2 items-end justify-end group-hover:justify-between p-3 group-hover:bg-gradient-to-b from-transparent to-black/80 text-white rounded-lg">
+              <p className="text-sm hidden group-hover:block">{creation.prompt}</p>
+              <div className="flex gap-1 items-center">
+                <p>{creation.likes?.length || 0}</p>
+                <Heart
+                  onClick={() => imageLikeToggle(creation.id)}
+                  className={`min-w-5 h-5 hover:scale-110 cursor-pointer ${
+                    creation.likes?.includes(user?.id) ? 'fill-red-500 text-red-600' : 'text-white'
+                  }`}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div className="flex justify-center items-center h-full">
+      <span className="w-10 h-10 my-1 rounded-full border-3 border-primary border-t-transparent animate-spin"></span>
+    </div>
+  );
+};
+
+export default Community;
+
+
+================================================================
+File: client/src/pages/Dashboard.jsx
+================================================================
+
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Gem } from 'lucide-react';
+import { Protect } from '@clerk/clerk-react';
+import CreationItem from '../components/CreationItems';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+
+// baseURL handled by client/src/lib/api.js via VITE_SERVER_URL or VITE_BASE_URL
+
+const Dashboard = () => {
+  const [creations, setCreations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { getToken } = useAuth();
+
+  const getDashboardData = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get('/api/user/get-user-creations', {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (data.success) {
+        setCreations(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getDashboardData();
+  }, []);
+
+  return (
+    <div className="h-full overflow-y-scroll p-6 bg-gray-50">
+      {/* Stats Cards Row */}
+      <div className="flex gap-4 mb-6">
+        {/* Total Creations Card */}
+        <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="text-slate-600">
+            <p className="text-sm font-medium">Total Creations</p>
+            <h2 className="text-2xl font-bold mt-1">{creations.length}</h2>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#3588F2] to-[#c306e9] flex justify-center items-center">
+            <Sparkles className="w-6 text-white" />
+          </div>
+        </div>
+
+        {/* Active Plan Card */}
+        <div className="flex justify-between items-center w-72 p-4 px-6 bg-white rounded-xl border border-gray-200 shadow-sm">
+          <div className="text-slate-600">
+            <p className="text-sm font-medium">Active Plan</p>
+            <h2 className="text-2xl font-bold mt-1">
+              <Protect plan="premium" fallback="Free">
+                Premium
+              </Protect>
+            </h2>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#d88d24] to-[#fffb00] flex justify-center items-center">
+            <Gem className="w-6 text-white" />
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Creations Section */}
+      <div className="w-full">
+        <h3 className="text-lg font-semibold text-slate-700 mb-4">Recent Creations</h3>
+
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+              <p className="text-sm text-gray-500">Loading your creations...</p>
+            </div>
+          </div>
+        ) : creations.length === 0 ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center text-gray-500">
+              <Sparkles className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+              <p className="text-lg font-medium">No creations yet</p>
+              <p className="text-sm mt-1">Start creating content to see it here</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {creations.map((item) => (
+              <CreationItem key={item.id} item={item} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+================================================================
+File: client/src/pages/GenerateImages.jsx
+================================================================
+
+import React, { useState } from 'react';
+import { Sparkles, Hash, Image } from 'lucide-react';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
+import DemoBanner from '../components/DemoBanner';
+
+const GenerateImages = () => {
+  const ImageStyle = [
+    'Realistic',
+    'Ghibli style',
+    'Anime style',
+    'Cartoon style',
+    'Fantasy style',
+    'Realistic style',
+    '3D style',
+    'Portrait style',
+  ];
+
+  const [selectedCategory, setselectedCategory] = useState('Realistic');
+  const [input, setInput] = useState('');
+  const [publish, setPublish] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
+  const { getToken } = useAuth();
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const prompt = `Generate an image of  ${input}in the style ${selectedCategory}}`;
+
+      const { data } = await api.post(
+        '/api/ai/generate-image',
+        { prompt, publish },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        },
+      );
+      if (data.success) {
+        setContent(data.content);
+        setIsDemo(!!data.demo);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4 text-slate-700">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+      >
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-6 text-[#00AD25]" />
+          <h1 className="text-xl font-semibold">AI Image Generator</h1>
+        </div>
+        <p className="mt-6 text-sm font-medium">Describe your Image</p>
+
+        <textarea
+          onChange={(e) => setInput(e.target.value)}
+          value={input}
+          rows={4}
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          placeholder="Describe what you want to see in the image..."
+          required
+        />
+
+        <p className="mt-4 text-sm font-medium">Style</p>
+        <div className="mt-4 flex gap-3 flex-wrap sm:max-w-full">
+          {ImageStyle.map((item) => (
+            <span
+              onClick={() => setselectedCategory(item)}
+              className={`text-xs px-4 py-1 border rounded-full cursor-pointer ${
+                selectedCategory === item
+                  ? 'bg-green-50 text-green-700 border-green-700'
+                  : 'text-green-700 border-gray-300'
+              }`}
+              key={item}
+            >
+              {' '}
+              {item}{' '}
+            </span>
+          ))}
+        </div>
+        <div className="my-6 flex item-center gap-2">
+          <label className="relative cursor-pointer">
+            <input
+              type="checkbox"
+              name=""
+              id=""
+              onChange={(e) => setPublish(e.target.checked)}
+              checked={publish}
+              className="sr-only peer"
+            />
+            <div className="w-9 h-5 bg-slate-300 rounded-full peer-checked:bg-green-500 transition"></div>
+            <span className="absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition peer-checked:translate-x-4"></span>
+            <p className="text-sm">Make this image Public</p>
+          </label>
+        </div>
+
+        <button
+          disabled={loading}
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#3c5a2f] to-[#0adf6d] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer"
+        >
+          {loading ? (
+            <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+          ) : (
+            <Image className="w-5" />
+          )}
+          Generate image
+        </button>
+      </form>
+      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 ">
+        <div className="flex items-center gap-3">
+          <Image className="w-5 h-5 text-[#00AD25]" />
+          <h1 className="text-xl font-semibold">Generated image</h1>
+        </div>
+
+        {!content ? (
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <Image className="w-9 h-9" />
+              <p>Enter a topic and click "Generate image" to get started</p>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 h-full">
+            <DemoBanner visible={isDemo} />
+            <img src={content} alt="Generated image" className="w-full h-full rounded-lg" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GenerateImages;
+
+
+================================================================
+File: client/src/pages/Home.jsx
+================================================================
+
+import React from 'react';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import AiTools from '../components/AiTools';
+import Testimonial from '../components/Testimonial';
+import Plan from '../components/Plan';
+import Footer from '../components/Footer';
+
+const Home = () => {
+  return (
+    <>
+      <Navbar />
+      <Hero />
+      <AiTools />
+      <Testimonial />
+      <Plan />
+      <Footer />
+    </>
+  );
+};
+
+export default Home;
+
+
+================================================================
+File: client/src/pages/Layout.jsx
+================================================================
+
+import React, { useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { assets } from '../assets/assets';
+import { Menu, X } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import { SignIn, useUser } from '@clerk/clerk-react';
+
+const Layout = () => {
+  const navigate = useNavigate();
+  const [sidebar, setSidebar] = useState(false);
+  const { user } = useUser();
+
+  return user ? (
+    <div className="flex flex-col items-start justify-start h-screen">
+      <nav className="w-full px-8 min-h-14 flex items-center justify-between border-b border-gray-200">
+        <img src={assets.logo} alt="logo" onClick={() => navigate('/')} />
+        {sidebar ? (
+          <X onClick={() => setSidebar(false)} className="w-6 h-6 text-gray-600 sm:hidden " />
+        ) : (
+          <Menu onClick={() => setSidebar(true)} className="w-6 h-6 text-gray-600 sm:hidden" />
+        )}
+      </nav>
+      <div className="flex-1 w-full flex h-[calc(100vh-64px)]">
+        <Sidebar sidebar={sidebar} setSidebar={setSidebar} />
+        <div className="flex-1 bg-[#F4F7FB]">
+          <Outlet />
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div className="flex items-center justify-center h-screen">
+      <SignIn />
+    </div>
+  );
+};
+
+export default Layout;
+
+
+================================================================
+File: client/src/pages/RemoveBackground.jsx
+================================================================
+
+import { Sparkles, Eraser } from 'lucide-react';
+import React, { useState } from 'react';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
+import DemoBanner from '../components/DemoBanner';
+const RemoveBackground = () => {
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
+  const { getToken } = useAuth();
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const formData = new FormData();
+
+      formData.append('image', input);
+
+      const { data } = await api.post('/api/ai/remove-image-background', formData, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+
+      if (data.success) {
+        setContent(data.content);
+        setIsDemo(!!data.demo);
+      } else toast.error(data.message);
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4 text-slate-700">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+      >
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-6 text-[#FF4938]" />
+          <h1 className="text-xl font-semibold">Background Removal</h1>
+        </div>
+        <p className="mt-6 text-sm font-medium">Upload image</p>
+        <input
+          onChange={(e) => setInput(e.target.files[0])}
+          type="file"
+          accept="image/*"
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300 text-gray-600"
+          required
+        />
+
+        <p className="text-sm text-gray-500 font-light mt-1">
+          Supports JPG,PNG and other image formats
+        </p>
+
+        <button
+          disabled={loading}
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#F6AB41] to-[#FF4938] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer"
+        >
+          {loading ? (
+            <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+          ) : (
+            <Eraser className="w-5" />
+          )}
+          Remove background
+        </button>
+      </form>
+      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 ">
+        <div className="flex items-center gap-3">
+          <Eraser className="w-5 h-5 text-[#FF4938]" />
+          <h1 className="text-xl font-semibold">Processed Image</h1>
+        </div>
+        {!content ? (
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <Eraser className="w-9 h-9" />
+              <p> upload an image and click "Remove Background" to get started</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <DemoBanner visible={isDemo} />
+            <img src={content} alt="Processed image" className="mt-3 w-full h-full rounded-lg" />
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default RemoveBackground;
+
+
+================================================================
+File: client/src/pages/RemoveObject.jsx
+================================================================
+
+import { Scissors } from 'lucide-react';
+import React, { useState } from 'react';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
+import DemoBanner from '../components/DemoBanner';
+
+const RemoveObject = () => {
+  const [input, setInput] = useState(null); // ✅ Changed to null
+  const [object, setObject] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
+  const { getToken } = useAuth();
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+
+      if (!input) {
+        toast.error('Please select an image');
+        setLoading(false);
+        return;
+      }
+
+      if (object.split(' ').length > 1) {
+        toast.error('Please enter only one object to remove');
+        setLoading(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('object', object); // ✅ Text field first
+      formData.append('image', input); // ✅ File is now the actual File object
+
+      console.log('📤 Sending file:', input.name, input.type);
+
+      const { data } = await api.post('/api/ai/remove-image-object', formData, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+
+      if (data.success) {
+        setContent(data.content);
+        setIsDemo(!!data.demo);
+        toast.success('Object removed successfully!');
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error(error.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4 text-slate-700">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+      >
+        <div className="flex items-center gap-3">
+          <Scissors className="w-6 text-[#4A7AFF]" />
+          <h1 className="text-xl font-semibold">Object Removal</h1>
+        </div>
+        <p className="mt-6 text-sm font-medium">Image</p>
+        <input
+          onChange={(e) => setInput(e.target.files[0])} // ✅ FIXED! Use files[0]
+          type="file"
+          accept="image/*" // ✅ Added accept
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          required
+        />
+        <br />
+        <p className="mt-6 text-sm font-medium">Describe object name to remove</p>
+        <textarea
+          onChange={(e) => setObject(e.target.value)}
+          value={object}
+          rows={4}
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          placeholder="e.g.: watch or spoon, Only single object name..."
+          required
+        />
+        <button
+          disabled={loading}
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#417DF6] to-[#8E37EB] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer"
+        >
+          {loading ? (
+            <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+          ) : (
+            <Scissors className="w-5" />
+          )}
+          Remove Object
+        </button>
+      </form>
+      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 ">
+        <div className="flex items-center gap-3">
+          <Scissors className="w-5 h-5 text-[#4A7AFF]" />
+          <h1 className="text-xl font-semibold">Processed Image</h1>
+        </div>
+        {!content ? (
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <Scissors className="w-9 h-9" />
+              <p>Upload an image and click "Remove Object" to get started</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <DemoBanner visible={isDemo} />
+            <img src={content} alt="Processed image" className="mt-3 w-full h-full rounded-lg" />
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default RemoveObject;
+
+
+================================================================
+File: client/src/pages/ReviewResume.jsx
+================================================================
+
+import { Sparkles, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
+import DemoBanner from '../components/DemoBanner';
+
+const ReviewResume = () => {
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
+  const { getToken } = useAuth();
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append('resume', input);
+
+      const { data } = await api.post('/api/ai/resume-review', formData, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      });
+      if (data.success) {
+        setContent(data.content);
+        setIsDemo(!!data.demo);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4 text-slate-700">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+      >
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-6 text-[#2eb7d0]" />
+          <h1 className="text-xl font-semibold">Resume Review</h1>
+        </div>
+        <p className="mt-6 text-sm font-medium">Upload resume</p>
+        <input
+          onChange={(e) => setInput(e.target.files[0])}
+          type="file"
+          accept="pdf/*"
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300 text-gray-600"
+          required
+        />
+
+        <p className="text-sm text-gray-500 font-light mt-1">Supports PDF format</p>
+
+        <button
+          disabled={loading}
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#3fc89b] to-[#15d6e4] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer"
+        >
+          {loading ? (
+            <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+          ) : (
+            <FileText className="w-5" />
+          )}
+          Review Resume
+        </button>
+      </form>
+      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 ">
+        <div className="flex items-center gap-3">
+          <FileText className="w-5 h-5 text-[#38f2ff]" />
+          <h1 className="text-xl font-semibold">Analysis Results</h1>
+        </div>
+        {!content ? (
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <FileText className="w-9 h-9" />
+              <p> Upload your resume and click "Review Resume" to get started</p>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+            <DemoBanner visible={isDemo} />
+            <div className="reset-tw">
+              <Markdown>{content}</Markdown>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ReviewResume;
+
+
+================================================================
+File: client/src/pages/WriteArticle.jsx
+================================================================
+
+import { Sparkles, Edit } from 'lucide-react';
+import React, { useState } from 'react';
+import api from '../lib/api';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+import Markdown from 'react-markdown';
+import DemoBanner from '../components/DemoBanner';
+
+const WriteArticle = () => {
+  const articleLength = [
+    { length: 800, text: 'Short (500-800 words)' },
+    { length: 1200, text: 'Medium (800-1200 words)' },
+    { length: 1600, text: 'Long (1200+ words)' },
+  ];
+  const [selectedLength, setSelectedLength] = useState({});
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState('');
+  const [isDemo, setIsDemo] = useState(false);
+  const { getToken } = useAuth();
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+
+      const prompt = `Write an article about ${input} in ${selectedLength.text}`;
+
+      const { data } = await api.post(
+        '/api/ai/generate-article',
+        { prompt, length: selectedLength.length },
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        },
+      );
+      // console.log('📤 Sending file:', input.name, input.type);
+      if (data.success) {
+        setContent(data.content);
+        setIsDemo(!!data.demo);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+
+    setLoading(false);
+  };
+  return (
+    <div className="h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4 text-slate-700">
+      <form
+        onSubmit={onSubmitHandler}
+        className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200"
+      >
+        <div className="flex items-center gap-3">
+          <Sparkles className="w-6 text-[#4A7AFF]" />
+          <h1 className="text-xl font-semibold">Article Configuration</h1>
+        </div>
+        <p className="mt-6 text-sm font-medium">Article Topic</p>
+        <input
+          onChange={(e) => setInput(e.target.value)}
+          value={input}
+          type="text"
+          className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
+          placeholder="The future of artificial intelligence is..."
+          required
+        />
+
+        <p className="mt-4 text-sm font-medium">Article Length</p>
+        <div className="mt-4 flex gap-3 flex-wrap sm:max-w-full">
+          {articleLength.map((item, index) => (
+            <span
+              key={index}
+              onClick={() => setSelectedLength(item)}
+              className={`text-xs px-4 py-1 border rounded-full cursor-pointer ${
+                selectedLength.text === item.text
+                  ? 'bg-blue-50 text-blue-700 border-blue-300'
+                  : 'text-gray-500 border-gray-300'
+              }`}
+            >
+              {item.text}
+            </span>
+          ))}
+        </div>
+        <br />
+        <button
+          disabled={loading}
+          className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-[#226BFF] to-[#65ADFF] text-white px-4 py-2 mt-6 text-sm rounded-lg cursor-pointer"
+        >
+          {loading ? (
+            <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span>
+          ) : (
+            <Edit className="w-5" />
+          )}
+          Generate article
+        </button>
+      </form>
+      <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 max-h-[600px]">
+        <div className="flex items-center gap-3">
+          <Edit className="w-5 h-5 text-[#4A7AFF]" />
+          <h1 className="text-xl font-semibold">Generated article</h1>
+        </div>
+
+        {!content ? (
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <Edit className="w-9 h-9" />
+              <p>Enter a topic and click "Generate article" to get started</p>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+            <DemoBanner visible={isDemo} />
+            <div className="reset-tw">
+              <Markdown>{content}</Markdown>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+export default WriteArticle;
+
+
+================================================================
+File: client/vercel.json
+================================================================
+
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ]
+}
+
+
+================================================================
+File: client/vite.config.js
+================================================================
+
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+
+
+================================================================
+File: generate_context.js
+================================================================
+
+const fs = require('fs');
+const path = require('path');
+
+const excludeDirs = ['.git', 'node_modules', '.github', 'dist', 'build', '.next'];
+const excludeFiles = ['package-lock.json', 'project-context.txt', '.DS_Store'];
+const excludeExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot', '.mp4', '.webm'];
+
+function walk(dir) {
+    let results = [];
+    const list = fs.readdirSync(dir);
+    list.forEach(function(file) {
+        file = path.join(dir, file);
+        const stat = fs.statSync(file);
+        const baseName = path.basename(file);
+        
+        if (stat && stat.isDirectory()) {
+            if (!excludeDirs.includes(baseName)) {
+                results = results.concat(walk(file));
+            }
+        } else {
+            const ext = path.extname(baseName).toLowerCase();
+            if (!excludeFiles.includes(baseName) && !excludeExtensions.includes(ext) && !baseName.startsWith('.')) {
+                results.push(file);
+            }
+        }
+    });
+    return results;
+}
+
+const files = walk('.');
+let out = '';
+for (const file of files) {
+    try {
+        const content = fs.readFileSync(file, 'utf8');
+        out += `\n\n================================================================\n`;
+        out += `File: ${file.replace('./', '')}\n`;
+        out += `================================================================\n\n`;
+        out += content;
+    } catch (e) {
+        console.log(`Skipping ${file}`);
+    }
+}
+fs.writeFileSync('project-context.txt', out);
+console.log('Context generated successfully in project-context.txt');
+
+
+================================================================
+File: package.json
+================================================================
+
+{
+  "name": "quick_ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "pretty": "prettier --write .",
+    "check": "node --check server.js && node -e \"import('./server.js')\" && npx prettier . --check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SOURAVi0001/Quick_AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SOURAVi0001/Quick_AI/issues"
+  },
+  "homepage": "https://github.com/SOURAVi0001/Quick_AI#readme",
+  "devDependencies": {
+    "prettier": "^3.8.1"
+  },
+  "dependencies": {
+    "pretty": "^2.0.0"
+  }
+}
+
+
+================================================================
+File: server/configs/cloudinary.js
+================================================================
+
+import { v2 as cloudinary } from 'cloudinary';
+
+const connectionCloudinary = async () => {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+};
+export default connectionCloudinary;
+
+
+================================================================
+File: server/configs/db.js
+================================================================
+
+import { neon, neonConfig } from '@neondatabase/serverless';
+import dns from 'dns';
+import { Agent, fetch as undiciFetch, setGlobalDispatcher } from 'undici';
+
+// Fix for Node.js "fetch failed" — your local DNS refuses neon.tech subdomains,
+// so we route those lookups through Google Public DNS (8.8.8.8).
+dns.setDefaultResultOrder('ipv4first');
+
+const resolver = new dns.Resolver();
+resolver.setServers(['8.8.8.8', '8.8.4.4']);
+
+const agent = new Agent({
+  connect: {
+    lookup: (hostname, options, cb) => {
+      // For neon.tech hosts, use Google DNS
+      if (hostname.includes('neon.tech')) {
+        resolver.resolve4(hostname, (err, addresses) => {
+          if (err) {
+            // Fallback to default
+            dns.lookup(hostname, { all: true }, cb);
+            return;
+          }
+          cb(
+            null,
+            addresses.map((a) => ({ address: a, family: 4 })),
+          );
+        });
+      } else {
+        dns.lookup(hostname, { all: true }, cb);
+      }
+    },
+  },
+});
+
+// Set the global dispatcher so ALL fetch calls use our custom DNS
+setGlobalDispatcher(agent);
+
+// ALSO tell Neon to use undici's fetch (which respects the global dispatcher)
+neonConfig.fetchFunction = undiciFetch;
+
+// Increase timeout
+neonConfig.fetchConnectionTimeout = 15000;
+
+let sql;
+
+export function getDB() {
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error('DATABASE_URL not set');
+  }
+
+  if (!sql) {
+    const cleanUrl = url.trim().replace(/^['"]|['"]$/g, '');
+    sql = neon(cleanUrl);
+  }
+
+  return sql;
+}
+
+export default (strings, ...values) => getDB()(strings, ...values);
+
+
+================================================================
+File: server/configs/demoFallbacks.js
+================================================================
+
+/**
+ * Demo Fallback Content
+ * ---------------------
+ * When API keys are exhausted or services are down, the app returns
+ * high-quality pre-written content so recruiters/interviewers always
+ * see a fully working product.
+ *
+ * Each response includes `demo: true` so the client can show a subtle
+ * "Demo Mode" indicator for transparency.
+ */
+
+// ─── Article Fallbacks (keyed by approximate length) ─────────────────────────
+
+const articleFallbacks = {
+  short: `# The Future of Artificial Intelligence
+
+Artificial Intelligence (AI) is no longer a futuristic concept — it's reshaping our world in real-time. From healthcare diagnostics to autonomous vehicles, AI systems are becoming integral to modern life.
+
+## Current Landscape
+
+Today's AI landscape is dominated by **Large Language Models (LLMs)** and **generative AI**. Companies like OpenAI, Google DeepMind, and Anthropic are pushing the boundaries of what machines can understand and create. These models can write code, compose music, generate images, and even engage in nuanced conversations.
+
+## Impact on Industries
+
+- **Healthcare**: AI-powered diagnostics can detect diseases like cancer with accuracy surpassing human radiologists. Drug discovery timelines have been reduced from years to months.
+- **Finance**: Algorithmic trading, fraud detection, and personalized banking are now AI-driven.
+- **Education**: Adaptive learning platforms tailor content to individual student needs, democratizing quality education.
+- **Creative Arts**: Tools like DALL-E and Midjourney enable anyone to create stunning visual art from text descriptions.
+
+## Ethical Considerations
+
+With great power comes great responsibility. Key concerns include:
+- **Bias in AI systems** that can perpetuate societal inequalities
+- **Job displacement** as automation replaces routine tasks
+- **Privacy concerns** with facial recognition and surveillance
+- **Misinformation** generated by deepfakes and AI-written content
+
+## Looking Ahead
+
+The next decade will likely see AI become even more embedded in daily life. **Agentic AI** — systems that can autonomously plan and execute complex tasks — represents the next frontier. As AI grows more capable, the importance of responsible development, transparent governance, and human oversight cannot be overstated.
+
+The future of AI isn't about replacing humans — it's about augmenting human capabilities and solving problems that were previously intractable. The question isn't whether AI will transform our world, but how we choose to guide that transformation.`,
+
+  medium: `# How AI is Revolutionizing Modern Software Development
+
+The software development industry is undergoing a seismic shift, driven by the rapid advancement of artificial intelligence technologies. What once seemed like science fiction — machines writing code, debugging programs, and architecting systems — is now an everyday reality for developers worldwide.
+
+## The Rise of AI-Powered Development Tools
+
+### Code Generation and Completion
+AI-powered code assistants like GitHub Copilot, Cursor, and Amazon CodeWhisperer have fundamentally changed how developers write code. These tools leverage large language models trained on billions of lines of code to provide intelligent suggestions, complete entire functions, and even generate boilerplate code from natural language descriptions.
+
+Studies show that developers using AI assistants complete tasks **55% faster** on average, with significant improvements in both productivity and code quality. This isn't about replacing developers — it's about amplifying their capabilities.
+
+### Automated Testing
+AI is transforming quality assurance by automatically generating test cases, identifying edge cases that human testers might miss, and predicting which parts of a codebase are most likely to contain bugs. Tools like Diffblue Cover can generate unit tests for Java code with high coverage, reducing the manual testing burden significantly.
+
+### Intelligent Code Review
+AI-powered code review tools can detect security vulnerabilities, performance bottlenecks, and code style inconsistencies in real-time. These tools go beyond simple linting — they understand context, design patterns, and best practices to provide meaningful feedback.
+
+## Impact on the Development Lifecycle
+
+### Planning and Architecture
+AI tools are now capable of analyzing project requirements and suggesting architectural patterns. By examining similar projects and codebases, these systems can recommend technology stacks, database schemas, and API designs that align with best practices.
+
+### Development Speed
+The combination of AI code generation, intelligent autocomplete, and automated refactoring has dramatically reduced development time. What previously took weeks can now be accomplished in days, allowing teams to iterate faster and deliver value sooner.
+
+### Maintenance and DevOps
+AI-driven monitoring systems can predict infrastructure failures before they occur, automatically scale resources based on usage patterns, and even self-heal common issues. This proactive approach to operations reduces downtime and improves system reliability.
+
+## Challenges and Considerations
+
+Despite the remarkable benefits, AI in software development comes with challenges:
+
+- **Code Quality Concerns**: AI-generated code may contain subtle bugs or security vulnerabilities that pass initial review
+- **Over-Reliance**: Developers may lose fundamental skills if they rely too heavily on AI suggestions
+- **Intellectual Property**: Questions about code ownership and licensing remain unresolved
+- **Bias in Suggestions**: AI models trained on existing code may perpetuate outdated patterns and practices
+
+## The Future of AI-Augmented Development
+
+Looking ahead, we can expect:
+1. **More sophisticated AI agents** that can handle entire features end-to-end
+2. **Natural language programming** where non-technical users can build applications through conversation
+3. **AI-driven architecture optimization** that continuously improves system performance
+4. **Collaborative AI** that works alongside development teams as a virtual team member
+
+## Conclusion
+
+AI is not replacing software developers — it's evolving the role. The developers who thrive in this new landscape will be those who learn to effectively collaborate with AI tools, leveraging them as force multipliers while maintaining their critical thinking and creative problem-solving skills. The future belongs to the human-AI partnership, where each brings unique strengths to the table.`,
+
+  long: `# The Comprehensive Guide to Building Scalable Web Applications with Modern Architecture
+
+Building scalable web applications is one of the most critical challenges facing software engineering teams today. As user bases grow from hundreds to millions, the architectural decisions made early in a project's lifecycle can determine its success or failure. This comprehensive guide explores modern approaches to building applications that scale gracefully.
+
+## Understanding Scalability
+
+Scalability is the ability of a system to handle increased load without degrading performance. There are two primary types:
+
+### Vertical Scaling (Scale Up)
+Adding more resources (CPU, RAM, storage) to a single server. This approach is simple but has physical limits and creates a single point of failure.
+
+### Horizontal Scaling (Scale Out)
+Adding more servers to distribute the load. This is the preferred approach for modern web applications as it offers theoretically unlimited scaling potential.
+
+## Modern Architecture Patterns
+
+### Microservices Architecture
+Breaking down a monolithic application into smaller, independently deployable services. Each service owns its data and business logic, communicating with other services through well-defined APIs.
+
+**Benefits:**
+- Independent deployment and scaling
+- Technology flexibility per service
+- Fault isolation
+- Team autonomy
+
+**Challenges:**
+- Distributed system complexity
+- Data consistency across services
+- Network latency
+- Operational overhead
+
+### Event-Driven Architecture
+Services communicate through events rather than direct API calls. This creates loose coupling and enables real-time processing.
+
+Key components include:
+- **Event Producers**: Services that emit events when state changes occur
+- **Event Brokers**: Systems like Apache Kafka or RabbitMQ that manage event routing
+- **Event Consumers**: Services that react to events
+
+### Serverless Architecture
+Running code without managing servers. Cloud providers handle infrastructure, scaling, and availability automatically.
+
+Popular serverless platforms include AWS Lambda, Google Cloud Functions, and Azure Functions. This model is particularly cost-effective for applications with variable workloads.
+
+## Database Strategies for Scale
+
+### Relational Databases
+PostgreSQL and MySQL remain excellent choices for many applications. Key scaling strategies include:
+- **Read Replicas**: Distribute read queries across multiple database instances
+- **Connection Pooling**: Reduce the overhead of database connections using tools like PgBouncer
+- **Partitioning**: Split large tables into smaller, more manageable pieces
+
+### NoSQL Databases
+For specific use cases, NoSQL databases offer superior scalability:
+- **MongoDB**: Document store ideal for flexible schemas
+- **Redis**: In-memory key-value store perfect for caching and real-time features
+- **Cassandra**: Wide-column store designed for write-heavy workloads
+
+### Caching Strategies
+Implementing multiple caching layers dramatically improves performance:
+1. **Browser Cache**: Static assets cached on the client
+2. **CDN Cache**: Content distributed globally for low-latency access
+3. **Application Cache**: In-memory caches (Redis, Memcached) for frequently accessed data
+4. **Database Cache**: Query result caching at the database level
+
+## Frontend Performance Optimization
+
+### Code Splitting
+Loading only the JavaScript needed for the current page view, reducing initial bundle size.
+
+### Server-Side Rendering (SSR)
+Rendering pages on the server for faster initial load times and better SEO. Frameworks like Next.js and Nuxt.js make this straightforward.
+
+### Progressive Web Apps (PWAs)
+Combining the best of web and mobile apps with offline capabilities, push notifications, and app-like experiences.
+
+### Image Optimization
+- Use modern formats like WebP and AVIF
+- Implement lazy loading for below-the-fold images
+- Use responsive images with srcset for different screen sizes
+
+## API Design Best Practices
+
+### RESTful APIs
+Following REST principles for predictable, resource-oriented APIs:
+- Use appropriate HTTP methods (GET, POST, PUT, DELETE)
+- Implement proper status codes
+- Version your APIs
+- Use pagination for large datasets
+
+### GraphQL
+An alternative to REST that allows clients to request exactly the data they need:
+- Reduces over-fetching and under-fetching
+- Strong type system
+- Single endpoint
+- Real-time subscriptions
+
+### API Gateway Pattern
+A single entry point for all client requests that handles:
+- Authentication and authorization
+- Rate limiting
+- Request routing
+- Response transformation
+- Monitoring and logging
+
+## Security Considerations
+
+### Authentication and Authorization
+- Implement OAuth 2.0 / OpenID Connect
+- Use JWT tokens with proper expiration
+- Apply the principle of least privilege
+- Enable multi-factor authentication
+
+### Data Protection
+- Encrypt data at rest and in transit
+- Implement proper input validation
+- Use parameterized queries to prevent SQL injection
+- Apply Content Security Policy (CSP) headers
+
+## Monitoring and Observability
+
+### The Three Pillars
+1. **Logs**: Structured logging with tools like ELK Stack or Loki
+2. **Metrics**: System and application metrics with Prometheus and Grafana
+3. **Traces**: Distributed tracing with Jaeger or Zipkin
+
+### Health Checks and Alerting
+- Implement health check endpoints for each service
+- Configure alerts for critical metrics
+- Use runbooks for common incident scenarios
+- Practice incident response regularly
+
+## Conclusion
+
+Building scalable web applications requires careful consideration of architecture, data management, performance optimization, and operational practices. The key is to start with a solid foundation and evolve your architecture as your application grows. Remember: premature optimization is the root of all evil, but planning for scale from the beginning is wisdom.
+
+The most successful teams combine modern architecture patterns with pragmatic engineering practices, always keeping the end user experience at the center of their decisions.`,
+};
+
+// ─── Blog Title Fallbacks ────────────────────────────────────────────────────
+
+const blogTitleFallbacks = [
+  `Here are 5 catchy and attractive blog titles:
+
+1. **"From Zero to Hero: How AI is Turning Everyday People Into Content Creators"**
+2. **"The Silent Revolution: Why AI Will Change More Jobs Than the Internet Did"**
+3. **"10 AI Tools That Will Make You 10x More Productive (And Most Are Free)"**
+4. **"Why Your Next Best Friend Might Be an AI — And That's Perfectly OK"**
+5. **"The AI Playbook: How Smart Companies Are Quietly Dominating Their Industries"**`,
+
+  `Here are 5 catchy and attractive blog titles:
+
+1. **"Stop Scrolling, Start Creating: The Ultimate Guide to AI-Powered Productivity"**
+2. **"The Future is Now: 7 Ways AI is Already Changing Your Daily Life"**
+3. **"Beginner's Guide to AI: Everything You Need to Know (But Were Afraid to Ask)"**
+4. **"How I Built a Side Hustle Using Nothing But AI Tools — A Step-by-Step Story"**
+5. **"The Great Debate: Will AI Replace Developers or Make Them Unstoppable?"**`,
+
+  `Here are 5 catchy and attractive blog titles:
+
+1. **"Code Like a Senior Developer — Using AI as Your Pair Programmer"**
+2. **"The Hidden Cost of Ignoring AI: What Every Business Owner Needs to Know"**
+3. **"From Prompt to Product: Building Real Applications with Generative AI"**
+4. **"Why the Best Time to Learn AI Was Yesterday (And the Second Best Is Today)"**
+5. **"The Art of the Prompt: Mastering AI Communication for Better Results"**`,
+];
+
+// ─── Resume Review Fallback ──────────────────────────────────────────────────
+
+const resumeReviewFallback = `## Resume Review Summary
+
+### Strengths ✅
+
+1. **Clear Structure**: The resume follows a well-organized format with distinct sections for experience, education, and skills, making it easy for recruiters to scan quickly.
+
+2. **Quantified Achievements**: Good use of metrics and numbers to demonstrate impact (e.g., percentages, user counts, revenue figures). This adds credibility to your accomplishments.
+
+3. **Relevant Technical Skills**: The skills section showcases in-demand technologies that align well with current market requirements. Your technology stack is modern and comprehensive.
+
+4. **Strong Action Verbs**: Effective use of action verbs like "developed," "implemented," "optimized," and "led" to describe responsibilities and achievements.
+
+### Areas for Improvement 🔧
+
+1. **Professional Summary**: Consider adding a 2-3 line professional summary at the top that highlights your unique value proposition and career objectives.
+
+2. **Project Impact**: While you list responsibilities well, try to include more specific outcomes. For example, instead of "improved performance," say "improved page load speed by 40%, reducing bounce rate by 15%."
+
+3. **Soft Skills**: The resume could benefit from demonstrating leadership, communication, and collaboration skills through your experience descriptions rather than just listing them.
+
+4. **ATS Optimization**: Ensure your resume includes relevant keywords from job descriptions you're targeting. Many companies use Applicant Tracking Systems that filter resumes based on keyword matches.
+
+### Overall Score: **7.5/10**
+
+This is a solid resume that demonstrates technical competence. With the suggested improvements, particularly around quantifying impact and adding a professional summary, this could easily become a 9/10 resume.`;
+
+// ─── Image Fallbacks (pre-hosted sample images) ─────────────────────────────
+
+const imageFallbacks = [
+  'https://res.cloudinary.com/demo/image/upload/v1/samples/landscapes/nature-mountains',
+  'https://res.cloudinary.com/demo/image/upload/v1/samples/animals/cat',
+  'https://res.cloudinary.com/demo/image/upload/v1/samples/landscapes/architecture-signs',
+  'https://res.cloudinary.com/demo/image/upload/v1/samples/food/dessert',
+  'https://res.cloudinary.com/demo/image/upload/v1/samples/people/smiling-man',
+];
+
+// ─── Helper Functions ────────────────────────────────────────────────────────
+
+/**
+ * Returns a demo article based on requested length.
+ */
+export function getDemoArticle(length = 800) {
+  if (length <= 800) return articleFallbacks.short;
+  if (length <= 1200) return articleFallbacks.medium;
+  return articleFallbacks.long;
+}
+
+/**
+ * Returns random demo blog titles.
+ */
+export function getDemoBlogTitles() {
+  return blogTitleFallbacks[Math.floor(Math.random() * blogTitleFallbacks.length)];
+}
+
+/**
+ * Returns a demo resume review.
+ */
+export function getDemoResumeReview() {
+  return resumeReviewFallback;
+}
+
+/**
+ * Returns a random demo image URL.
+ */
+export function getDemoImage() {
+  return imageFallbacks[Math.floor(Math.random() * imageFallbacks.length)];
+}
+
+/**
+ * Check if an error is an API quota/key exhaustion error.
+ */
+export function isQuotaError(error) {
+  const msg = (error?.message || '').toLowerCase();
+  const status = error?.response?.status || error?.status;
+  return (
+    status === 429 ||
+    status === 402 ||
+    status === 403 ||
+    msg.includes('quota') ||
+    msg.includes('rate limit') ||
+    msg.includes('exceeded') ||
+    msg.includes('exhausted') ||
+    msg.includes('billing') ||
+    msg.includes('payment') ||
+    msg.includes('insufficient') ||
+    msg.includes('api key') ||
+    msg.includes('unauthorized') ||
+    msg.includes('too many requests')
+  );
+}
+
+
+================================================================
+File: server/configs/memcache.js
+================================================================
+
+/**
+ * In-memory LRU cache with TTL support.
+ * Sits in front of Redis to avoid 800ms+ round-trip to remote Redis from India.
+ * Falls back to Redis on miss, and populates itself on Redis hits.
+ */
+
+const DEFAULT_MAX_ENTRIES = 200;
+
+class MemCache {
+  constructor(maxEntries = DEFAULT_MAX_ENTRIES) {
+    this.cache = new Map(); // key -> { value, expiresAt }
+    this.maxEntries = maxEntries;
+  }
+
+  get(key) {
+    const entry = this.cache.get(key);
+    if (!entry) return null;
+
+    if (Date.now() > entry.expiresAt) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    // Move to end for LRU
+    this.cache.delete(key);
+    this.cache.set(key, entry);
+    return entry.value;
+  }
+
+  set(key, value, ttlSeconds) {
+    // Evict oldest if at capacity
+    if (this.cache.size >= this.maxEntries) {
+      const oldestKey = this.cache.keys().next().value;
+      this.cache.delete(oldestKey);
+    }
+
+    this.cache.set(key, {
+      value,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+  }
+
+  del(key) {
+    this.cache.delete(key);
+  }
+
+  // Delete all keys matching a prefix
+  delByPrefix(prefix) {
+    for (const key of this.cache.keys()) {
+      if (key.startsWith(prefix)) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  clear() {
+    this.cache.clear();
+  }
+
+  get size() {
+    return this.cache.size;
+  }
+}
+
+// Singleton instance
+const memCache = new MemCache();
+export default memCache;
+
+
+================================================================
+File: server/configs/muter.js
+================================================================
+
+import multer from 'multer';
+const storage = multer.diskStorage({});
+export const upload = multer({ storage });
+
+
+================================================================
+File: server/configs/queue.js
+================================================================
+
+import { Queue, Worker } from 'bullmq';
+import { isConnected } from './redis.js';
+import 'dotenv/config';
+
+const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const parsedUrl = new URL(redisUrl);
+
+const connection = {
+  host: parsedUrl.hostname,
+  port: parseInt(parsedUrl.port || '6379'),
+  ...(parsedUrl.password && { password: parsedUrl.password }),
+  ...(parsedUrl.username && { username: parsedUrl.username }),
+  ...(redisUrl.startsWith('rediss://') && {
+    tls: { rejectUnauthorized: false },
+  }),
+};
+
+const QUEUE_NAME = 'ai-tasks';
+
+let aiQueue = null;
+let aiWorker = null;
+
+export function getQueue() {
+  if (!aiQueue) {
+    aiQueue = new Queue(QUEUE_NAME, {
+      connection,
+      defaultJobOptions: {
+        removeOnComplete: { count: 100 },
+        removeOnFail: { count: 50 },
+        attempts: 2,
+        backoff: { type: 'exponential', delay: 3000 },
+      },
+    });
+  }
+  return aiQueue;
+}
+
+export function startWorker(processorFn) {
+  if (aiWorker) return aiWorker;
+
+  aiWorker = new Worker(QUEUE_NAME, processorFn, {
+    connection,
+    concurrency: 3,
+    limiter: { max: 5, duration: 60000 },
+  });
+
+  aiWorker.on('completed', (job) => {
+    console.log(` Job ${job.id} (${job.name}) completed`);
+  });
+
+  aiWorker.on('failed', (job, err) => {
+    console.error(` Job ${job?.id} failed:`, err.message);
+  });
+
+  return aiWorker;
+}
+
+export async function addTask(taskName, data, opts = {}) {
+  const queue = getQueue();
+  const job = await queue.add(taskName, data, opts);
+  return job.id;
+}
+
+export { connection as bullConnection, QUEUE_NAME };
+
+
+================================================================
+File: server/configs/redis.js
+================================================================
+
+import { createClient } from 'redis';
+import 'dotenv/config';
+import memCache from './memcache.js';
+
+const redisUrl =
+  process.env.REDIS_URL ||
+  `redis://${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || 6379}`;
+
+const client = createClient({
+  url: redisUrl,
+  socket: {
+    tls: redisUrl.startsWith('rediss://'),
+    rejectUnauthorized: false,
+    connectTimeout: 10000,
+    reconnectStrategy: (retries) => {
+      if (retries > 10) {
+        console.error('❌ Redis: Max reconnection attempts reached.');
+        return false;
+      }
+      const delay = Math.min(retries * 500, 5000);
+      return delay;
+    },
+  },
+});
+
+let isConnected = false;
+
+client.on('error', (err) => {
+  if (err.code === 'ENOTFOUND') {
+    if (!client._lastDnsError) {
+      console.error('❌ Redis DNS Error: Cannot resolve', err.hostname);
+      client._lastDnsError = true;
+    }
+  } else if (err.message?.includes('Socket closed unexpectedly')) {
+    if (!client._lastSocketError) {
+      console.error('❌ Redis: Socket closed unexpectedly.');
+      client._lastSocketError = true;
+    }
+  } else if (!err.message?.includes('max retries')) {
+    console.error('❌ Redis Error:', err.message);
+  }
+  isConnected = false;
+});
+
+client.on('connect', () => {
+  console.log('✅ Redis Client Connected');
+  isConnected = true;
+  client._lastDnsError = false;
+  client._lastSocketError = false;
+});
+
+client.on('end', () => {
+  isConnected = false;
+});
+
+export async function safeGet(key) {
+  const memHit = memCache.get(key);
+  if (memHit !== null) {
+    return memHit;
+  }
+
+  if (!isConnected) return null;
+
+  try {
+    const value = await client.get(key);
+    if (value !== null) {
+      memCache.set(key, value, 120);
+      return value;
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
+
+export async function safeSetEx(key, seconds, value) {
+  memCache.set(key, value, Math.min(seconds, 300));
+
+  if (!isConnected) return;
+  try {
+    await client.setEx(key, seconds, value);
+  } catch (e) {}
+}
+
+export async function safeDel(...keys) {
+  keys.forEach((k) => memCache.del(k));
+
+  if (!isConnected) return;
+  try {
+    await client.del(keys);
+  } catch (e) {}
+}
+
+export { isConnected };
+export default client;
+
+
+================================================================
+File: server/controllers/aiController.js
+================================================================
+
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import sql from '../configs/db.js';
+import { clerkClient } from '@clerk/express';
+import 'dotenv/config';
+import { v2 as cloudinary } from 'cloudinary';
+import axios from 'axios';
+import fs from 'fs';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { PDFParse } = require('pdf-parse');
+
+import { safeGet, safeSetEx, safeDel } from '../configs/redis.js';
+import crypto from 'crypto';
+import {
+  getDemoArticle,
+  getDemoBlogTitles,
+  getDemoResumeReview,
+  getDemoImage,
+  isQuotaError,
+} from '../configs/demoFallbacks.js';
+import { addTask } from '../configs/queue.js';
+import { ForbiddenError, ValidationError } from '../middlewares/errors.js';
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+// Helper to get the Socket.IO instance from the request
+function emitToUser(req, event, data) {
+  const io = req.app.get('io');
+  if (io) {
+    io.to(`user:${req.auth().userId}`).emit(event, data);
+  }
+}
+
+export const generateArticle = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    let { prompt, length } = req.body;
+    const fullPrompt = `${prompt}\n\n Write an article within approximately ${length} words.`;
+
+    const cacheKey = `ai:article:${crypto.createHash('sha256').update(fullPrompt).digest('hex')}`;
+    const cached = await safeGet(cacheKey);
+    if (cached) return res.json({ success: true, content: cached, cached: true });
+
+    const plan = req.plan;
+    const free_usage = req.free_usage || 0;
+
+    if (plan !== 'premium' && free_usage >= 5) {
+      throw new ForbiddenError('Limit reached. Upgrade to Premium.');
+    }
+
+    // Queue background task and return taskId
+    const taskId = await addTask('generate-article', {
+      type: 'generate-article',
+      userId,
+      prompt: fullPrompt,
+      plan,
+      free_usage,
+    });
+
+  
+    let content;
+    let demo = false;
+    try {
+      const result = await model.generateContent(fullPrompt);
+      content = result.response.text();
+    } catch (aiError) {
+      if (isQuotaError(aiError)) {
+        content = getDemoArticle(length);
+        demo = true;
+      } else {
+        return next(aiError);
+      }
+    }
+
+    await safeSetEx(cacheKey, 3600, content);
+
+    try {
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${fullPrompt}, ${content}, 'article')`;
+      await safeDel(`user:creations:${userId}`);
+    } catch (dbError) {
+      return res.json({
+        success: true,
+        content,
+        demo,
+        taskId,
+        warning: 'Failed to save to database',
+      });
+    }
+
+    if (plan !== 'premium') {
+      try {
+        await clerkClient.users.updateUserMetadata(userId, {
+          privateMetadata: { free_usage: free_usage + 1 },
+        });
+      } catch (clerkError) {}
+    }
+
+    emitToUser(req, 'task:completed', { taskId, type: 'article', content, demo });
+    res.json({ success: true, content, demo, taskId });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const generateBlogTitle = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    let { prompt } = req.body;
+    const refinedPrompt = `${prompt}. Provide only the top 5 catchy and attractive blog titles.`;
+
+    const taskId = await addTask('generate-blog-title', {
+      type: 'generate-blog-title',
+      userId,
+      prompt: refinedPrompt,
+      plan: req.plan,
+      free_usage: req.free_usage || 0,
+    });
+
+    let content;
+    let demo = false;
+    try {
+      const result = await model.generateContent(refinedPrompt);
+      content = result.response.text();
+    } catch (aiError) {
+      if (isQuotaError(aiError)) {
+        content = getDemoBlogTitles();
+        demo = true;
+      } else {
+        return next(aiError);
+      }
+    }
+
+    try {
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${refinedPrompt}, ${content}, 'blog-title')`;
+      await safeDel(`user:creations:${userId}`);
+    } catch (dbError) {
+      return res.json({ success: true, content, demo, taskId, warning: 'Failed to save to database' });
+    }
+
+    if (req.plan !== 'premium') {
+      try {
+        await clerkClient.users.updateUserMetadata(userId, {
+          privateMetadata: { free_usage: (req.free_usage || 0) + 1 },
+        });
+      } catch (clerkError) {}
+    }
+
+    emitToUser(req, 'task:completed', { taskId, type: 'blog-title', content, demo });
+    res.json({ success: true, content, demo, taskId });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resumeReview = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    const resume = req.file;
+
+    if (!resume) throw new ValidationError('No resume file uploaded');
+
+    const dataBuffer = fs.readFileSync(resume.path);
+    const parser = new PDFParse({ data: new Uint8Array(dataBuffer) });
+    await parser.load();
+    const pdfText = await parser.getText();
+
+    const prompt = `Review the following resume and provide feedback on strengths and weaknesses within 300 words:\n\n${pdfText}`;
+
+    const taskId = await addTask('resume-review', {
+      type: 'resume-review',
+      userId,
+      prompt: 'Resume Review',
+      pdfText,
+      plan: req.plan,
+    });
+
+    let content;
+    let demo = false;
+    try {
+      const result = await model.generateContent(prompt);
+      content = result.response.text();
+    } catch (aiError) {
+      if (isQuotaError(aiError)) {
+        content = getDemoResumeReview();
+        demo = true;
+      } else {
+        if (fs.existsSync(resume.path)) fs.unlinkSync(resume.path);
+        return next(aiError);
+      }
+    }
+
+    try {
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, 'Resume Review', ${content}, 'resume-review')`;
+      await safeDel(`user:creations:${userId}`);
+    } catch (dbError) {
+      if (fs.existsSync(resume.path)) fs.unlinkSync(resume.path);
+      return res.json({ success: true, content, demo, taskId, warning: 'Failed to save record' });
+    }
+
+    if (fs.existsSync(resume.path)) fs.unlinkSync(resume.path);
+    emitToUser(req, 'task:completed', { taskId, type: 'resume-review', content, demo });
+    res.json({ success: true, content, demo, taskId });
+  } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    next(error);
+  }
+};
+
+export const generateImage = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    const { prompt, publish } = req.body;
+
+    if (req.plan !== 'premium') throw new ForbiddenError('Premium required for images.');
+
+    const taskId = await addTask('generate-image', {
+      type: 'generate-image',
+      userId,
+      prompt,
+      publish,
+      plan: req.plan,
+    });
+
+    let secure_url;
+    let demo = false;
+
+    try {
+      const formData = new FormData();
+      formData.append('prompt', prompt);
+
+      const { data } = await axios.post('https://clipdrop-api.co/text-to-image/v1', formData, {
+        headers: { 'x-api-key': process.env.CLIPDROP_API_KEY },
+        responseType: 'arraybuffer',
+      });
+
+      const base64Image = `data:image/png;base64,${Buffer.from(data, 'binary').toString('base64')}`;
+      ({ secure_url } = await cloudinary.uploader.upload(base64Image));
+    } catch (imgError) {
+      if (isQuotaError(imgError) || imgError.response?.status >= 400) {
+        secure_url = getDemoImage();
+        demo = true;
+      } else {
+        return next(imgError);
+      }
+    }
+
+    try {
+      await sql`INSERT INTO creations (user_id, prompt, content, type, publish) 
+                VALUES (${userId}, ${prompt}, ${secure_url}, 'image', ${publish ?? false})`;
+      await safeDel(`user:creations:${userId}`);
+      if (publish) await safeDel('creations:published');
+    } catch (dbError) {}
+
+    emitToUser(req, 'task:completed', { taskId, type: 'image', content: secure_url, demo });
+    res.json({ success: true, content: secure_url, demo, taskId });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const removeImageObject = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    const { object } = req.body;
+    const image = req.file;
+
+    if (!image || !object) throw new ValidationError('Missing image or object');
+
+    const taskId = await addTask('remove-image-object', {
+      type: 'remove-image-object',
+      userId,
+      prompt: `Removed ${object}`,
+      object,
+      plan: req.plan,
+    });
+
+    let imageUrl;
+    let demo = false;
+
+    try {
+      const { public_id } = await cloudinary.uploader.upload(image.path);
+      imageUrl = cloudinary.url(public_id, {
+        transformation: [{ effect: `gen_remove:${object}` }],
+        resource_type: 'image',
+      });
+    } catch (imgError) {
+      if (isQuotaError(imgError) || imgError.http_code >= 400) {
+        imageUrl = getDemoImage();
+        demo = true;
+      } else {
+        if (fs.existsSync(image.path)) fs.unlinkSync(image.path);
+        return next(imgError);
+      }
+    }
+
+    try {
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${`Removed ${object}`}, ${imageUrl}, 'image')`;
+      await safeDel(`user:creations:${userId}`);
+    } catch (dbError) {}
+
+    if (fs.existsSync(image.path)) fs.unlinkSync(image.path);
+    emitToUser(req, 'task:completed', { taskId, type: 'image', content: imageUrl, demo });
+    res.json({ success: true, content: imageUrl, demo, taskId });
+  } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    next(error);
+  }
+};
+
+export const removeImageBackground = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    const image = req.file;
+
+    if (!image) throw new ValidationError('No image provided');
+
+    const taskId = await addTask('remove-image-background', {
+      type: 'remove-image-background',
+      userId,
+      prompt: 'Background removal',
+      plan: req.plan,
+    });
+
+    let secure_url;
+    let demo = false;
+
+    try {
+      ({ secure_url } = await cloudinary.uploader.upload(image.path, {
+        transformation: [{ effect: 'background_removal' }],
+      }));
+    } catch (imgError) {
+      if (isQuotaError(imgError) || imgError.http_code >= 400) {
+        secure_url = getDemoImage();
+        demo = true;
+      } else {
+        if (fs.existsSync(image.path)) fs.unlinkSync(image.path);
+        return next(imgError);
+      }
+    }
+
+    try {
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, 'Background removal', ${secure_url}, 'image')`;
+      await safeDel(`user:creations:${userId}`);
+    } catch (dbError) {}
+
+    if (fs.existsSync(image.path)) fs.unlinkSync(image.path);
+    emitToUser(req, 'task:completed', { taskId, type: 'image', content: secure_url, demo });
+    res.json({ success: true, content: secure_url, demo, taskId });
+  } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+    next(error);
+  }
+};
+
+// Endpoint to check async task status
+export const getTaskStatus = async (req, res, next) => {
+  try {
+    const { taskId } = req.params;
+    const { Queue } = await import('bullmq');
+    const { bullConnection, QUEUE_NAME } = await import('../configs/queue.js');
+
+    const queue = new Queue(QUEUE_NAME, { connection: bullConnection });
+    const job = await queue.getJob(taskId);
+
+    if (!job) {
+      return res.json({ success: false, message: 'Task not found' });
+    }
+
+    const state = await job.getState();
+    const result = job.returnvalue;
+
+    res.json({
+      success: true,
+      task: {
+        id: job.id,
+        state,
+        progress: job.progress,
+        result: state === 'completed' ? result : null,
+        failedReason: state === 'failed' ? job.failedReason : null,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+================================================================
+File: server/controllers/userController.js
+================================================================
+
+import sql from '../configs/db.js';
+import { safeGet, safeSetEx, safeDel } from '../configs/redis.js';
+import { NotFoundError } from '../middlewares/errors.js';
+
+export const getUserCreations = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    const cacheKey = `user:creations:${userId}`;
+
+    const cached = await safeGet(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return res.json({ success: true, content: parsed, cached: true });
+    }
+
+    const creations =
+      await sql`SELECT * FROM creations WHERE user_id=${userId} ORDER BY created_at DESC`;
+    await safeSetEx(cacheKey, 5 * 60, JSON.stringify(creations));
+
+    return res.json({ success: true, content: creations });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPublishedCreations = async (req, res, next) => {
+  try {
+    const cacheKey = `creations:published`;
+
+    const cached = await safeGet(cacheKey);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      return res.json({ success: true, content: parsed, cached: true });
+    }
+
+    const creations =
+      await sql`SELECT * FROM creations WHERE publish=true ORDER BY created_at DESC`;
+    await safeSetEx(cacheKey, 2 * 60, JSON.stringify(creations));
+
+    res.json({ success: true, content: creations });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const toggleLikeCreations = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    const { id } = req.body;
+    const [creation] = await sql`SELECT * FROM creations WHERE id=${id}`;
+
+    if (!creation) throw new NotFoundError('Creation');
+
+    const currentLikes = creation.likes;
+    const userIdStr = userId.toString();
+    let updatedLikes;
+    let message;
+
+    const likesArr = Array.isArray(currentLikes) ? currentLikes : [];
+    if (likesArr.includes(userIdStr)) {
+      updatedLikes = likesArr.filter((user) => user !== userIdStr);
+      message = 'Creation Unliked';
+    } else {
+      updatedLikes = [...likesArr, userIdStr];
+      message = 'Creation Liked';
+    }
+    const formattedArray = `{${updatedLikes.join(',')}}`;
+    await sql`UPDATE creations SET likes=${formattedArray}::text[] WHERE id=${id}`;
+
+    await safeDel(`creations:published`, `user:creations:${creation.user_id}`);
+
+    const [updated] = await sql`SELECT * FROM creations WHERE id=${id}`;
+    res.json({ success: true, content: updated, message });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+================================================================
+File: server/dockerfile
+================================================================
+
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
+COPY --chown=node:node . .
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+EXPOSE 3000
+
+USER node
+
+CMD ["node", "server.js"]
+
+
+================================================================
+File: server/middlewares/auth.js
+================================================================
+
+import { clerkClient } from '@clerk/express';
+import memCache from '../configs/memcache.js';
+import { AuthenticationError } from './errors.js';
+
+export const auth = async (req, res, next) => {
+  try {
+    const authData = req.auth();
+    const { userId, has } = authData;
+
+    if (!userId) throw new AuthenticationError();
+
+    const userCacheKey = `clerk:user:${userId}`;
+    let user = memCache.get(userCacheKey);
+
+    if (user) {
+      user = JSON.parse(user);
+    } else {
+      user = await clerkClient.users.getUser(userId);
+      memCache.set(userCacheKey, JSON.stringify(user), 120);
+    }
+
+    const hasPremiumByPlan = has({ plan: 'premium' });
+    const hasPremiumByPermission = has({ permission: 'premium' });
+    const hasPremiumPlan = hasPremiumByPlan || hasPremiumByPermission;
+
+    if (!hasPremiumPlan && user.privateMetadata?.free_usage) {
+      req.free_usage = user.privateMetadata.free_usage;
+    } else {
+      if (user.privateMetadata?.free_usage === undefined) {
+        await clerkClient.users.updateUserMetadata(userId, {
+          privateMetadata: { free_usage: 0 },
+        });
+        memCache.del(userCacheKey);
+      }
+      req.free_usage = user.privateMetadata?.free_usage || 0;
+    }
+    req.plan = hasPremiumPlan ? 'premium' : 'free';
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+================================================================
+File: server/middlewares/errorHandler.js
+================================================================
+
+import { APIError } from './errors.js';
+
+export const errorHandler = (err, req, res, _next) => {
+  if (err instanceof APIError) {
+    const response = {
+      success: false,
+      message: err.message,
+    };
+
+    if (err.details) response.details = err.details;
+    if (err.retryAfter) res.set('Retry-After', String(err.retryAfter));
+
+    return res.status(err.statusCode).json(response);
+  }
+
+  // CORS errors from Express
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ success: false, message: 'CORS: Origin not allowed' });
+  }
+
+  // Unexpected errors - don't leak internals in production
+  const isDev = process.env.NODE_ENV !== 'production';
+  return res.status(500).json({
+    success: false,
+    message: isDev ? err.message : 'Internal server error',
+    ...(isDev && { stack: err.stack }),
+  });
+};
+
+
+================================================================
+File: server/middlewares/errors.js
+================================================================
+
+export class APIError extends Error {
+  constructor(statusCode, message, details = null) {
+    super(message);
+    this.statusCode = statusCode;
+    this.details = details;
+    this.isOperational = true;
+  }
+}
+
+export class ValidationError extends APIError {
+  constructor(message, details) {
+    super(400, message, details);
+  }
+}
+
+export class AuthenticationError extends APIError {
+  constructor(message = 'Unauthenticated') {
+    super(401, message);
+  }
+}
+
+export class ForbiddenError extends APIError {
+  constructor(message = 'Access denied. Upgrade to Premium.') {
+    super(403, message);
+  }
+}
+
+export class NotFoundError extends APIError {
+  constructor(resource = 'Resource') {
+    super(404, `${resource} not found`);
+  }
+}
+
+export class RateLimitError extends APIError {
+  constructor(retryAfter) {
+    super(429, 'Too many requests. Please slow down.');
+    this.retryAfter = retryAfter;
+  }
+}
+
+
+================================================================
+File: server/middlewares/rateLimiter.js
+================================================================
+
+import { RateLimitError } from './errors.js';
+import redisClient, { isConnected } from '../configs/redis.js';
+import memCache from '../configs/memcache.js';
+
+const RATE_LIMITS = {
+  free: { maxRequests: 2, windowSeconds: 60 },
+  premium: { maxRequests: 20, windowSeconds: 60 },
+};
+
+export const rateLimiter = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    if (!userId) return next();
+
+    const plan = req.plan || 'free';
+    const limits = RATE_LIMITS[plan] || RATE_LIMITS.free;
+    const key = `ratelimit:${userId}`;
+    const now = Date.now();
+    const windowStart = now - limits.windowSeconds * 1000;
+
+
+    if (isConnected) {
+      try {
+        const multi = redisClient.multi();
+        multi.zRemRangeByScore(key, 0, windowStart);
+        multi.zCard(key);
+        multi.zAdd(key, { score: now, value: `${now}:${Math.random()}` });
+        multi.expire(key, limits.windowSeconds);
+        const results = await multi.exec();
+
+        const currentCount = results[1];
+        if (currentCount >= limits.maxRequests) {
+          const oldestInWindow = await redisClient.zRange(key, 0, 0, { REV: false });
+          const oldestScore = oldestInWindow.length
+            ? parseFloat(await redisClient.zScore(key, oldestInWindow[0]))
+            : now;
+          const retryAfter = Math.ceil((oldestScore + limits.windowSeconds * 1000 - now) / 1000);
+
+          throw new RateLimitError(retryAfter);
+        }
+
+        res.set({
+          'X-RateLimit-Limit': String(limits.maxRequests),
+          'X-RateLimit-Remaining': String(Math.max(0, limits.maxRequests - currentCount - 1)),
+          'X-RateLimit-Reset': String(Math.ceil((now + limits.windowSeconds * 1000) / 1000)),
+        });
+
+        return next();
+      } catch (err) {
+        if (err instanceof RateLimitError) throw err;
+        // Redis error — fall through to in-memory
+      }
+    }
+
+    // Fallback: in-memory token bucket
+    const memKey = `ratelimit:mem:${userId}`;
+    const bucket = memCache.get(memKey);
+    const state = bucket
+      ? JSON.parse(bucket)
+      : { count: 0, resetAt: now + limits.windowSeconds * 1000 };
+
+    if (now > state.resetAt) {
+      state.count = 0;
+      state.resetAt = now + limits.windowSeconds * 1000;
+    }
+
+    if (state.count >= limits.maxRequests) {
+      const retryAfter = Math.ceil((state.resetAt - now) / 1000);
+      throw new RateLimitError(retryAfter);
+    }
+
+    state.count++;
+    memCache.set(memKey, JSON.stringify(state), limits.windowSeconds);
+
+    res.set({
+      'X-RateLimit-Limit': String(limits.maxRequests),
+      'X-RateLimit-Remaining': String(Math.max(0, limits.maxRequests - state.count)),
+      'X-RateLimit-Reset': String(Math.ceil(state.resetAt / 1000)),
+    });
+
+    return next();
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+================================================================
+File: server/package.json
+================================================================
+
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "format": "prettier --write .",
+    "db:migrate": "node scripts/migrate.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@clerk/express": "^1.7.42",
+    "@google/generative-ai": "^0.24.1",
+    "@neondatabase/serverless": "^1.0.2",
+    "axios": "^1.13.0",
+    "bullmq": "^5.73.0",
+    "cloudinary": "^2.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "dotenv-safe": "^9.1.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "openai": "^6.7.0",
+    "pdf-parse": "^2.4.5",
+    "pretty": "^2.0.0",
+    "redis": "^4.6.7",
+    "socket.io": "^4.8.3",
+    "undici": "^8.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
+
+
+================================================================
+File: server/routes/aiRoutes.js
+================================================================
+
+import express from 'express';
+import { auth } from '../middlewares/auth.js';
+import { rateLimiter } from '../middlewares/rateLimiter.js';
+import {
+  generateArticle,
+  generateBlogTitle,
+  generateImage,
+  removeImageBackground,
+  removeImageObject,
+  resumeReview,
+  getTaskStatus,
+} from '../controllers/aiController.js';
+import { upload } from '../configs/muter.js';
+
+const aiRouter = express.Router();
+
+aiRouter.post('/generate-article', auth, rateLimiter, generateArticle);
+aiRouter.post('/generate-blog-title', auth, rateLimiter, generateBlogTitle);
+aiRouter.post('/generate-image', auth, rateLimiter, generateImage);
+aiRouter.post(
+  '/remove-image-background',
+  upload.single('image'),
+  auth,
+  rateLimiter,
+  removeImageBackground,
+);
+aiRouter.post('/remove-image-object', upload.single('image'), auth, rateLimiter, removeImageObject);
+aiRouter.post('/resume-review', upload.single('resume'), auth, rateLimiter, resumeReview);
+aiRouter.get('/task/:taskId', auth, getTaskStatus);
+
+export default aiRouter;
+
+
+================================================================
+File: server/routes/userRoutes.js
+================================================================
+
+import express from 'express';
+import {
+  getPublishedCreations,
+  getUserCreations,
+  toggleLikeCreations,
+} from '../controllers/userController.js';
+import { auth } from '../middlewares/auth.js';
+const userRouter = express.Router();
+userRouter.get('/get-user-creations', auth, getUserCreations);
+userRouter.get('/get-published-creations', auth, getPublishedCreations);
+userRouter.post('/toggle-like-creations', auth, toggleLikeCreations);
+
+export default userRouter;
+
+
+================================================================
+File: server/scripts/migrate.js
+================================================================
+
+import 'dotenv/config';
+import { getDB } from '../configs/db.js';
+
+async function migrate() {
+  console.log('🔧 Running database migrations...\n');
+
+  const sql = getDB();
+
+  const migrations = [
+    {
+      name: 'idx_creations_user_date',
+      description: 'Composite index for dashboard: fast user creation lookups sorted by date',
+    },
+    {
+      name: 'idx_creations_publish',
+      description: 'Partial index for community page: only indexes published creations',
+    },
+    {
+      name: 'idx_creations_type',
+      description: 'Index for filtering by creation type (article, image, etc.)',
+    }
+  ];
+
+  try {
+    await sql`CREATE INDEX IF NOT EXISTS idx_creations_user_date ON creations (user_id, created_at DESC)`;
+    console.log(`  ✅ ${migrations[0].name}: ${migrations[0].description}`);
+  } catch (err) {
+    console.error(`  ❌ ${migrations[0].name}: ${err.message}`);
+  }
+
+  try {
+    await sql`CREATE INDEX IF NOT EXISTS idx_creations_publish ON creations (publish) WHERE publish = true`;
+    console.log(`  ✅ ${migrations[1].name}: ${migrations[1].description}`);
+  } catch (err) {
+    console.error(`  ❌ ${migrations[1].name}: ${err.message}`);
+  }
+
+  try {
+    await sql`CREATE INDEX IF NOT EXISTS idx_creations_type ON creations (type)`;
+    console.log(`  ✅ ${migrations[2].name}: ${migrations[2].description}`);
+  } catch (err) {
+    console.error(`  ❌ ${migrations[2].name}: ${err.message}`);
+  }
+
+  console.log('\n🎉 Migrations complete.');
+  process.exit(0);
+}
+
+migrate();
+
+
+================================================================
+File: server/server.js
+================================================================
+
+import 'dotenv/config';
+import express from 'express';
+import { createServer } from 'http';
+import { Server as SocketServer } from 'socket.io';
+import { clerkMiddleware } from '@clerk/express';
+import cors from 'cors';
+
+import aiRouter from './routes/aiRoutes.js';
+import userRouter from './routes/userRoutes.js';
+import connectionCloudinary from './configs/cloudinary.js';
+import redisClient from './configs/redis.js';
+import { startWorker } from './configs/queue.js';
+import { processAITask } from './workers/aiWorker.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+
+// ─── Validate Environment ────────────────────────────────────────────
+const REQUIRED_ENV = [
+  'CLERK_PUBLISHABLE_KEY',
+  'CLERK_SECRET_KEY',
+  'DATABASE_URL',
+  'GEMINI_API_KEY',
+];
+
+const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
+if (missing.length > 0) {
+  console.error(`❌ Missing required environment variables: ${missing.join(', ')}`);
+  console.error('   Create a .env file based on .env.example');
+  process.exit(1);
+}
+
+// ─── Express App ─────────────────────────────────────────────────────
+const app = express();
+const httpServer = createServer(app);
+
+// ─── CORS ────────────────────────────────────────────────────────────
+const allowedOrigins = [
+  'https://quick-ai-frontend.onrender.com',
+  'https://d30jzk0hgtqxk3.cloudfront.net',
+  'http://localhost:5173',
+  'https://quickai.store',
+  process.env.FRONTEND_ORIGIN,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
+
+// ─── Socket.IO ───────────────────────────────────────────────────────
+const io = new SocketServer(httpServer, {
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
+});
+
+io.on('connection', (socket) => {
+  const userId = socket.handshake.query.userId;
+  if (userId) {
+    socket.join(`user:${userId}`);
+  }
+
+  socket.on('disconnect', () => {});
+});
+
+app.set('io', io);
+
+// ─── Initialize Services ────────────────────────────────────────────
+await connectionCloudinary();
+
+try {
+  await redisClient.connect();
+  console.log('Redis connected');
+
+  // Start BullMQ worker only if Redis is available
+  startWorker(processAITask);
+  console.log('BullMQ AI Worker started');
+} catch (err) {
+  console.warn('Redis connection failed — running without cache & queues:', err.message || err);
+}
+
+// ─── Middleware ──────────────────────────────────────────────────────
+app.use(express.json());
+app.use(clerkMiddleware());
+
+// ─── Routes ─────────────────────────────────────────────────────────
+app.get('/', (req, res) => res.send('Server is Live!'));
+app.get('/health', (req, res) =>
+  res.json({
+    status: 'healthy',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  }),
+);
+
+app.use('/api/ai', aiRouter);
+app.use('/api/user', userRouter);
+
+// ─── 404 Catch-All ──────────────────────────────────────────────────
+app.all('/*splat', (req, res) => res.status(404).json({ success: false, message: 'Not Found' }));
+
+// ─── Global Error Handler (must be last) ─────────────────────────────
+app.use(errorHandler);
+
+// ─── Start Server ────────────────────────────────────────────────────
+const PORT = process.env.PORT || 3000;
+httpServer.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+
+================================================================
+File: server/vercel.json
+================================================================
+
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ]
+}
+
+
+================================================================
+File: server/workers/aiWorker.js
+================================================================
+
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { v2 as cloudinary } from 'cloudinary';
+import axios from 'axios';
+import sql from '../configs/db.js';
+import { safeSetEx, safeDel } from '../configs/redis.js';
+import crypto from 'crypto';
+import {
+  getDemoArticle,
+  getDemoBlogTitles,
+  getDemoResumeReview,
+  getDemoImage,
+  isQuotaError,
+} from '../configs/demoFallbacks.js';
+import 'dotenv/config';
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+export async function processAITask(job) {
+  const { type, userId, prompt, plan, free_usage, publish } = job.data;
+
+  let content;
+  let demo = false;
+
+  switch (type) {
+    case 'generate-article': {
+      const cacheKey = `ai:article:${crypto.createHash('sha256').update(prompt).digest('hex')}`;
+
+      try {
+        const result = await model.generateContent(prompt);
+        content = result.response.text();
+      } catch (aiError) {
+        if (isQuotaError(aiError)) {
+          content = getDemoArticle(300);
+          demo = true;
+        } else {
+          throw aiError;
+        }
+      }
+
+      await safeSetEx(cacheKey, 3600, content);
+
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${prompt}, ${content}, 'article')`;
+      await safeDel(`user:creations:${userId}`);
+      break;
+    }
+
+    case 'generate-blog-title': {
+      try {
+        const result = await model.generateContent(prompt);
+        content = result.response.text();
+      } catch (aiError) {
+        if (isQuotaError(aiError)) {
+          content = getDemoBlogTitles();
+          demo = true;
+        } else {
+          throw aiError;
+        }
+      }
+
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${prompt}, ${content}, 'blog-title')`;
+      await safeDel(`user:creations:${userId}`);
+      break;
+    }
+
+    case 'resume-review': {
+      const { pdfText } = job.data;
+      const reviewPrompt = `Review the following resume and provide feedback on strengths and weaknesses within 300 words:\n\n${pdfText || ''}`;
+      try {
+        const result = await model.generateContent(reviewPrompt);
+        content = result.response.text();
+      } catch (aiError) {
+        if (isQuotaError(aiError)) {
+          content = getDemoResumeReview();
+          demo = true;
+        } else {
+          throw aiError;
+        }
+      }
+
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, 'Resume Review', ${content}, 'resume-review')`;
+      await safeDel(`user:creations:${userId}`);
+      break;
+    }
+
+    case 'generate-image': {
+      let secure_url;
+
+      try {
+        const formData = new FormData();
+        formData.append('prompt', prompt);
+
+        const { data } = await axios.post('https://clipdrop-api.co/text-to-image/v1', formData, {
+          headers: { 'x-api-key': process.env.CLIPDROP_API_KEY },
+          responseType: 'arraybuffer',
+        });
+
+        const base64Image = `data:image/png;base64,${Buffer.from(data, 'binary').toString('base64')}`;
+        ({ secure_url } = await cloudinary.uploader.upload(base64Image));
+      } catch (imgError) {
+        if (isQuotaError(imgError) || imgError.response?.status >= 400) {
+          secure_url = getDemoImage();
+          demo = true;
+        } else {
+          throw imgError;
+        }
+      }
+
+      content = secure_url;
+
+      await sql`INSERT INTO creations (user_id, prompt, content, type, publish) 
+                VALUES (${userId}, ${prompt}, ${secure_url}, 'image', ${publish ?? false})`;
+      await safeDel(`user:creations:${userId}`);
+      if (publish) await safeDel('creations:published');
+      break;
+    }
+
+    case 'remove-image-object': {
+      content = getDemoImage();
+      demo = true;
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${prompt}, ${content}, 'image')`;
+      await safeDel(`user:creations:${userId}`);
+      break;
+    }
+
+    case 'remove-image-background': {
+      content = getDemoImage();
+      demo = true;
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${prompt}, ${content}, 'image')`;
+      await safeDel(`user:creations:${userId}`);
+      break;
+    }
+
+    default:
+      throw new Error(`Unknown task type: ${type}`);
+  }
+
+  return { content, demo, type };
+}

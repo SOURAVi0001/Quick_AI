@@ -1,9 +1,9 @@
-import { useUser } from '@clerk/clerk-react';
-import React, { useEffect, useState } from 'react';
+import { useUser, useAuth } from '@clerk/clerk-react';
+import { useEffect, useState, useCallback } from 'react';
 import { Heart } from 'lucide-react';
 import api from '../lib/api';
-import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
+import { Skeleton } from '../components/ui/skeleton';
 
 const Community = () => {
   const [creations, setCreations] = useState([]);
@@ -12,7 +12,7 @@ const Community = () => {
   const [pendingLikes, setPendingLikes] = useState(new Set());
   const { getToken } = useAuth();
 
-  const fetchCreations = async () => {
+  const fetchCreations = useCallback(async () => {
     try {
       const { data } = await api.get('/api/user/get-published-creations', {
         headers: { Authorization: `Bearer ${await getToken()}` },
@@ -26,7 +26,7 @@ const Community = () => {
       toast.error(error.message);
     }
     setLoading(false);
-  };
+  }, [getToken]);
 
   const imageLikeToggle = async (id) => {
     if (pendingLikes.has(id)) return;
@@ -51,11 +51,8 @@ const Community = () => {
       const { data } = await api.post(
         '/api/user/toggle-like-creations',
         { id },
-        {
-          headers: { Authorization: `Bearer ${await getToken()}` },
-        },
+        { headers: { Authorization: `Bearer ${await getToken()}` } },
       );
-
       if (data.success) {
         setCreations((prev) => prev.map((c) => (c.id === id ? data.content : c)));
       } else {
@@ -78,37 +75,49 @@ const Community = () => {
     if (user) {
       fetchCreations();
     }
-  }, [user]);
+  }, [user, fetchCreations]);
 
   return !loading ? (
     <div className="flex-1 h-full flex flex-col gap-4 p-6">
-      Creations
-      <div className="bg-white h-full w-full rounded-xl overflow-y-scroll">
-        {creations.map((creation, index) => (
-          <div
-            key={index}
-            className="relative group inline-block pl-3 pt-3 w-full sm:max-w-1/2 lg:max-w-1/3"
-          >
-            <img src={creation.content} alt="" className="w-full h-full object-cover rounded-lg" />
-            <div className="absolute bottom-0 top-0 right-0 left-3 flex gap-2 items-end justify-end group-hover:justify-between p-3 group-hover:bg-gradient-to-b from-transparent to-black/80 text-white rounded-lg">
-              <p className="text-sm hidden group-hover:block">{creation.prompt}</p>
-              <div className="flex gap-1 items-center">
-                <p>{creation.likes?.length || 0}</p>
-                <Heart
-                  onClick={() => imageLikeToggle(creation.id)}
-                  className={`min-w-5 h-5 hover:scale-110 cursor-pointer ${
-                    creation.likes?.includes(user?.id) ? 'fill-red-500 text-red-600' : 'text-white'
-                  }`}
-                />
+      <h2 className="text-lg font-semibold text-foreground">Community Creations</h2>
+      <div className="bg-card h-full w-full rounded-xl overflow-y-scroll border">
+        {creations.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+            No community creations yet
+          </div>
+        ) : (
+          creations.map((creation, index) => (
+            <div
+              key={index}
+              className="relative group inline-block pl-3 pt-3 w-full sm:max-w-1/2 lg:max-w-1/3"
+            >
+              <img
+                src={creation.content}
+                alt=""
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <div className="absolute bottom-0 top-0 right-0 left-3 flex gap-2 items-end justify-end group-hover:justify-between p-3 group-hover:bg-gradient-to-b from-transparent to-black/80 text-white rounded-lg">
+                <p className="text-sm hidden group-hover:block truncate">{creation.prompt}</p>
+                <div className="flex gap-1 items-center">
+                  <p>{creation.likes?.length || 0}</p>
+                  <Heart
+                    onClick={() => imageLikeToggle(creation.id)}
+                    className={`min-w-5 h-5 hover:scale-110 cursor-pointer ${
+                      creation.likes?.includes(user?.id)
+                        ? 'fill-foreground text-foreground'
+                        : 'text-white'
+                    }`}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   ) : (
     <div className="flex justify-center items-center h-full">
-      <span className="w-10 h-10 my-1 rounded-full border-3 border-primary border-t-transparent animate-spin"></span>
+      <Skeleton className="h-10 w-10 rounded-full" />
     </div>
   );
 };

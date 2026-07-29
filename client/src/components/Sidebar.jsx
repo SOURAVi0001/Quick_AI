@@ -10,8 +10,9 @@ import {
   SquarePen,
   Users,
 } from 'lucide-react';
-import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
+import { Button } from './ui/button';
 
 const navItems = [
   { to: '/ai', label: 'Dashboard', Icon: House },
@@ -24,48 +25,63 @@ const navItems = [
   { to: '/ai/community', label: 'Community', Icon: Users },
 ];
 
+const NavItemContent = (props) => {
+  const IconComponent = props.Icon;
+  return (
+    <>
+      <IconComponent className={`w-4 h-4 ${props.isActive ? 'text-primary-foreground' : ''}`} />
+      {props.label}
+    </>
+  );
+};
+
 const Sidebar = ({ sidebar, setSidebar }) => {
   const { user } = useUser();
   const { signOut, openUserProfile } = useClerk();
 
   return (
     <div
-      className={`w-60 bg-white border-r border-gray-200 flex flex-col justify-between items-center max:sm:absolute top-14 bottom-0 ${
+      className={`w-60 bg-card border-r flex flex-col justify-between items-center max:sm:absolute top-14 bottom-0 ${
         sidebar ? 'translate-x-0' : 'max-sm:-translate-x-full'
       } transition-all duration-300 ease-in-out`}
     >
       <div className="my-7 w-full">
-        <img src={user.imageUrl} alt="User Avatar" className="w-13 rounded-full mx-auto" />
-        <h1 className="mt-1 text-center">{user.fullName}</h1>
-        <div className="px-6 mt-5 text-sm text-gray-600 font-medium">
-          {navItems.map(({ to, label, Icon }) => (
+        <Avatar className="w-13 h-13 mx-auto">
+          <AvatarImage src={user.imageUrl} alt={user.fullName} />
+          <AvatarFallback className="text-lg">{user.fullName?.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <h1 className="mt-1 text-center text-foreground font-medium">{user.fullName}</h1>
+        <div className="px-4 mt-5 text-sm font-medium">
+          {navItems.map(({ to, label, Icon: ItemIcon }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/ai'}
               onClick={() => setSidebar(false)}
               className={({ isActive }) =>
-                `px-3.5 py-2.5 flex items-center gap-3 rounded ${
-                  isActive ? 'bg-gradient-to-r from-[#3C81F6] to-[#9234EA] text-white' : ''
+                `flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 transition-colors ${
+                  isActive
+                    ? 'bg-foreground text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`
               }
             >
               {({ isActive }) => (
-                <>
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
-                  {label}
-                </>
+                <NavItemContent Icon={ItemIcon} label={label} isActive={isActive} />
               )}
             </NavLink>
           ))}
         </div>
       </div>
-      <div className="w-full border-t border-gray-200 p-4 px-7 flex items-center justify-between">
+      <div className="w-full border-t p-4 px-5 flex items-center justify-between">
         <div onClick={openUserProfile} className="flex gap-2 items-center cursor-pointer">
-          <img src={user.imageUrl} className="w-8 rounded-full" alt="" />
+          <Avatar className="w-8 h-8">
+            <AvatarImage src={user.imageUrl} alt={user.fullName} />
+            <AvatarFallback className="text-xs">{user.fullName?.charAt(0)}</AvatarFallback>
+          </Avatar>
           <div>
-            <h1 className="text-sm font-medium">{user.fullName}</h1>
-            <p>
+            <p className="text-sm font-medium text-foreground leading-tight">{user.fullName}</p>
+            <p className="text-xs text-muted-foreground">
               <Protect plan="premium" fallback="Free">
                 Premium
               </Protect>
@@ -73,10 +89,9 @@ const Sidebar = ({ sidebar, setSidebar }) => {
             </p>
           </div>
         </div>
-        <LogOut
-          onClick={signOut}
-          className="w-4.5 text-gray-400 hover:text-gray-700 transition cursor-pointer"
-        />
+        <Button variant="ghost" size="icon" onClick={signOut}>
+          <LogOut className="w-4 h-4 text-muted-foreground" />
+        </Button>
       </div>
     </div>
   );

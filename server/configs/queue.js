@@ -45,11 +45,11 @@ export function startWorker(processorFn) {
   });
 
   aiWorker.on('completed', (job) => {
-    console.log(`✅ Job ${job.id} (${job.name}) completed`);
+    console.log(` Job ${job.id} (${job.name}) completed`);
   });
 
   aiWorker.on('failed', (job, err) => {
-    console.error(`❌ Job ${job?.id} failed:`, err.message);
+    console.error(` Job ${job?.id} failed:`, err.message);
   });
 
   return aiWorker;

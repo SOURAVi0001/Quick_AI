@@ -65,6 +65,27 @@ export async function processAITask(job) {
       break;
     }
 
+    case 'resume-review': {
+      const { pdfText } = job.data;
+      const reviewPrompt = `Review the following resume and provide feedback on strengths and weaknesses within 300 words:\n\n${pdfText || ''}`;
+      try {
+        const result = await model.generateContent(reviewPrompt);
+        content = result.response.text();
+      } catch (aiError) {
+        if (isQuotaError(aiError)) {
+          content = getDemoResumeReview();
+          demo = true;
+        } else {
+          throw aiError;
+        }
+      }
+
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, 'Resume Review', ${content}, 'resume-review')`;
+      await safeDel(`user:creations:${userId}`);
+      break;
+    }
+
     case 'generate-image': {
       let secure_url;
 
@@ -94,6 +115,24 @@ export async function processAITask(job) {
                 VALUES (${userId}, ${prompt}, ${secure_url}, 'image', ${publish ?? false})`;
       await safeDel(`user:creations:${userId}`);
       if (publish) await safeDel('creations:published');
+      break;
+    }
+
+    case 'remove-image-object': {
+      content = getDemoImage();
+      demo = true;
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${prompt}, ${content}, 'image')`;
+      await safeDel(`user:creations:${userId}`);
+      break;
+    }
+
+    case 'remove-image-background': {
+      content = getDemoImage();
+      demo = true;
+      await sql`INSERT INTO creations (user_id, prompt, content, type) 
+                VALUES (${userId}, ${prompt}, ${content}, 'image')`;
+      await safeDel(`user:creations:${userId}`);
       break;
     }
 
