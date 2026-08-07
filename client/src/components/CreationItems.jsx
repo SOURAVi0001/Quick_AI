@@ -12,26 +12,31 @@ const CreationItem = ({ item }) => {
   return (
     <Card
       onClick={() => setExpanded(!expanded)}
-      className="max-w-5xl text-sm cursor-pointer hover:shadow-md transition-shadow duration-200"
+      className="cursor-pointer bg-white/[0.03] border-white/[0.06] backdrop-blur-sm hover:bg-white/[0.05] transition-all duration-200 shadow-dark"
     >
       <CardContent className="p-4">
-        <div className="flex justify-between items-center gap-4">
+        <div className="flex justify-between items-start gap-4">
           <div className="min-w-0 flex-1">
-            <h2 className="truncate font-medium text-foreground">{item.prompt}</h2>
-            <p className="text-muted-foreground text-xs mt-0.5">
+            <p className="font-medium text-sm text-white/80 truncate">{item.prompt}</p>
+            <p className="text-xs text-white/30 mt-0.5">
               {item.type} &middot; {new Date(item.created_at).toLocaleDateString()}
             </p>
           </div>
-          <Badge variant="secondary" className="shrink-0">{item.type}</Badge>
+          <Badge
+            variant="secondary"
+            className="shrink-0 text-xs px-2.5 py-0.5 bg-white/5 text-white/40 border-white/10"
+          >
+            {item.type}
+          </Badge>
         </div>
         {expanded && (
-          <div className="mt-4 pt-4 border-t">
+          <div className="mt-4 pt-4 border-t border-white/5">
             {item.type === 'image' ? (
               <div>
                 {!imgLoaded && !imgError && (
-                  <Skeleton className="w-full max-w-md h-64 flex items-center justify-center rounded-lg">
+                  <Skeleton className="w-full max-w-md h-64 rounded-lg bg-white/5 flex items-center justify-center">
                     <svg
-                      className="w-8 h-8 text-muted-foreground"
+                      className="w-8 h-8 text-white/20"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -46,7 +51,7 @@ const CreationItem = ({ item }) => {
                   </Skeleton>
                 )}
                 {imgError && (
-                  <div className="w-full max-w-md h-40 bg-muted border rounded-lg flex items-center justify-center text-muted-foreground text-sm">
+                  <div className="w-full max-w-md h-40 bg-white/5 border border-white/10 rounded-lg flex items-center justify-center text-white/30 text-sm">
                     Failed to load image
                   </div>
                 )}
@@ -56,13 +61,13 @@ const CreationItem = ({ item }) => {
                   loading="lazy"
                   onLoad={() => setImgLoaded(true)}
                   onError={() => setImgError(true)}
-                  className={`w-full max-w-md rounded-lg shadow-sm transition-opacity duration-300 ${
+                  className={`w-full max-w-md rounded-lg shadow-subtle transition-opacity duration-300 ${
                     imgLoaded ? 'opacity-100' : 'opacity-0 h-0'
                   }`}
                 />
               </div>
             ) : (
-              <div className="h-full overflow-y-scroll text-sm text-foreground/80">
+              <div className="h-full max-h-96 overflow-y-scroll text-sm text-white/60 leading-relaxed">
                 <div className="reset-tw">
                   <Markdown>{item.content}</Markdown>
                 </div>

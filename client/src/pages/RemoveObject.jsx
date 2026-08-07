@@ -7,7 +7,6 @@ import DemoBanner from '../components/DemoBanner';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
 
 const RemoveObject = () => {
   const [input, setInput] = useState(null);
@@ -56,13 +55,13 @@ const RemoveObject = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Scissors className="w-5 text-foreground" />
-            <CardTitle>Object Removal</CardTitle>
+            <CardTitle>Remove object</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmitHandler} className="space-y-4">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Image</p>
+              <p className="text-sm font-medium text-foreground">Upload your image</p>
               <Input
                 onChange={(e) => setInput(e.target.files[0])}
                 type="file"
@@ -71,14 +70,16 @@ const RemoveObject = () => {
               />
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Object to remove</p>
-              <Textarea
+              <p className="text-sm font-medium text-foreground">What should disappear?</p>
+              <Input
                 onChange={(e) => setObject(e.target.value)}
                 value={object}
-                rows={4}
-                placeholder="e.g.: watch or spoon (single object only)"
+                placeholder="e.g. watch, spoon, car (single object only)"
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                One object at a time for best results
+              </p>
             </div>
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? (
@@ -86,7 +87,7 @@ const RemoveObject = () => {
               ) : (
                 <Scissors className="w-4" />
               )}
-              Remove Object
+              Remove object
             </Button>
           </form>
         </CardContent>
@@ -95,7 +96,7 @@ const RemoveObject = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Scissors className="w-5 text-foreground" />
-            <CardTitle>Processed Image</CardTitle>
+            <CardTitle>Processed image</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -103,7 +104,7 @@ const RemoveObject = () => {
             <div className="flex items-center justify-center min-h-[300px]">
               <div className="text-sm flex flex-col items-center gap-4 text-muted-foreground">
                 <Scissors className="w-8" />
-                <p>Upload an image and click "Remove Object" to get started</p>
+                <p>Upload a photo and tell the AI what to vanish. No Photoshop needed.</p>
               </div>
             </div>
           ) : (

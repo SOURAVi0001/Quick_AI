@@ -1,123 +1,99 @@
-import { useUser, useAuth } from '@clerk/clerk-react';
-import { useEffect, useState, useCallback } from 'react';
-import { Heart } from 'lucide-react';
-import api from '../lib/api';
-import toast from 'react-hot-toast';
-import { Skeleton } from '../components/ui/skeleton';
+import { useState } from 'react';
+import { Button } from '../components/ui/button';
+import { Textarea } from '../components/ui/textarea';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
+import { Sparkles, MessageSquare, SendHorizonal } from 'lucide-react';
 
 const Community = () => {
-  const [creations, setCreations] = useState([]);
-  const { user } = useUser();
-  const [loading, setLoading] = useState(true);
-  const [pendingLikes, setPendingLikes] = useState(new Set());
-  const { getToken } = useAuth();
+  const [posts, setPosts] = useState([
+    { id: 1, author: 'You', content: 'Just discovered the blog title generator — it is seriously good. Anyone else tried it?', likes: 3, time: '2h ago' },
+    { id: 2, author: 'Priya K.', content: 'The image generator saved me hours of design work for my newsletter. Huge time-saver.', likes: 7, time: '5h ago' },
+    { id: 3, author: 'Jordan M.', content: 'Feature request: could we get a tone customiser for the article writer? Loving it so far.', likes: 12, time: '1d ago' },
+  ]);
+  const [newPost, setNewPost] = useState('');
 
-  const fetchCreations = useCallback(async () => {
-    try {
-      const { data } = await api.get('/api/user/get-published-creations', {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      });
-      if (data.success) {
-        setCreations(data.content);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-    setLoading(false);
-  }, [getToken]);
-
-  const imageLikeToggle = async (id) => {
-    if (pendingLikes.has(id)) return;
-    setPendingLikes((prev) => new Set(prev).add(id));
-
-    const previousCreations = [...creations];
-
-    setCreations((prev) =>
-      prev.map((creation) => {
-        if (creation.id === id) {
-          const isLiked = creation.likes?.includes(user?.id);
-          const newLikes = isLiked
-            ? (creation.likes || []).filter((uid) => uid !== user?.id)
-            : [...(creation.likes || []), user?.id];
-          return { ...creation, likes: newLikes };
-        }
-        return creation;
-      }),
-    );
-
-    try {
-      const { data } = await api.post(
-        '/api/user/toggle-like-creations',
-        { id },
-        { headers: { Authorization: `Bearer ${await getToken()}` } },
-      );
-      if (data.success) {
-        setCreations((prev) => prev.map((c) => (c.id === id ? data.content : c)));
-      } else {
-        setCreations(previousCreations);
-        toast.error(data.message);
-      }
-    } catch (error) {
-      setCreations(previousCreations);
-      toast.error(error.message);
-    } finally {
-      setPendingLikes((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
-    }
+  const handlePost = () => {
+    if (!newPost.trim()) return;
+    setPosts([
+      {
+        id: Date.now(),
+        author: 'You',
+        content: newPost,
+        likes: 0,
+        time: 'Just now',
+      },
+      ...posts,
+    ]);
+    setNewPost('');
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchCreations();
-    }
-  }, [user, fetchCreations]);
+  return (
+    <div className="min-h-screen bg-background dot-grid bg-noise">
+      <div className="max-w-4xl mx-auto px-6 sm:px-10 py-12">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-4">
+          <MessageSquare className="w-3.5 h-3.5" />
+          <span>Community</span>
+        </div>
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          Community
+        </h1>
+        <p className="mt-2 text-muted-foreground max-w-lg">
+          Share tips, ask questions, and show off what you have built. Your next breakthrough
+          might come from a conversation.
+        </p>
 
-  return !loading ? (
-    <div className="flex-1 h-full flex flex-col gap-4 p-6">
-      <h2 className="text-lg font-semibold text-foreground">Community Creations</h2>
-      <div className="bg-card h-full w-full rounded-xl overflow-y-scroll border">
-        {creations.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-            No community creations yet
-          </div>
-        ) : (
-          creations.map((creation, index) => (
-            <div
-              key={index}
-              className="relative group inline-block pl-3 pt-3 w-full sm:max-w-1/2 lg:max-w-1/3"
-            >
-              <img
-                src={creation.content}
-                alt=""
-                className="w-full h-full object-cover rounded-lg"
-              />
-              <div className="absolute bottom-0 top-0 right-0 left-3 flex gap-2 items-end justify-end group-hover:justify-between p-3 group-hover:bg-gradient-to-b from-transparent to-black/80 text-white rounded-lg">
-                <p className="text-sm hidden group-hover:block truncate">{creation.prompt}</p>
-                <div className="flex gap-1 items-center">
-                  <p>{creation.likes?.length || 0}</p>
-                  <Heart
-                    onClick={() => imageLikeToggle(creation.id)}
-                    className={`min-w-5 h-5 hover:scale-110 cursor-pointer ${
-                      creation.likes?.includes(user?.id)
-                        ? 'fill-foreground text-foreground'
-                        : 'text-white'
-                    }`}
-                  />
-                </div>
-              </div>
+        <div className="mt-10 space-y-6">
+          <div className="p-5 rounded-2xl border border-border/50 bg-foreground/[0.02]">
+            <Textarea
+              value={newPost}
+              onChange={(e) => setNewPost(e.target.value)}
+              placeholder="Got something to share? Drop it here..."
+              rows={3}
+              className="w-full bg-transparent border-0 text-foreground placeholder:text-muted-foreground/50 resize-none focus-visible:ring-0 px-0"
+            />
+            <div className="flex justify-end mt-3">
+              <Button
+                onClick={handlePost}
+                disabled={!newPost.trim()}
+                className="h-9 px-4 bg-foreground text-background hover:bg-foreground/90 text-xs"
+              >
+                <SendHorizonal className="w-3.5 h-3.5 mr-1.5" />
+                Post
+              </Button>
             </div>
-          ))
-        )}
+          </div>
+
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <Card
+                key={post.id}
+                className="border-border/40 bg-foreground/[0.015] shadow-card"
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-medium text-muted-foreground">
+                        {post.author[0]}
+                      </div>
+                      <span className="text-xs font-medium text-foreground/70">
+                        {post.author}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">{post.time}</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-foreground/80 leading-relaxed">{post.content}</p>
+                  <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
+                    <button className="hover:text-foreground transition-colors">
+                      ♥ {post.likes}
+                    </button>
+                    <button className="hover:text-foreground transition-colors">Reply</button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
-  ) : (
-    <div className="flex justify-center items-center h-full">
-      <Skeleton className="h-10 w-10 rounded-full" />
     </div>
   );
 };

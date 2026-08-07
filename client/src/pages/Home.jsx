@@ -1,5 +1,6 @@
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
+import FeatureShowcase from '../components/FeatureShowcase';
 import AiTools from '../components/AiTools';
 import Testimonial from '../components/Testimonial';
 import Plan from '../components/Plan';
@@ -10,6 +11,7 @@ const Home = () => {
     <>
       <Navbar />
       <Hero />
+      <FeatureShowcase />
       <AiTools />
       <Testimonial />
       <Plan />

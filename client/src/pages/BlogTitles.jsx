@@ -51,7 +51,7 @@ const BlogTitles = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Sparkles className="w-5 text-foreground" />
-            <CardTitle>AI Title Generator</CardTitle>
+            <CardTitle>Blog titles &amp; headlines</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -86,7 +86,7 @@ const BlogTitles = () => {
               ) : (
                 <Hash className="w-4" />
               )}
-              Generate title
+              Generate titles
             </Button>
           </form>
         </CardContent>
@@ -95,7 +95,7 @@ const BlogTitles = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Hash className="w-5 text-foreground" />
-            <CardTitle>Generated titles</CardTitle>
+            <CardTitle>Headlines</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -103,7 +103,7 @@ const BlogTitles = () => {
             <div className="flex items-center justify-center min-h-[300px]">
               <div className="text-sm flex flex-col items-center gap-4 text-muted-foreground">
                 <Hash className="w-8" />
-                <p>Enter a topic and click "Generate title" to get started</p>
+                <p>Drop in a keyword, pick a category, and get a batch of click-stopping headlines.</p>
               </div>
             </div>
           ) : (

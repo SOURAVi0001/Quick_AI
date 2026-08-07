@@ -43,13 +43,13 @@ const ReviewResume = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Sparkles className="w-5 text-foreground" />
-            <CardTitle>Resume Review</CardTitle>
+            <CardTitle>Review resume</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmitHandler} className="space-y-4">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Upload resume</p>
+              <p className="text-sm font-medium text-foreground">Upload your resume</p>
               <Input
                 onChange={(e) => setInput(e.target.files[0])}
                 type="file"
@@ -64,7 +64,7 @@ const ReviewResume = () => {
               ) : (
                 <FileText className="w-4" />
               )}
-              Review Resume
+              Review resume
             </Button>
           </form>
         </CardContent>
@@ -73,7 +73,7 @@ const ReviewResume = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <FileText className="w-5 text-foreground" />
-            <CardTitle>Analysis Results</CardTitle>
+            <CardTitle>Feedback</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -81,7 +81,7 @@ const ReviewResume = () => {
             <div className="flex items-center justify-center min-h-[300px]">
               <div className="text-sm flex flex-col items-center gap-4 text-muted-foreground">
                 <FileText className="w-8" />
-                <p>Upload your resume and click "Review Resume" to get started</p>
+                <p>Upload your resume and get blunt, actionable feedback before you send it out.</p>
               </div>
             </div>
           ) : (

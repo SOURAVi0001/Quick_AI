@@ -10,35 +10,30 @@ const Layout = () => {
   const { user } = useUser();
 
   return user ? (
-    <div className="flex flex-col items-start justify-start h-screen">
-      <nav className="w-full px-8 min-h-14 flex items-center justify-between border-b bg-background">
-        <span
-          onClick={() => navigate('/')}
-          className="text-lg font-semibold tracking-tight cursor-pointer"
-        >
-          QuickAI
-        </span>
-        {sidebar ? (
-          <X
-            onClick={() => setSidebar(false)}
-            className="w-6 h-6 text-muted-foreground sm:hidden cursor-pointer"
-          />
-        ) : (
-          <Menu
-            onClick={() => setSidebar(true)}
-            className="w-6 h-6 text-muted-foreground sm:hidden cursor-pointer"
-          />
-        )}
-      </nav>
-      <div className="flex-1 w-full flex h-[calc(100vh-56px)]">
-        <Sidebar sidebar={sidebar} setSidebar={setSidebar} />
-        <div className="flex-1 bg-muted/30">
-          <Outlet />
+    <div className="flex flex-col h-screen bg-[#000]">
+      <div className="w-full h-9 flex items-center justify-between px-4 border-b border-[#222] bg-[#000]">
+        <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer">
+          <span className="text-[11px] font-semibold text-[#666] tracking-[0.2em] uppercase">
+            QuickAI
+          </span>
+        </button>
+        <div className="sm:hidden">
+          {sidebar ? (
+            <X onClick={() => setSidebar(false)} className="w-4 h-4 text-[#555] cursor-pointer" />
+          ) : (
+            <Menu onClick={() => setSidebar(true)} className="w-4 h-4 text-[#555] cursor-pointer" />
+          )}
         </div>
+      </div>
+      <div className="flex-1 flex overflow-hidden">
+        <Sidebar sidebar={sidebar} setSidebar={setSidebar} />
+        <main className="flex-1 overflow-hidden bg-[#000]">
+          <Outlet />
+        </main>
       </div>
     </div>
   ) : (
-    <div className="flex items-center justify-center h-screen">
+    <div className="flex items-center justify-center min-h-screen bg-[#000]">
       <SignIn />
     </div>
   );

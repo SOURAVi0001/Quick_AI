@@ -18,12 +18,13 @@ const App = () => {
         position="top-right"
         toastOptions={{
           style: {
-            borderRadius: '8px',
+            borderRadius: '10px',
             background: '#fff',
-            color: '#111',
+            color: '#0a0a0a',
             border: '1px solid #e5e5e5',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+            boxShadow: '0 4px 20px -4px rgba(0,0,0,0.08)',
             fontSize: '14px',
+            padding: '12px 16px',
           },
         }}
       />

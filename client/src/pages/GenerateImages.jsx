@@ -1,15 +1,9 @@
-import { Sparkles, Image } from 'lucide-react';
+import { Image } from 'lucide-react';
 import { useState } from 'react';
 import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
 import DemoBanner from '../components/DemoBanner';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Textarea } from '../components/ui/textarea';
-import { Badge } from '../components/ui/badge';
-import { Label } from '../components/ui/label';
-import { Switch } from '../components/ui/switch';
 
 const imageStyles = [
   'Realistic', 'Ghibli style', 'Anime style', 'Cartoon style',
@@ -48,83 +42,106 @@ const GenerateImages = () => {
   };
 
   return (
-    <div className="h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4">
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <Sparkles className="w-5 text-foreground" />
-            <CardTitle>AI Image Generator</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmitHandler} className="space-y-4">
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Describe your Image</p>
-              <Textarea
-                onChange={(e) => setInput(e.target.value)}
+    <div className="flex h-full border-t border-[#222]">
+      <div className="w-full lg:w-[420px] xl:w-[480px] border-r border-[#222] flex flex-col bg-[#000] overflow-y-auto">
+        <div className="p-6 pb-4">
+          <p className="text-[11px] font-semibold text-[#555] tracking-[0.2em] uppercase mb-1">
+            Image Studio
+          </p>
+          <h1 className="text-xl font-bold tracking-tight text-white">
+            Generate Images
+          </h1>
+        </div>
+        <form onSubmit={onSubmitHandler} className="flex-1 flex flex-col px-6 pb-6">
+          <div className="flex-1 space-y-6">
+            <fieldset>
+              <legend className="text-[10px] font-semibold text-[#555] tracking-[0.2em] uppercase mb-2.5">
+                Prompt
+              </legend>
+              <textarea
                 value={input}
-                placeholder="Describe what you want to see in the image..."
-                rows={4}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Describe the image you want to generate..."
+                rows={5}
                 required
+                className="w-full bg-transparent border border-[#333] px-3 py-2.5 text-sm text-white placeholder:text-[#444] resize-none focus:outline-none focus:border-[#666] transition-colors"
               />
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Style</p>
-              <div className="flex gap-2 flex-wrap">
+            </fieldset>
+            <fieldset>
+              <legend className="text-[10px] font-semibold text-[#555] tracking-[0.2em] uppercase mb-2.5">
+                Style
+              </legend>
+              <div className="flex flex-wrap gap-1.5">
                 {imageStyles.map((item) => (
-                  <Badge
+                  <button
                     key={item}
-                    variant={selectedStyle === item ? 'default' : 'outline'}
-                    className="cursor-pointer"
+                    type="button"
                     onClick={() => setSelectedStyle(item)}
+                    className={`px-3 py-1.5 text-[11px] font-medium border transition-colors ${
+                      selectedStyle === item
+                        ? 'bg-white text-black border-white'
+                        : 'bg-transparent text-[#555] border-[#333] hover:text-[#888] hover:border-[#555]'
+                    }`}
                   >
                     {item}
-                  </Badge>
+                  </button>
                 ))}
               </div>
+            </fieldset>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setPublish(!publish)}
+                className={`w-8 h-4 border transition-colors relative ${
+                  publish ? 'bg-white border-white' : 'bg-transparent border-[#444]'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 w-3 h-3 bg-black transition-all ${
+                    publish ? 'left-4' : 'left-0.5'
+                  }`}
+                />
+              </button>
+              <span className="text-[11px] text-[#555] tracking-wider uppercase">
+                Share with community
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Switch id="publish" checked={publish} onCheckedChange={setPublish} />
-              <Label htmlFor="publish">Make this image Public</Label>
-            </div>
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? (
-                <span className="w-4 h-4 rounded-full border-2 border-t-transparent animate-spin" />
-              ) : (
-                <Image className="w-4" />
-              )}
-              Generate image
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-      <Card className="w-full max-w-lg min-h-96">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <Image className="w-5 text-foreground" />
-            <CardTitle>Generated image</CardTitle>
           </div>
-        </CardHeader>
-        <CardContent>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full mt-6 px-5 py-3 text-[11px] font-semibold bg-white text-black border border-white hover:bg-[#ddd] transition-colors uppercase tracking-wider disabled:opacity-30"
+          >
+            {loading ? 'Generating...' : 'Generate'}
+          </button>
+        </form>
+      </div>
+
+      <div className="flex-1 flex flex-col bg-[#0a0a0a] overflow-y-auto">
+        <div className="flex-1 flex items-center justify-center p-6">
           {!content ? (
-            <div className="flex items-center justify-center min-h-[300px]">
-              <div className="text-sm flex flex-col items-center gap-4 text-muted-foreground">
-                <Image className="w-8" />
-                <p>Enter a topic and click "Generate image" to get started</p>
+            <div className="text-center max-w-xs">
+              <div className="w-10 h-10 border border-[#333] mx-auto mb-5 flex items-center justify-center">
+                <Image className="w-5 h-5 text-[#444]" />
               </div>
+              <p className="text-sm text-[#555] leading-relaxed">
+                Configure your prompt and style in the control panel, then generate your image.
+              </p>
             </div>
           ) : (
-            <>
+            <div className="w-full max-w-2xl">
               <DemoBanner visible={isDemo} />
-              <img
-                src={content}
-                alt="Generated image"
-                className="w-full rounded-lg mt-3 border"
-              />
-            </>
+              <div className="border border-[#333] bg-[#000]">
+                <img
+                  src={content}
+                  alt="Generated"
+                  className="w-full block"
+                />
+              </div>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };

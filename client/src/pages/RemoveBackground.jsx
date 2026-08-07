@@ -40,13 +40,13 @@ const RemoveBackground = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Sparkles className="w-5 text-foreground" />
-            <CardTitle>Background Removal</CardTitle>
+            <CardTitle>Remove background</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmitHandler} className="space-y-4">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Upload image</p>
+              <p className="text-sm font-medium text-foreground">Upload your image</p>
               <Input
                 onChange={(e) => setInput(e.target.files[0])}
                 type="file"
@@ -54,7 +54,7 @@ const RemoveBackground = () => {
                 required
               />
               <p className="text-xs text-muted-foreground">
-                Supports JPG, PNG and other image formats
+                Supports JPG, PNG and other common formats
               </p>
             </div>
             <Button type="submit" disabled={loading} className="w-full">
@@ -72,7 +72,7 @@ const RemoveBackground = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Eraser className="w-5 text-foreground" />
-            <CardTitle>Processed Image</CardTitle>
+            <CardTitle>Processed image</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -80,7 +80,7 @@ const RemoveBackground = () => {
             <div className="flex items-center justify-center min-h-[300px]">
               <div className="text-sm flex flex-col items-center gap-4 text-muted-foreground">
                 <Eraser className="w-8" />
-                <p>Upload an image and click "Remove Background" to get started</p>
+                <p>Upload a photo and get a clean, professional cutout in one click.</p>
               </div>
             </div>
           ) : (

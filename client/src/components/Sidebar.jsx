@@ -1,4 +1,4 @@
-import { Protect, useClerk, useUser } from '@clerk/clerk-react';
+import { useClerk, useUser } from '@clerk/clerk-react';
 import {
   Eraser,
   FileText,
@@ -11,8 +11,6 @@ import {
   Users,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
-import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
-import { Button } from './ui/button';
 
 const navItems = [
   { to: '/ai', label: 'Dashboard', Icon: House },
@@ -25,73 +23,56 @@ const navItems = [
   { to: '/ai/community', label: 'Community', Icon: Users },
 ];
 
-const NavItemContent = (props) => {
-  const IconComponent = props.Icon;
-  return (
-    <>
-      <IconComponent className={`w-4 h-4 ${props.isActive ? 'text-primary-foreground' : ''}`} />
-      {props.label}
-    </>
-  );
-};
-
 const Sidebar = ({ sidebar, setSidebar }) => {
   const { user } = useUser();
-  const { signOut, openUserProfile } = useClerk();
+  const { signOut } = useClerk();
 
   return (
     <div
-      className={`w-60 bg-card border-r flex flex-col justify-between items-center max:sm:absolute top-14 bottom-0 ${
+      className={`w-60 bg-[#000] border-r border-[#222] flex flex-col justify-between max-sm:absolute top-14 bottom-0 z-30 ${
         sidebar ? 'translate-x-0' : 'max-sm:-translate-x-full'
       } transition-all duration-300 ease-in-out`}
     >
-      <div className="my-7 w-full">
-        <Avatar className="w-13 h-13 mx-auto">
-          <AvatarImage src={user.imageUrl} alt={user.fullName} />
-          <AvatarFallback className="text-lg">{user.fullName?.charAt(0)}</AvatarFallback>
-        </Avatar>
-        <h1 className="mt-1 text-center text-foreground font-medium">{user.fullName}</h1>
-        <div className="px-4 mt-5 text-sm font-medium">
-          {navItems.map(({ to, label, Icon: ItemIcon }) => (
+      <div className="flex-1 flex flex-col pt-6">
+        <div className="px-4 pb-5 mb-2 border-b border-[#222]">
+          <p className="text-[11px] font-semibold text-[#555] tracking-[0.15em] uppercase">
+            {user?.fullName}
+          </p>
+          <p className="text-[10px] text-[#444] tracking-wider uppercase mt-0.5">Free Plan</p>
+        </div>
+        <nav className="flex-1 px-2 py-2 space-y-0.5">
+          {navItems.map(({ to, label, Icon }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/ai'}
               onClick={() => setSidebar(false)}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg mb-0.5 transition-colors ${
+                `flex items-center gap-3 px-3 py-2.5 text-sm font-medium border-l-2 transition-colors ${
                   isActive
-                    ? 'bg-foreground text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    ? 'border-white text-white bg-[#111]'
+                    : 'border-transparent text-[#555] hover:text-[#888] hover:bg-[#0a0a0a]'
                 }`
               }
             >
-              {({ isActive }) => (
-                <NavItemContent Icon={ItemIcon} label={label} isActive={isActive} />
-              )}
+              <Icon className="w-4 h-4 shrink-0" />
+              {label}
             </NavLink>
           ))}
-        </div>
+        </nav>
       </div>
-      <div className="w-full border-t p-4 px-5 flex items-center justify-between">
-        <div onClick={openUserProfile} className="flex gap-2 items-center cursor-pointer">
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={user.imageUrl} alt={user.fullName} />
-            <AvatarFallback className="text-xs">{user.fullName?.charAt(0)}</AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="text-sm font-medium text-foreground leading-tight">{user.fullName}</p>
-            <p className="text-xs text-muted-foreground">
-              <Protect plan="premium" fallback="Free">
-                Premium
-              </Protect>
-              Plan
-            </p>
+      <div className="border-t border-[#222] p-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-none bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-xs font-medium text-white shrink-0">
+            {user?.fullName?.charAt(0) || 'U'}
           </div>
+          <button
+            onClick={signOut}
+            className="text-[11px] text-[#555] hover:text-[#888] tracking-wider uppercase transition-colors"
+          >
+            Sign Out
+          </button>
         </div>
-        <Button variant="ghost" size="icon" onClick={signOut}>
-          <LogOut className="w-4 h-4 text-muted-foreground" />
-        </Button>
       </div>
     </div>
   );

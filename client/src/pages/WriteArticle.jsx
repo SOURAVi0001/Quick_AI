@@ -52,22 +52,22 @@ const WriteArticle = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Sparkles className="w-5 text-foreground" />
-            <CardTitle>Article Configuration</CardTitle>
+            <CardTitle>Write an article</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmitHandler} className="space-y-4">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Article Topic</p>
+              <p className="text-sm font-medium text-foreground">What do you want to write about?</p>
               <Input
                 onChange={(e) => setInput(e.target.value)}
                 value={input}
-                placeholder="The future of artificial intelligence is..."
+                placeholder="The future of remote work is..."
                 required
               />
             </div>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Article Length</p>
+              <p className="text-sm font-medium text-foreground">Article length</p>
               <div className="flex gap-2 flex-wrap">
                 {articleLengths.map((item) => (
                   <Badge
@@ -96,7 +96,7 @@ const WriteArticle = () => {
         <CardHeader>
           <div className="flex items-center gap-3">
             <Edit className="w-5 text-foreground" />
-            <CardTitle>Generated article</CardTitle>
+            <CardTitle>Your draft</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -104,7 +104,7 @@ const WriteArticle = () => {
             <div className="flex items-center justify-center min-h-[300px]">
               <div className="text-sm flex flex-col items-center gap-4 text-muted-foreground">
                 <Edit className="w-8" />
-                <p>Enter a topic and click "Generate article" to get started</p>
+                <p>Pick a topic and length, then hit generate. Your draft will appear here.</p>
               </div>
             </div>
           ) : (
