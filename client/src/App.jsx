@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
-import WriteArticle from './pages/WriteArticle';
+import WriteEmail from './pages/WriteEmail';
 import BlogTitles from './pages/BlogTitles';
 import Layout from './pages/Layout';
 import Community from './pages/Community';
@@ -9,6 +9,11 @@ import ReviewResume from './pages/ReviewResume';
 import RemoveObject from './pages/RemoveObject';
 import GenerateImages from './pages/GenerateImages';
 import RemoveBackground from './pages/RemoveBackground';
+import ResumeTailor from './pages/ResumeTailor';
+import LinkedinOptimizer from './pages/LinkedinOptimizer';
+import CareerScore from './pages/CareerScore';
+import InterviewCoach from './pages/InterviewCoach';
+import RecruiterOutreach from './pages/RecruiterOutreach';
 import { Toaster } from 'react-hot-toast';
 
 const App = () => {
@@ -30,15 +35,23 @@ const App = () => {
       />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route element={<Layout />}>
+          <Route path="/linkedin-optimizer" element={<LinkedinOptimizer />} />
+        </Route>
         <Route path="/ai" element={<Layout />}>
           <Route index element={<Dashboard />} />
-          <Route path="write-article" element={<WriteArticle />} />
-          <Route path="blog-titles" element={<BlogTitles />} />
-          <Route path="generate-images" element={<GenerateImages />} />
-          <Route path="remove-background" element={<RemoveBackground />} />
-          <Route path="remove-object" element={<RemoveObject />} />
+          <Route path="write-email" element={<WriteEmail />} />
+          {/* <Route path="blog-titles" element={<BlogTitles />} /> */}
+          {/* <Route path="generate-images" element={<GenerateImages />} /> */}
+          {/* <Route path="remove-background" element={<RemoveBackground />} /> */}
+          {/* <Route path="remove-object" element={<RemoveObject />} /> */}
           <Route path="review-resume" element={<ReviewResume />} />
-          <Route path="community" element={<Community />} />
+          <Route path="resume-tailor" element={<ResumeTailor />} />
+          <Route path="linkedin-optimizer" element={<LinkedinOptimizer />} />
+          <Route path="interview-coach" element={<InterviewCoach />} />
+          <Route path="recruiter-outreach" element={<RecruiterOutreach />} />
+          <Route path="career-score" element={<CareerScore />} />
+          {/* <Route path="community" element={<Community />} /> */}
         </Route>
       </Routes>
     </div>

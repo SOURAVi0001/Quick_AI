@@ -10,10 +10,10 @@ const accentGradient = 'from-[#dc2626] to-[#f97316]';
 
 const features = [
   {
-    id: 'article',
-    title: 'AI Article Writer',
-    subtitle: 'From a rough idea to a polished draft in seconds.',
-    description: 'Pick your topic and tone, and let the words flow. Short, medium, or long — the AI adapts to your voice.',
+    id: 'email',
+    title: 'AI Email Writer',
+    subtitle: 'From a rough idea to a polished email in seconds.',
+    description: 'Pick your topic and tone, and let the words flow. Professional, friendly, or urgent — the AI adapts to your voice.',
     Icon: ArticleIcon,
     visual: (
       <div className="w-full h-full flex flex-col p-5 sm:p-6">
@@ -21,7 +21,7 @@ const features = [
           <div className="w-2.5 h-2.5 rounded-full bg-red-500/40" />
           <div className="w-2.5 h-2.5 rounded-full bg-orange-500/40" />
           <div className="w-2.5 h-2.5 rounded-full bg-white/10" />
-          <div className="ml-auto text-[10px] text-white/20 font-mono">article.md</div>
+          <div className="ml-auto text-[10px] text-white/20 font-mono">email.txt</div>
         </div>
         <div className="flex-1 space-y-2.5">
           <div className="h-2.5 w-3/4 rounded-full bg-white/8" />

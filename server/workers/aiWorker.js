@@ -5,7 +5,7 @@ import sql from '../configs/db.js';
 import { safeSetEx, safeDel } from '../configs/redis.js';
 import crypto from 'crypto';
 import {
-  getDemoArticle,
+  getDemoEmail,
   getDemoBlogTitles,
   getDemoResumeReview,
   getDemoImage,
@@ -23,15 +23,15 @@ export async function processAITask(job) {
   let demo = false;
 
   switch (type) {
-    case 'generate-article': {
-      const cacheKey = `ai:article:${crypto.createHash('sha256').update(prompt).digest('hex')}`;
+    case 'generate-email': {
+      const cacheKey = `ai:email:${crypto.createHash('sha256').update(prompt).digest('hex')}`;
 
       try {
         const result = await model.generateContent(prompt);
         content = result.response.text();
       } catch (aiError) {
         if (isQuotaError(aiError)) {
-          content = getDemoArticle(300);
+          content = getDemoEmail();
           demo = true;
         } else {
           throw aiError;
@@ -41,7 +41,7 @@ export async function processAITask(job) {
       await safeSetEx(cacheKey, 3600, content);
 
       await sql`INSERT INTO creations (user_id, prompt, content, type) 
-                VALUES (${userId}, ${prompt}, ${content}, 'article')`;
+                VALUES (${userId}, ${prompt}, ${content}, 'email')`;
       await safeDel(`user:creations:${userId}`);
       break;
     }

@@ -2,30 +2,35 @@
 @import 'tailwindcss';
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 4%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 4%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 4%;
-  --primary: 0 0% 4%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 8%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 46%;
-  --accent: 0 0% 94%;
-  --accent-foreground: 0 0% 8%;
+  --background: 240 6% 8%;       /* Deep charcoal #131316 */
+  --foreground: 0 0% 98%;        /* Soft white */
+  --card: 240 6% 11%;            /* Slightly elevated charcoal #1a1a1e */
+  --card-foreground: 0 0% 98%;
+  --popover: 240 6% 11%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 28 90% 55%;         /* Warm Amber/Orange #f37b1d */
+  --primary-foreground: 0 0% 10%;
+  --secondary: 240 6% 16%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 240 6% 16%;
+  --muted-foreground: 240 5% 65%;
+  --accent: 28 90% 55%;
+  --accent-foreground: 0 0% 10%;
   --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 0 0% 4%;
-  --radius: 0;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 6% 16%;
+  --input: 240 6% 16%;
+  --ring: 28 90% 55%;
+  --radius: 0.5rem;
 }
 
 * {
   font-family: 'Inter', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 @theme {

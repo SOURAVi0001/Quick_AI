@@ -9,18 +9,26 @@ import {
   Scissors,
   SquarePen,
   Users,
+  Brain,
+  Send,
+  BarChart3,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
   { to: '/ai', label: 'Dashboard', Icon: House },
-  { to: '/ai/write-article', label: 'Write Article', Icon: SquarePen },
-  { to: '/ai/blog-titles', label: 'Blog Titles', Icon: Hash },
-  { to: '/ai/generate-images', label: 'Generate Images', Icon: Image },
-  { to: '/ai/remove-background', label: 'Remove Background', Icon: Eraser },
-  { to: '/ai/remove-object', label: 'Remove Object', Icon: Scissors },
+  { to: '/ai/write-email', label: 'Write Email', Icon: SquarePen },
+  // { to: '/ai/blog-titles', label: 'Blog Titles', Icon: Hash },
+  // { to: '/ai/generate-images', label: 'Generate Images', Icon: Image },
+  // { to: '/ai/remove-background', label: 'Remove Background', Icon: Eraser },
+  // { to: '/ai/remove-object', label: 'Remove Object', Icon: Scissors },
   { to: '/ai/review-resume', label: 'Review Resume', Icon: FileText },
-  { to: '/ai/community', label: 'Community', Icon: Users },
+  { to: '/ai/resume-tailor', label: 'Resume Tailor', Icon: FileText },
+  { to: '/ai/linkedin-optimizer', label: 'LinkedIn Optimizer', Icon: SquarePen },
+  { to: '/ai/interview-coach', label: 'AI Interview Coach', Icon: Brain },
+  { to: '/ai/recruiter-outreach', label: 'Recruiter Outreach', Icon: Send },
+  { to: '/ai/career-score', label: 'Career Score', Icon: BarChart3 },
+  // { to: '/ai/community', label: 'Community', Icon: Users },
 ];
 
 const Sidebar = ({ sidebar, setSidebar }) => {

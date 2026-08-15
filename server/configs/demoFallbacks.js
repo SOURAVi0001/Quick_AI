@@ -284,6 +284,20 @@ const resumeReviewFallback = `## Resume Review Summary
 ### Overall Score: **7.5/10**
 
 This is a solid resume that demonstrates technical competence. With the suggested improvements, particularly around quantifying impact and adding a professional summary, this could easily become a 9/10 resume.`;
+// ─── Email Fallbacks ─────────────────────────────────────────────────────────
+
+export function getDemoEmail() {
+  return `Subject: Sync on Q3 Roadmap
+
+Hi team,
+
+I wanted to quickly check in on our progress toward the Q3 roadmap. We've made great strides this month, but we still have a few deliverables pending.
+
+Could we schedule a brief sync tomorrow to go over the remaining items? Let me know what time works best for you.
+
+Best regards,
+Demo User`;
+}
 
 // ─── Image Fallbacks (pre-hosted sample images) ─────────────────────────────
 

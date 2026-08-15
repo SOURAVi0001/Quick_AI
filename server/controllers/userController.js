@@ -75,3 +75,55 @@ export const toggleLikeCreations = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getFeatureHistory = async (req, res, next) => {
+  try {
+    const { userId } = req.auth();
+    const { type, page = 1, limit = 3 } = req.query;
+
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 3;
+    const offset = (pageNum - 1) * limitNum;
+
+    let items = [];
+    let countResult = [];
+
+    if (type) {
+      items = await sql`
+        SELECT * FROM creations 
+        WHERE user_id=${userId} AND type=${type} 
+        ORDER BY created_at DESC 
+        LIMIT ${limitNum} OFFSET ${offset}
+      `;
+      countResult = await sql`
+        SELECT COUNT(*) FROM creations 
+        WHERE user_id=${userId} AND type=${type}
+      `;
+    } else {
+      items = await sql`
+        SELECT * FROM creations 
+        WHERE user_id=${userId} 
+        ORDER BY created_at DESC 
+        LIMIT ${limitNum} OFFSET ${offset}
+      `;
+      countResult = await sql`
+        SELECT COUNT(*) FROM creations 
+        WHERE user_id=${userId}
+      `;
+    }
+
+    const total = parseInt(countResult[0]?.count || '0', 10);
+    const totalPages = Math.ceil(total / limitNum);
+
+    res.json({
+      success: true,
+      items,
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages
+    });
+  } catch (error) {
+    next(error);
+  }
+};
