@@ -7,6 +7,7 @@ import cors from 'cors';
 
 import aiRouter from './routes/aiRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import jobApplicationRouter from './routes/jobApplicationRoutes.js';
 import connectionCloudinary from './configs/cloudinary.js';
 import redisClient from './configs/redis.js';
 import { startWorker } from './configs/queue.js';
@@ -19,6 +20,7 @@ const REQUIRED_ENV = [
   'CLERK_SECRET_KEY',
   'DATABASE_URL',
   'GEMINI_API_KEY',
+  'OPENROUTER_API_KEY',
 ];
 
 const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
@@ -37,6 +39,10 @@ const allowedOrigins = [
   'https://quick-ai-frontend.onrender.com',
   'https://d30jzk0hgtqxk3.cloudfront.net',
   'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:3000',
+  'http://localhost:3001',
   'https://quickai.store',
   process.env.FRONTEND_ORIGIN,
 ].filter(Boolean);
@@ -81,8 +87,34 @@ try {
   console.log('Redis connected');
 
   // Start BullMQ worker only if Redis is available
-  startWorker(processAITask);
+  const worker = startWorker(processAITask);
   console.log('BullMQ AI Worker started');
+
+  worker.on('completed', (job, result) => {
+    const io = app.get('io');
+    if (io && job.data?.userId) {
+      io.to(`user:${job.data.userId}`).emit('task:completed', {
+        taskId: job.id,
+        type: result?.type || job.data?.type,
+        status: 'completed',
+        resultId: result?.resultId,
+        content: result?.content,
+        demo: result?.demo,
+      });
+    }
+  });
+
+  worker.on('failed', (job, err) => {
+    const io = app.get('io');
+    if (io && job?.data?.userId) {
+      io.to(`user:${job.data.userId}`).emit('task:failed', {
+        taskId: job.id,
+        type: job.data?.type,
+        status: 'failed',
+        error: err?.message || 'Failed to process AI task. Please try again.',
+      });
+    }
+  });
 } catch (err) {
   console.warn('Redis connection failed — running without cache & queues:', err.message || err);
 }
@@ -103,6 +135,7 @@ app.get('/health', (req, res) =>
 
 app.use('/api/ai', aiRouter);
 app.use('/api/user', userRouter);
+app.use('/api/job-applications', jobApplicationRouter);
 
 // ─── 404 Catch-All ──────────────────────────────────────────────────
 app.all('/*splat', (req, res) => res.status(404).json({ success: false, message: 'Not Found' }));

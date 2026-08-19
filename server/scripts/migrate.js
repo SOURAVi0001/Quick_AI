@@ -42,6 +42,84 @@ async function migrate() {
     console.error(`  ❌ ${migrations[2].name}: ${err.message}`);
   }
 
+  // --- Job Application Tracker Tables ---
+  console.log('\n📦 Creating Job Application Tracker tables...');
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS job_applications (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        company VARCHAR(255) NOT NULL,
+        role VARCHAR(255) NOT NULL,
+        job_url TEXT,
+        job_description TEXT,
+        location VARCHAR(255),
+        employment_type VARCHAR(100),
+        applied_date DATE,
+        status VARCHAR(50) NOT NULL DEFAULT 'Saved',
+        recruiter_name VARCHAR(255),
+        recruiter_email VARCHAR(255),
+        recruiter_linkedin VARCHAR(255),
+        resume_reference TEXT,
+        notes TEXT,
+        next_action VARCHAR(255),
+        next_action_date DATE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    console.log('  ✅ Table job_applications created or already exists');
+  } catch (err) {
+    console.error('  ❌ Table job_applications failed:', err.message);
+  }
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS job_application_activities (
+        id SERIAL PRIMARY KEY,
+        application_id INTEGER NOT NULL REFERENCES job_applications(id) ON DELETE CASCADE,
+        user_id VARCHAR(255) NOT NULL,
+        type VARCHAR(50) NOT NULL,
+        previous_status VARCHAR(50),
+        new_status VARCHAR(50),
+        note TEXT,
+        metadata JSONB,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    console.log('  ✅ Table job_application_activities created or already exists');
+  } catch (err) {
+    console.error('  ❌ Table job_application_activities failed:', err.message);
+  }
+
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS job_search_insights (
+        id SERIAL PRIMARY KEY,
+        user_id VARCHAR(255) NOT NULL,
+        summary TEXT,
+        analysis_json JSONB,
+        data_quality JSONB,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    console.log('  ✅ Table job_search_insights created or already exists');
+  } catch (err) {
+    console.error('  ❌ Table job_search_insights failed:', err.message);
+  }
+
+  // --- Indexes for Job Application Tracker ---
+  try {
+    await sql`CREATE INDEX IF NOT EXISTS idx_job_applications_user_id ON job_applications (user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_job_application_activities_app ON job_application_activities (application_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_job_application_activities_user ON job_application_activities (user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_job_search_insights_user_id ON job_search_insights (user_id)`;
+    console.log('  ✅ Job tracker indexes created or already exist');
+  } catch (err) {
+    console.error('  ❌ Job tracker indexes creation failed:', err.message);
+  }
+
   console.log('\n🎉 Migrations complete.');
   process.exit(0);
 }
