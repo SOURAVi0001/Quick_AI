@@ -86,6 +86,24 @@ try {
   await redisClient.connect();
   console.log('Redis connected');
 
+  // Attempt to set eviction policy to noeviction
+  try {
+    const policy = await redisClient.configGet('maxmemory-policy');
+    const policyValue = policy && policy['maxmemory-policy'];
+    console.log(`ℹ️ Redis maxmemory-policy is: ${policyValue}`);
+    if (policyValue && policyValue !== 'noeviction') {
+      console.log(`⚠️ Eviction policy is ${policyValue}. Changing to noeviction...`);
+      await redisClient.configSet('maxmemory-policy', 'noeviction');
+      console.log('✅ Redis maxmemory-policy set to noeviction');
+    }
+  } catch (configErr) {
+    console.warn(
+      '⚠️ Could not dynamically configure Redis maxmemory-policy to noeviction. ' +
+      'If you are using a managed Redis provider (like Render/Redis Labs), please set the eviction policy ' +
+      'to "noeviction" manually in their dashboard to prevent BullMQ job eviction.'
+    );
+  }
+
   // Start BullMQ worker only if Redis is available
   const worker = startWorker(processAITask);
   console.log('BullMQ AI Worker started');

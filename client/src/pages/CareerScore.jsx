@@ -116,12 +116,11 @@ const CareerScore = () => {
                 <CardDescription>Performance across different areas based on your data</CardDescription>
               </CardHeader>
               <CardContent className="pt-8 space-y-8">
-                {['resume', 'linkedin', 'github', 'jobMatch', 'communication'].map((cat) => {
+                {['resume', 'linkedin', 'jobMatch', 'communication'].map((cat) => {
                   const val = scoreData.categories?.[cat];
                   const labels = {
                     resume: 'Resume Quality',
                     linkedin: 'LinkedIn Optimization',
-                    github: 'GitHub Activity',
                     jobMatch: 'Job Fit Analysis',
                     communication: 'Interview Communication'
                   };

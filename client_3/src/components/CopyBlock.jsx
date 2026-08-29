@@ -61,21 +61,48 @@ export function ComparePanel({
   recommendedLabel = 'Recommended',
   current,
   recommended,
+  reason,
   className = '',
 }) {
+  const formatContent = (val) => {
+    if (!val) return '';
+    if (typeof val === 'string') return val;
+    if (Array.isArray(val)) {
+      return val.map((item) => (typeof item === 'string' ? `• ${item}` : `• ${JSON.stringify(item)}`)).join('\n\n');
+    }
+    if (typeof val === 'object') {
+      return Object.entries(val)
+        .map(([k, v]) => `**${k}**: ${typeof v === 'string' ? v : JSON.stringify(v)}`)
+        .join('\n\n');
+    }
+    return String(val);
+  };
+
+  const currentFormatted = formatContent(current);
+  const recommendedFormatted = formatContent(recommended);
+
   return (
     <Card variant="panel" className={cn('animate-reveal overflow-hidden', className)}>
       {title && (
-        <div className="border-b border-border px-5 py-3.5 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-3.5 sm:px-6">
           <h3 className="text-h3 text-foreground">{title}</h3>
+          {reason && (
+            <span className="text-xs text-muted-foreground italic max-w-md truncate">
+              {reason}
+            </span>
+          )}
         </div>
       )}
       <div className="grid grid-cols-1 divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0">
         <div className="min-w-0 p-5 sm:p-6">
           <p className="text-eyebrow mb-3 text-subtle-foreground">{currentLabel}</p>
-          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-muted-foreground/80">
-            {current || '—'}
-          </p>
+          {currentFormatted ? (
+            <div className="prose prose-invert prose-sm max-w-none break-words leading-relaxed text-muted-foreground/80">
+              <Markdown>{currentFormatted}</Markdown>
+            </div>
+          ) : (
+            <p className="text-sm italic text-muted-foreground/40">Not specified in original resume</p>
+          )}
         </div>
         <div className="relative min-w-0 bg-primary/[0.04] p-5 sm:p-6">
           <span
@@ -84,11 +111,15 @@ export function ComparePanel({
           />
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-eyebrow text-accent">{recommendedLabel}</p>
-            <CopyButton text={recommended || ''} variant="ghost" size="sm" />
+            <CopyButton text={recommendedFormatted || ''} variant="ghost" size="sm" />
           </div>
-          <div className="prose prose-invert prose-sm max-w-none break-words prose-p:leading-relaxed prose-strong:text-foreground">
-            <Markdown>{recommended || '—'}</Markdown>
-          </div>
+          {recommendedFormatted ? (
+            <div className="prose prose-invert prose-sm max-w-none break-words prose-p:leading-relaxed prose-strong:text-amber-400 prose-strong:font-semibold prose-li:my-1 prose-ul:my-2">
+              <Markdown>{recommendedFormatted}</Markdown>
+            </div>
+          ) : (
+            <p className="text-sm italic text-muted-foreground/40">—</p>
+          )}
         </div>
       </div>
     </Card>

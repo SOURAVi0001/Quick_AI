@@ -11,7 +11,17 @@ import { Badge } from '../components/ui/badge';
 import { CopyButton } from '../components/CopyButton';
 import ToolShell, { ResultRegion } from '../components/ToolShell';
 import EmptyState from '../components/EmptyState';
+import LoadingState from '../components/LoadingState';
+import ErrorState from '../components/ErrorState';
 import HistorySection from '../components/HistorySection';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogBody,
+} from '../components/ui/dialog';
 
 const LinkedinOptimizer = () => {
   const [formData, setFormData] = useState({
@@ -28,7 +38,10 @@ const LinkedinOptimizer = () => {
   const [posts, setPosts] = useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState(null);
+  const [error, setError] = useState(null);
+  const [activeAnalysis, setActiveAnalysis] = useState(null);
+  const [popoverItem, setPopoverItem] = useState(null);
+  const [historyKey, setHistoryKey] = useState(0);
   const { getToken } = useAuth();
 
   const handleInputChange = (e) => {
@@ -61,30 +74,52 @@ const LinkedinOptimizer = () => {
   };
 
   const onSubmitHandler = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (!formData.targetRole?.trim()) return toast.error('Please enter a target role.');
+    if (!formData.headline?.trim()) return toast.error('Please enter your current headline.');
+
     try {
       setLoading(true);
+      setError(null);
+      setActiveAnalysis(null);
+
       const payload = { ...formData, posts: posts.filter(p => p.trim() !== '') };
 
       const { data } = await api.post('/api/ai/linkedin/analyze', payload, {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
 
-      if (data.success) {
-        setResults(data.content);
+      if (data && (data.success || data.content)) {
+        const raw = data.content !== undefined ? data.content : data;
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        setActiveAnalysis(parsed);
+        setHistoryKey(k => k + 1);
         toast.success('Analysis complete!');
       } else {
-        toast.error(data.message || 'Failed to analyze profile');
+        const errMsg = data?.message || 'Failed to analyze profile';
+        setError(errMsg);
+        toast.error(errMsg);
       }
-    } catch (error) {
-      toast.error(error.message || 'An error occurred');
+    } catch (err) {
+      const errMsg = err.message || 'An error occurred during analysis';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
   };
 
   const ResultBlock = ({ title, original, recommended, alternatives }) => {
-    if (!recommended) return null;
+    const recText =
+      typeof recommended === 'object' && recommended !== null
+        ? recommended.recommended || recommended.text || recommended.content || JSON.stringify(recommended)
+        : recommended;
+    const origText =
+      typeof original === 'object' && original !== null
+        ? original.current || original.text || original.content || JSON.stringify(original)
+        : original;
+
+    if (!recText && !origText) return null;
 
     return (
       <Card className="mb-6 overflow-hidden">
@@ -94,7 +129,7 @@ const LinkedinOptimizer = () => {
           <div className="mb-2">
             <h4 className="text-eyebrow mb-3 text-subtle-foreground">Current</h4>
             <div className="min-w-0 rounded-md bg-surface-1 p-4 text-sm leading-relaxed whitespace-pre-wrap break-words text-muted-foreground">
-              {original || <span className="italic">Not provided</span>}
+              {origText || <span className="italic text-muted-foreground/50">Not provided</span>}
             </div>
           </div>
         </div>
@@ -104,21 +139,24 @@ const LinkedinOptimizer = () => {
             <h4 className="text-eyebrow flex items-center gap-1.5 text-primary">
               <Sparkles className="size-3.5" /> AI Recommendation
             </h4>
-            <CopyButton text={recommended} className="h-8" />
+            <CopyButton text={recText || ''} className="h-8" />
           </div>
           <div className="min-w-0 rounded-md border border-border bg-card p-4 text-sm leading-relaxed whitespace-pre-wrap break-words text-foreground">
-            {recommended}
+            {recText}
           </div>
 
           {alternatives && alternatives.length > 0 && (
             <div className="mt-5 space-y-3">
               <h4 className="text-eyebrow text-subtle-foreground">Alternatives</h4>
-              {alternatives.map((alt, idx) => (
-                <div key={idx} className="flex items-center justify-between gap-4 rounded-md border border-border bg-surface-1 p-4">
-                  <div className="min-w-0 break-words text-sm leading-relaxed text-foreground/80">{alt}</div>
-                  <CopyButton text={alt} className="h-8 shrink-0" />
-                </div>
-              ))}
+              {alternatives.map((alt, idx) => {
+                const altText = typeof alt === 'object' ? alt.text || JSON.stringify(alt) : alt;
+                return (
+                  <div key={idx} className="flex items-center justify-between gap-4 rounded-md border border-border bg-surface-1 p-4">
+                    <div className="min-w-0 break-words text-sm leading-relaxed text-foreground/80">{altText}</div>
+                    <CopyButton text={altText} className="h-8 shrink-0" />
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -279,7 +317,20 @@ const LinkedinOptimizer = () => {
         {/* RIGHT: RESULTS */}
         <div className="min-w-0 lg:col-span-7">
           <ResultRegion label="LinkedIn profile analysis">
-            {!results ? (
+            {loading ? (
+              <LoadingState
+                title="Analyzing your profile…"
+                description="AI is analyzing your LinkedIn profile and generating recommendations..."
+                lines={6}
+              />
+            ) : error ? (
+              <ErrorState
+                title="Analysis Failed"
+                description={error}
+                onRetry={() => onSubmitHandler()}
+                retrying={loading}
+              />
+            ) : !activeAnalysis ? (
               <EmptyState
                 icon={Linkedin}
                 title="Awaiting Analysis"
@@ -297,7 +348,7 @@ const LinkedinOptimizer = () => {
                     </div>
                     <p className="text-eyebrow mb-2 text-subtle-foreground">Overall Score</p>
                     <div className="flex items-baseline gap-1">
-                      <div className="text-3xl font-bold text-foreground">{results.overallScore || 0}</div>
+                      <div className="text-3xl font-bold text-foreground">{activeAnalysis.overallScore || 0}</div>
                       <div className="text-sm font-medium text-muted-foreground">/100</div>
                     </div>
                   </Card>
@@ -307,16 +358,16 @@ const LinkedinOptimizer = () => {
                     </div>
                     <p className="text-eyebrow mb-2 text-subtle-foreground">Role Alignment</p>
                     <div className="flex items-baseline gap-1">
-                      <div className="text-3xl font-bold text-foreground">{results.roleAlignmentScore || 0}</div>
+                      <div className="text-3xl font-bold text-foreground">{activeAnalysis.roleAlignmentScore || 0}</div>
                       <div className="text-sm font-medium text-muted-foreground">/100</div>
                     </div>
                   </Card>
                 </div>
 
-                {results.summary && (
+                {activeAnalysis.summary && (
                   <Card variant="result">
                     <CardContent className="min-w-0 p-6 pt-6 text-sm leading-relaxed break-words text-foreground/90">
-                      {results.summary}
+                      {activeAnalysis.summary}
                     </CardContent>
                   </Card>
                 )}
@@ -327,42 +378,42 @@ const LinkedinOptimizer = () => {
                     Profile Optimizations
                   </h2>
 
-                  {results.headline && (
+                  {activeAnalysis.headline && (
                     <ResultBlock
                       title="Headline"
-                      original={results.headline.current}
-                      recommended={results.headline.recommended}
-                      alternatives={results.headline.alternatives}
+                      original={typeof activeAnalysis.headline === 'object' ? activeAnalysis.headline.current : formData.headline}
+                      recommended={typeof activeAnalysis.headline === 'object' ? activeAnalysis.headline.recommended : activeAnalysis.headline}
+                      alternatives={typeof activeAnalysis.headline === 'object' ? activeAnalysis.headline.alternatives : []}
                     />
                   )}
 
-                  {results.about && (
+                  {activeAnalysis.about && (
                     <ResultBlock
                       title="About / Summary"
-                      original={results.about.current}
-                      recommended={results.about.recommended}
+                      original={typeof activeAnalysis.about === 'object' ? activeAnalysis.about.current : formData.about}
+                      recommended={typeof activeAnalysis.about === 'object' ? activeAnalysis.about.recommended : activeAnalysis.about}
                     />
                   )}
 
-                  {results.experience && results.experience.map((exp, idx) => (
+                  {activeAnalysis.experience && Array.isArray(activeAnalysis.experience) && activeAnalysis.experience.map((exp, idx) => (
                     <ResultBlock
                       key={idx}
                       title={`Experience Entry ${idx + 1}`}
-                      original={exp.current}
-                      recommended={exp.recommended}
+                      original={typeof exp === 'object' ? exp.current : formData.experience}
+                      recommended={typeof exp === 'object' ? exp.recommended : exp}
                     />
                   ))}
 
-                  {results.projects && results.projects.map((proj, idx) => (
+                  {activeAnalysis.projects && Array.isArray(activeAnalysis.projects) && activeAnalysis.projects.map((proj, idx) => (
                     <ResultBlock
                       key={idx}
                       title={`Project Entry ${idx + 1}`}
-                      original={proj.current}
-                      recommended={proj.recommended}
+                      original={typeof proj === 'object' ? proj.current : formData.projects}
+                      recommended={typeof proj === 'object' ? proj.recommended : proj}
                     />
                   ))}
 
-                  {results.skills && (
+                  {activeAnalysis.skills && (
                     <Card>
                       <CardHeader className="border-b border-border pb-4">
                         <CardTitle className="text-base">Skills Optimization</CardTitle>
@@ -371,24 +422,24 @@ const LinkedinOptimizer = () => {
                         <div>
                           <div className="mb-3 flex items-center justify-between gap-3">
                             <h4 className="text-eyebrow text-subtle-foreground">Recommended Order</h4>
-                            <CopyButton text={(results.skills.recommendedOrder || []).join(', ')} className="h-8" />
+                            <CopyButton text={(activeAnalysis.skills.recommendedOrder || []).join(', ')} className="h-8" />
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            {results.skills.recommendedOrder && results.skills.recommendedOrder.map((s, i) => (
+                            {activeAnalysis.skills.recommendedOrder && activeAnalysis.skills.recommendedOrder.map((s, i) => (
                               <Badge key={i} variant="accent">{s}</Badge>
                             ))}
                           </div>
                         </div>
 
-                        {results.skills.missingSkills && results.skills.missingSkills.length > 0 && (
+                        {activeAnalysis.skills.missingSkills && activeAnalysis.skills.missingSkills.length > 0 && (
                           <div>
                             <div className="mb-3 flex items-center justify-between gap-3">
                               <h4 className="text-eyebrow text-subtle-foreground">Missing Skills to Add</h4>
-                              <CopyButton text={results.skills.missingSkills.join(', ')} className="h-8" />
+                              <CopyButton text={activeAnalysis.skills.missingSkills.join(', ')} className="h-8" />
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {results.skills.missingSkills.map((s, i) => (
-                                <Badge key={i} variant="warning">{s}</Badge>
+                              {activeAnalysis.skills.missingSkills.map((s, i) => (
+                                <Badge key={i} variant="outline" className="border-destructive/30 text-destructive">{s}</Badge>
                               ))}
                             </div>
                           </div>
@@ -398,13 +449,13 @@ const LinkedinOptimizer = () => {
                   )}
                 </div>
 
-                {results.posts && results.posts.length > 0 && (
-                  <div className="space-y-4 pt-8">
+                {activeAnalysis.posts && activeAnalysis.posts.length > 0 && (
+                  <div className="space-y-4 pt-4">
                     <h2 className="text-h2 mb-6 flex items-center gap-2 text-foreground">
                       <Sparkles className="size-5 text-primary" />
-                      Post Improvements
+                      Post Enhancements
                     </h2>
-                    {results.posts.map((post, idx) => (
+                    {activeAnalysis.posts.map((post, idx) => (
                       <PostResultBlock
                         key={idx}
                         original={post.original}
@@ -415,16 +466,13 @@ const LinkedinOptimizer = () => {
                   </div>
                 )}
 
-                {results.postIdeas && results.postIdeas.length > 0 && (
-                  <div className="space-y-4 pt-8">
-                    <div className="mb-6">
-                      <h2 className="text-h2 mb-2 flex items-center gap-2 text-foreground">
-                        <Sparkles className="size-5 text-primary" />
-                        Content Ideas
-                      </h2>
-                      <p className="text-sm text-muted-foreground">Future post ideas based on your profile and optimization goals.</p>
-                    </div>
-                    {results.postIdeas.map((idea, idx) => (
+                {activeAnalysis.postIdeas && activeAnalysis.postIdeas.length > 0 && (
+                  <div className="space-y-4 pt-4">
+                    <h2 className="text-h2 mb-6 flex items-center gap-2 text-foreground">
+                      <Sparkles className="size-5 text-primary" />
+                      Strategic Post Ideas
+                    </h2>
+                    {activeAnalysis.postIdeas.map((idea, idx) => (
                       <IdeaBlock
                         key={idx}
                         title={idea.title}
@@ -442,31 +490,239 @@ const LinkedinOptimizer = () => {
       </div>
 
       <HistorySection
+        key={historyKey}
         type="linkedin-optimizer"
         title="Optimization History"
         renderItem={(item, { handleCopy, format }) => {
           const content = typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
+
+          // Intelligently determine role title
+          let roleTitle = content?.targetRole;
+          if (!roleTitle && item.prompt && item.prompt !== 'LinkedIn Profile Optimization' && item.prompt !== 'Profile Optimization') {
+            roleTitle = item.prompt;
+          }
+          if (!roleTitle && content?.summary) {
+            const match = content.summary.match(/tailored for ([^.]+)/i);
+            if (match) roleTitle = match[1].trim();
+          }
+          if (!roleTitle) {
+            roleTitle = 'Profile Optimization';
+          }
+
           return (
-            <div className="p-6">
-              <div className="mb-4 flex items-start justify-between gap-3">
+            <div
+              onClick={() => setPopoverItem({ ...item, _roleTitle: roleTitle })}
+              className="group cursor-pointer p-6 transition-all hover:bg-surface-2/60 active:scale-[0.99]"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setPopoverItem({ ...item, _roleTitle: roleTitle });
+                }
+              }}
+            >
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="mb-1 line-clamp-1 text-sm font-medium text-foreground">
-                    {item.prompt || 'Profile Optimization'}
+                  <p className="mb-1 text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                    {roleTitle}
                   </p>
                   <p className="text-xs text-subtle-foreground">{format(item.created_at)}</p>
                 </div>
-                <Badge variant="accent" className="shrink-0">{content.overallScore || 0}/100 Score</Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="accent" className="shrink-0">
+                    {content?.overallScore || 0}/100 Score
+                  </Badge>
+                </div>
               </div>
-              <div className="min-w-0 rounded-md border border-border bg-surface-1 p-4">
-                <p className="mb-2 min-w-0 break-words text-sm font-medium text-foreground">Target Role: {content.targetRole || 'Not specified'}</p>
+              <div className="min-w-0 rounded-md border border-border bg-surface-1/80 p-4 transition-colors group-hover:border-primary/30">
                 <p className="line-clamp-2 min-w-0 break-words text-xs leading-relaxed text-muted-foreground">
-                  {content.summary}
+                  {content?.summary}
                 </p>
               </div>
             </div>
           );
         }}
       />
+
+      {/* Interactive Popover Modal Window */}
+      {popoverItem && (() => {
+        const popoverContent =
+          typeof popoverItem.content === 'string'
+            ? JSON.parse(popoverItem.content)
+            : popoverItem.content;
+
+        return (
+          <Dialog open={!!popoverItem} onOpenChange={(open) => !open && setPopoverItem(null)}>
+            <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] max-h-[90vh]">
+              <DialogHeader>
+                <div className="flex flex-wrap items-center gap-3">
+                  <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">
+                    {popoverItem._roleTitle || 'Profile Optimization'}
+                  </DialogTitle>
+                  <Badge variant="accent">
+                    {popoverContent?.overallScore || 0}/100 Score
+                  </Badge>
+                  {popoverContent?.roleAlignmentScore && (
+                    <Badge variant="neutral">
+                      {popoverContent.roleAlignmentScore}/100 Alignment
+                    </Badge>
+                  )}
+                </div>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Detailed evaluation, keyword density, headline positioning, and tailored copy-paste recommendations.
+                </DialogDescription>
+              </DialogHeader>
+
+              <DialogBody className="space-y-6 py-5">
+                {/* Score & Summary Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="relative overflow-hidden p-6">
+                    <div className="absolute top-0 right-0 p-4 text-primary opacity-10">
+                      <Sparkles className="size-12" />
+                    </div>
+                    <p className="text-eyebrow mb-2 text-subtle-foreground">Overall Score</p>
+                    <div className="flex items-baseline gap-1">
+                      <div className="text-3xl font-bold text-foreground">{popoverContent?.overallScore || 0}</div>
+                      <div className="text-sm font-medium text-muted-foreground">/100</div>
+                    </div>
+                  </Card>
+                  <Card className="relative overflow-hidden p-6">
+                    <div className="absolute top-0 right-0 p-4 text-primary opacity-10">
+                      <Target className="size-12" />
+                    </div>
+                    <p className="text-eyebrow mb-2 text-subtle-foreground">Role Alignment</p>
+                    <div className="flex items-baseline gap-1">
+                      <div className="text-3xl font-bold text-foreground">{popoverContent?.roleAlignmentScore || 0}</div>
+                      <div className="text-sm font-medium text-muted-foreground">/100</div>
+                    </div>
+                  </Card>
+                </div>
+
+                {popoverContent?.summary && (
+                  <Card variant="result">
+                    <CardContent className="min-w-0 p-6 pt-6 text-sm leading-relaxed break-words text-foreground/90">
+                      {popoverContent.summary}
+                    </CardContent>
+                  </Card>
+                )}
+
+                <div className="space-y-4 pt-2">
+                  <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
+                    <Sparkles className="size-5 text-primary" />
+                    Profile Optimizations
+                  </h3>
+
+                  {popoverContent?.headline && (
+                    <ResultBlock
+                      title="Headline"
+                      original={typeof popoverContent.headline === 'object' ? popoverContent.headline.current : formData.headline}
+                      recommended={typeof popoverContent.headline === 'object' ? popoverContent.headline.recommended : popoverContent.headline}
+                      alternatives={typeof popoverContent.headline === 'object' ? popoverContent.headline.alternatives : []}
+                    />
+                  )}
+
+                  {popoverContent?.about && (
+                    <ResultBlock
+                      title="About / Summary"
+                      original={typeof popoverContent.about === 'object' ? popoverContent.about.current : formData.about}
+                      recommended={typeof popoverContent.about === 'object' ? popoverContent.about.recommended : popoverContent.about}
+                    />
+                  )}
+
+                  {popoverContent?.experience && Array.isArray(popoverContent.experience) && popoverContent.experience.map((exp, idx) => (
+                    <ResultBlock
+                      key={idx}
+                      title={`Experience Entry ${idx + 1}`}
+                      original={typeof exp === 'object' ? exp.current : formData.experience}
+                      recommended={typeof exp === 'object' ? exp.recommended : exp}
+                    />
+                  ))}
+
+                  {popoverContent?.projects && Array.isArray(popoverContent.projects) && popoverContent.projects.map((proj, idx) => (
+                    <ResultBlock
+                      key={idx}
+                      title={`Project Entry ${idx + 1}`}
+                      original={typeof proj === 'object' ? proj.current : formData.projects}
+                      recommended={typeof proj === 'object' ? proj.recommended : proj}
+                    />
+                  ))}
+
+                  {popoverContent?.skills && (
+                    <Card>
+                      <CardHeader className="border-b border-border pb-4">
+                        <CardTitle className="text-base">Skills Optimization</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6 pt-6">
+                        <div>
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <h4 className="text-eyebrow text-subtle-foreground">Recommended Order</h4>
+                            <CopyButton text={(popoverContent.skills.recommendedOrder || []).join(', ')} className="h-8" />
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {popoverContent.skills.recommendedOrder && popoverContent.skills.recommendedOrder.map((s, i) => (
+                              <Badge key={i} variant="accent">{s}</Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        {popoverContent.skills.missingSkills && popoverContent.skills.missingSkills.length > 0 && (
+                          <div>
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                              <h4 className="text-eyebrow text-subtle-foreground">Missing Skills to Add</h4>
+                              <CopyButton text={popoverContent.skills.missingSkills.join(', ')} className="h-8" />
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {popoverContent.skills.missingSkills.map((s, i) => (
+                                <Badge key={i} variant="outline" className="border-destructive/30 text-destructive">{s}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {popoverContent?.posts && popoverContent.posts.length > 0 && (
+                  <div className="space-y-4 pt-2">
+                    <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
+                      <Sparkles className="size-5 text-primary" />
+                      Post Enhancements
+                    </h3>
+                    {popoverContent.posts.map((post, idx) => (
+                      <PostResultBlock
+                        key={idx}
+                        original={post.original}
+                        analysis={post.analysis}
+                        recommended={post.recommended}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {popoverContent?.postIdeas && popoverContent.postIdeas.length > 0 && (
+                  <div className="space-y-4 pt-2">
+                    <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
+                      <Sparkles className="size-5 text-primary" />
+                      Strategic Post Ideas
+                    </h3>
+                    {popoverContent.postIdeas.map((idea, idx) => (
+                      <IdeaBlock
+                        key={idx}
+                        title={idea.title}
+                        topic={idea.topic}
+                        reason={idea.reason}
+                        suggestedPost={idea.suggestedPost}
+                      />
+                    ))}
+                  </div>
+                )}
+              </DialogBody>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
     </ToolShell>
   );
 };

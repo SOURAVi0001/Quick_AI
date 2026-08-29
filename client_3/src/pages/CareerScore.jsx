@@ -57,7 +57,7 @@ const CareerScore = () => {
       >
         <LoadingState
           title="Analyzing your career profile…"
-          description="Pulling together your resume, LinkedIn, GitHub and interview signals."
+          description="Pulling together your resume, LinkedIn, and interview signals."
           lines={5}
         />
       </ToolShell>
@@ -103,12 +103,11 @@ const CareerScore = () => {
                 <CardDescription>Performance across different areas based on your data</CardDescription>
               </CardHeader>
               <CardContent className="space-y-8 pt-8">
-                {['resume', 'linkedin', 'github', 'jobMatch', 'communication'].map((cat) => {
+                {['resume', 'linkedin', 'jobMatch', 'communication'].map((cat) => {
                   const val = scoreData.categories?.[cat];
                   const labels = {
                     resume: 'Resume Quality',
                     linkedin: 'LinkedIn Optimization',
-                    github: 'GitHub Activity',
                     jobMatch: 'Job Fit Analysis',
                     communication: 'Interview Communication',
                   };

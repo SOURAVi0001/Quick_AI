@@ -25,8 +25,8 @@ export function getQueue() {
     aiQueue = new Queue(QUEUE_NAME, {
       connection,
       defaultJobOptions: {
-        removeOnComplete: { count: 100 },
-        removeOnFail: { count: 50 },
+        removeOnComplete: { age: 3600, count: 500 },
+        removeOnFail: { age: 86400, count: 200 },
         attempts: 2,
         backoff: { type: 'exponential', delay: 3000 },
       },

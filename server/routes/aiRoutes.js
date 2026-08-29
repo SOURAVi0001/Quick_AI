@@ -46,6 +46,7 @@ aiRouter.post(
 );
 aiRouter.post('/remove-image-object', upload.single('image'), auth, rateLimiter, removeImageObject);
 aiRouter.post('/review-resume', upload.single('resume'), auth, rateLimiter, resumeReview);
+aiRouter.post('/resume-review', upload.single('resume'), auth, rateLimiter, resumeReview);
 aiRouter.post('/resume-tailor', upload.single('resume'), auth, rateLimiter, resumeTailor);
 aiRouter.post('/linkedin-optimizer', auth, rateLimiter, analyzeLinkedinProfile);
 aiRouter.post('/linkedin/analyze', auth, rateLimiter, analyzeLinkedinProfile);
@@ -54,6 +55,6 @@ aiRouter.post('/interview/answer', auth, rateLimiter, answerInterview);
 aiRouter.post('/recruiter-outreach', auth, rateLimiter, recruiterOutreach);
 aiRouter.get('/career-score', auth, rateLimiter, getCareerScore);
 
-aiRouter.get('/task/:taskId', auth, getTaskStatus);
+aiRouter.get('/task/:taskId', getTaskStatus);
 
 export default aiRouter;

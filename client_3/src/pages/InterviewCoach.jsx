@@ -34,6 +34,8 @@ const InterviewCoach = () => {
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [isConcluded, setIsConcluded] = useState(false);
   const [overallFeedback, setOverallFeedback] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState([]);
 
   const { getToken } = useAuth();
   const chatEndRef = useRef(null);
@@ -72,8 +74,10 @@ const InterviewCoach = () => {
       if (data.success) {
         setSessionId(data.sessionId);
         setSessionActive(true);
+        const allQ = data.allQuestions || [];
+        setQuestions(allQ);
         setChatHistory([
-          { type: 'ai', text: data.firstQuestion }
+          { type: 'ai', text: allQ[0] || 'Start!' }
         ]);
         toast.success("Interview started!");
       } else {
@@ -92,38 +96,47 @@ const InterviewCoach = () => {
     const answerToSend = currentAnswer;
     setCurrentAnswer('');
     setChatHistory(prev => [...prev, { type: 'user', text: answerToSend }]);
-    setLoading(true);
 
-    try {
-      const { data } = await api.post('/api/ai/interview/answer', {
-        sessionId,
-        answer: answerToSend
-      }, {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      });
+    const updatedAnswers = [...answers, answerToSend];
+    setAnswers(updatedAnswers);
 
-      if (data.success) {
-        setChatHistory(prev => [
-          ...prev,
-          {
-            type: 'feedback',
-            evaluation: data.evaluation
-          },
-          ...(data.isConcluded ? [] : [{ type: 'ai', text: data.nextQuestion }])
-        ]);
+    const nextIdx = questionCount;
 
-        if (data.isConcluded) {
+    if (nextIdx < ESTIMATED_QUESTIONS) {
+      setChatHistory(prev => [...prev, { type: 'ai', text: questions[nextIdx] }]);
+    } else {
+      setLoading(true);
+      try {
+        const { data } = await api.post('/api/ai/interview/answer', {
+          sessionId,
+          answers: updatedAnswers
+        }, {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        });
+
+        if (data.success) {
+          const newHistory = [];
+          questions.forEach((q, i) => {
+            newHistory.push({ type: 'ai', text: q });
+            newHistory.push({ type: 'user', text: updatedAnswers[i] });
+            if (data.evaluations?.[i]) {
+              newHistory.push({
+                type: 'feedback',
+                evaluation: data.evaluations[i]
+              });
+            }
+          });
+          setChatHistory(newHistory);
           setIsConcluded(true);
           setOverallFeedback(data.overallFeedback);
+        } else {
+          toast.error(data.message || "Failed to submit answers");
         }
-      } else {
-        toast.error(data.message || "Failed to submit answer");
+      } catch (err) {
+        toast.error(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      toast.error(err.response?.data?.message || err.message);
-      setChatHistory(prev => prev.slice(0, -1));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -132,15 +145,28 @@ const InterviewCoach = () => {
     try {
       const { data } = await api.post('/api/ai/interview/answer', {
         sessionId,
-        answer: null,
-        conclude: true
+        answers: answers
       }, {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
 
       if (data.success) {
+        const newHistory = [];
+        answers.forEach((ans, i) => {
+          newHistory.push({ type: 'ai', text: questions[i] });
+          newHistory.push({ type: 'user', text: ans });
+          if (data.evaluations?.[i]) {
+            newHistory.push({
+              type: 'feedback',
+              evaluation: data.evaluations[i]
+            });
+          }
+        });
+        setChatHistory(newHistory);
         setIsConcluded(true);
         setOverallFeedback(data.overallFeedback);
+      } else {
+        toast.error(data.message || "Failed to conclude interview");
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
@@ -155,6 +181,8 @@ const InterviewCoach = () => {
     setChatHistory([]);
     setIsConcluded(false);
     setOverallFeedback(null);
+    setQuestions([]);
+    setAnswers([]);
   };
 
   const questionCount = chatHistory.filter((m) => m.type === 'ai').length;
@@ -284,25 +312,40 @@ const InterviewCoach = () => {
             title="Interview History"
             renderItem={(item, { handleCopy, format }) => {
               const content = typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
+              const score = content.overallScore !== undefined ? content.overallScore : (content.overallFeedback?.overallScore || 0);
+              const strengths = content.strongAreas || content.overallFeedback?.strongAreas || [];
+              const weaknesses = content.weakAreas || content.overallFeedback?.weakAreas || [];
+              const displayTitle = content.targetRole
+                ? `${content.targetRole} (${content.experienceLevel || 'All Levels'}) ${content.interviewType || ''} Interview`
+                : (item.prompt || 'Mock Interview');
+
               return (
                 <div className="p-6">
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="mb-1 line-clamp-1 text-sm font-medium text-foreground">
-                        {item.prompt || 'Mock Interview'}
+                        {displayTitle}
                       </p>
                       <p className="text-xs text-subtle-foreground">{format(item.created_at)}</p>
                     </div>
-                    <Badge variant="accent" className="shrink-0">{content.overallScore || 0}/10 Score</Badge>
+                    <Badge variant="accent" className="shrink-0">{score}/10 Score</Badge>
                   </div>
                   <div className="min-w-0 rounded-md border border-border bg-surface-1 p-4">
                     <p className="mb-2 text-sm font-medium text-foreground">Strengths:</p>
                     <ul className="mb-3 space-y-1 text-xs text-muted-foreground">
-                      {content.strongAreas?.slice(0, 2).map((s, i) => <li key={i} className="line-clamp-1">• {s}</li>)}
+                      {strengths && strengths.length > 0 ? (
+                        strengths.slice(0, 2).map((s, i) => <li key={i} className="line-clamp-1">• {s}</li>)
+                      ) : (
+                        <li className="line-clamp-1 text-subtle-foreground">• None generated</li>
+                      )}
                     </ul>
                     <p className="mb-2 text-sm font-medium text-foreground">Needs Work:</p>
                     <ul className="space-y-1 text-xs text-muted-foreground">
-                      {content.weakAreas?.slice(0, 2).map((w, i) => <li key={i} className="line-clamp-1">• {w}</li>)}
+                      {weaknesses && weaknesses.length > 0 ? (
+                        weaknesses.slice(0, 2).map((w, i) => <li key={i} className="line-clamp-1">• {w}</li>)
+                      ) : (
+                        <li className="line-clamp-1 text-subtle-foreground">• None generated</li>
+                      )}
                     </ul>
                   </div>
                 </div>

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: quickai-config
+data:
+  PORT: "3000"
+  NODE_ENV: "production"
+  FRONTEND_ORIGIN: "https://your-cloudfront-domain.cloudfront.net"

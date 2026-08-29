@@ -130,7 +130,8 @@ export const resumeReview = async (req, res, next) => {
     const dataBuffer = fs.readFileSync(resume.path);
     const parser = new PDFParse({ data: new Uint8Array(dataBuffer) });
     await parser.load();
-    const pdfText = await parser.getText();
+    const pdfResult = await parser.getText();
+    const pdfText = typeof pdfResult === 'string' ? pdfResult : (pdfResult?.text || '');
 
     const prompt = `Review the following resume and provide feedback on strengths and weaknesses within 300 words:\n\n${pdfText}`;
 
@@ -187,7 +188,8 @@ export const resumeTailor = async (req, res, next) => {
     const dataBuffer = fs.readFileSync(resume.path);
     const parser = new PDFParse({ data: new Uint8Array(dataBuffer) });
     await parser.load();
-    const pdfText = await parser.getText();
+    const pdfResult = await parser.getText();
+    const pdfText = typeof pdfResult === 'string' ? pdfResult : (pdfResult?.text || '');
 
     const taskId = await addTask('resume-tailor', {
       type: 'resume-tailor',
@@ -371,8 +373,9 @@ export const analyzeLinkedinProfile = async (req, res, next) => {
       posts,
     } = req.body;
 
-    if (!targetRole || !optimizationGoal || !headline) {
-      throw new ValidationError('Missing required fields (targetRole, optimizationGoal, headline)');
+    const goal = optimizationGoal?.trim() || 'Increase recruiter outreach and search visibility';
+    if (!targetRole?.trim() || !headline?.trim()) {
+      throw new ValidationError('Target Role and Current Headline are required');
     }
 
     if (posts && posts.length > 10) {
@@ -382,9 +385,9 @@ export const analyzeLinkedinProfile = async (req, res, next) => {
     const taskId = await addTask('linkedin-optimizer', {
       type: 'linkedin-optimizer',
       userId,
-      targetRole,
-      optimizationGoal,
-      headline,
+      targetRole: targetRole.trim(),
+      optimizationGoal: goal,
+      headline: headline.trim(),
       about,
       experience,
       projects,
@@ -472,13 +475,33 @@ export const startInterview = async (req, res, next) => {
 export const answerInterview = async (req, res, next) => {
   try {
     const { userId } = req.auth();
-    const { sessionId, answer, conclude } = req.body;
+    const { sessionId, answer, answers, conclude } = req.body;
 
     if (!sessionId) throw new ValidationError('Missing session ID');
 
     const sessionData = await getInterviewSession(userId, sessionId);
     if (!sessionData) throw new ValidationError('Session not found');
     if (sessionData.status === 'concluded') throw new ValidationError('Session already concluded');
+
+    if (answers && Array.isArray(answers)) {
+      sessionData.answers = answers;
+      sessionData.history = (sessionData.questions || []).map((q, i) => ([
+        { role: 'interviewer', content: q },
+        { role: 'candidate', content: answers[i] || '' }
+      ])).flat();
+
+      await saveInterviewSession(userId, sessionId, sessionData);
+
+      const taskId = await addTask('interview-all-answers', {
+        type: 'interview-all-answers',
+        userId,
+        sessionId,
+        answers,
+        plan: req.plan,
+      });
+
+      return res.status(202).json({ success: true, taskId, status: 'queued', sessionId });
+    }
 
     const isConcluding = conclude || sessionData.history.length >= 10;
 
@@ -724,10 +747,9 @@ export const getCareerScore = async (req, res, next) => {
 export const getTaskStatus = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const { Queue } = await import('bullmq');
-    const { bullConnection, QUEUE_NAME } = await import('../configs/queue.js');
+    const { getQueue } = await import('../configs/queue.js');
 
-    const queue = new Queue(QUEUE_NAME, { connection: bullConnection });
+    const queue = getQueue();
     const job = await queue.getJob(taskId);
 
     if (!job) {

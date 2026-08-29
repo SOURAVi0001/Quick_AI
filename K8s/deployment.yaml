@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quickai-backend
+  labels:
+    app: quickai-backend
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: quickai-backend
+  template:
+    metadata:
+      labels:
+        app: quickai-backend
+    spec:
+      containers:
+        - name: quickai-backend
+          image: docker.io/DOCKER_USERNAME/quickai-backend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: quickai-config
+            - secretRef:
+                name: quickai-secrets
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

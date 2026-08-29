@@ -1,13 +1,21 @@
+import { useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import FloatingNav from '../components/FloatingNav';
 import Logo from '../components/Logo';
 import Spinner from '../components/Spinner';
 import AnimatedBackground from '../components/AnimatedBackground';
 import { SignIn, useUser } from '@clerk/clerk-react';
+import { initSocket } from '../lib/socket';
 
 const Layout = () => {
   const navigate = useNavigate();
   const { user, isLoaded } = useUser();
+
+  useEffect(() => {
+    if (user?.id) {
+      initSocket(user.id);
+    }
+  }, [user?.id]);
 
   if (!isLoaded) {
     return (

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { waitForTaskSocket, removeTaskSocketListener } from './socket';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_SERVER_URL || import.meta.env.VITE_BASE_URL || '',
@@ -16,20 +17,13 @@ api.interceptors.response.use(
       const { taskId } = response.data;
 
       const getAuthHeader = async () => {
-        console.log('[DEBUG API] response.config.headers:', response.config.headers);
         if (window.Clerk && window.Clerk.session) {
           try {
             const token = await window.Clerk.session.getToken();
-            console.log('[DEBUG Clerk Token]:', token ? 'Found' : 'Not Found');
             if (token) return `Bearer ${token}`;
           } catch (e) {
-            console.error('[DEBUG Clerk Token Error]:', e);
+            console.error('[Clerk Token Error]:', e);
           }
-        } else {
-          console.log('[DEBUG Clerk] window.Clerk or window.Clerk.session not initialized yet', {
-            hasClerk: !!window.Clerk,
-            hasSession: !!window.Clerk?.session,
-          });
         }
         let headerValue = null;
         if (response.config.headers) {
@@ -41,30 +35,18 @@ api.interceptors.response.use(
             headerValue =
               headers['Authorization'] ||
               headers['authorization'] ||
-              headers['Authorization'] ||
               headers['AUTHORIZATION'];
           }
-          if (!headerValue && typeof headers === 'object') {
-            for (const key of Object.keys(headers)) {
-              if (key.toLowerCase() === 'authorization') {
-                headerValue = headers[key];
-                break;
-              }
-            }
-          }
         }
-        console.log('[DEBUG Fallback Header]:', headerValue ? 'Found' : 'Not Found');
         return headerValue;
       };
-
-      const originalAuth = await getAuthHeader();
-      console.log('[DEBUG Polling Request Auth Header]:', originalAuth);
 
       const pollTask = () =>
         new Promise((resolve, reject) => {
           const startTime = Date.now();
-          const timeout = 120000; // 2 minutes timeout
-          const intervalTime = 1500;
+          const timeout = 180000; // 3 minutes
+          const intervalTime = 1200;
+          let notFoundStreak = 0;
 
           const interval = setInterval(async () => {
             if (Date.now() - startTime > timeout) {
@@ -74,8 +56,10 @@ api.interceptors.response.use(
             }
 
             try {
-              const res = await axios.get(`${api.defaults.baseURL}/api/ai/task/${taskId}`, {
-                headers: originalAuth ? { Authorization: originalAuth } : {},
+              const freshAuth = await getAuthHeader();
+              const url = `${api.defaults.baseURL}/api/ai/task/${taskId}`;
+              const res = await axios.get(url, {
+                headers: freshAuth ? { Authorization: freshAuth } : {},
               });
 
               if (res.data && res.data.success) {
@@ -87,35 +71,56 @@ api.interceptors.response.use(
                   clearInterval(interval);
                   reject(new Error(failedReason || 'Task processing failed.'));
                 }
+              } else if (res.data && res.data.success === false) {
+                notFoundStreak += 1;
+                if (notFoundStreak >= 6) {
+                  clearInterval(interval);
+                  reject(new Error(res.data.message || 'Task not found.'));
+                }
               }
             } catch (err) {
-              // Ignore network glitches during polling and continue
+              // Ignore transient network errors during poll
+              console.warn('[Polling] task status check:', err?.message);
             }
           }, intervalTime);
+
+          // Store cleanup function on the promise if needed
+          pollTask.stop = () => clearInterval(interval);
         });
 
       try {
-        const taskResult = await pollTask();
-        // Emulate synchronous success response structure
+        // Race Socket.IO real-time event and HTTP Polling for instant response
+        const taskResult = await Promise.race([
+          waitForTaskSocket(taskId),
+          pollTask(),
+        ]);
+
+        if (pollTask.stop) pollTask.stop();
+        removeTaskSocketListener(taskId);
+
+        // Normalize task result
+        const content = taskResult?.content !== undefined ? taskResult.content : taskResult;
+        const demo = !!taskResult?.demo;
+
         response.data = {
           success: true,
-          content: taskResult.content,
-          demo: !!taskResult.demo,
+          content,
+          demo,
           ...(response.data.sessionId && { sessionId: response.data.sessionId }),
-          ...(taskResult.firstQuestion && { firstQuestion: taskResult.firstQuestion }),
-          ...(taskResult.content?.evaluation && { evaluation: taskResult.content.evaluation }),
-          ...(taskResult.content?.nextQuestion && {
-            nextQuestion: taskResult.content.nextQuestion,
-          }),
-          ...(taskResult.content?.isConcluded !== undefined && {
-            isConcluded: taskResult.content.isConcluded,
-          }),
-          ...(taskResult.content?.overallFeedback && {
-            overallFeedback: taskResult.content.overallFeedback,
-          }),
+          ...(taskResult?.firstQuestion && { firstQuestion: taskResult.firstQuestion }),
+          ...(taskResult?.allQuestions && { allQuestions: taskResult.allQuestions }),
+          ...(content?.evaluation && { evaluation: content.evaluation }),
+          ...(content?.evaluations && { evaluations: content.evaluations }),
+          ...(content?.nextQuestion && { nextQuestion: content.nextQuestion }),
+          ...(content?.isConcluded !== undefined && { isConcluded: content.isConcluded }),
+          ...(content?.overallFeedback && { overallFeedback: content.overallFeedback }),
         };
+
         return response;
       } catch (err) {
+        if (pollTask.stop) pollTask.stop();
+        removeTaskSocketListener(taskId);
+
         response.data = {
           success: false,
           message: err.message || 'Task processing failed.',

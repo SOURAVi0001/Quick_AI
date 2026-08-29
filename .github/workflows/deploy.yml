@@ -6,13 +6,12 @@ on:
       - main
 
 jobs:
-  # 🔹 FRONTEND DEPLOY
   deploy-frontend:
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: client
+        working-directory: client_3
 
     steps:
       - name: Checkout code
@@ -26,7 +25,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # ✅ IMPORTANT: ENV INJECTION HERE
       - name: Build frontend
         run: npm run build
         env:
@@ -51,7 +49,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
 
-  # 🔹 BACKEND DEPLOY
   deploy-backend:
     runs-on: ubuntu-latest
 
@@ -59,39 +56,43 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 🔐 Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 🐳 Build image
-      - name: Build Docker Image
+      - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest ./server
-
-      # 🚀 Push image
-      - name: Push Docker Image
-        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }} -t ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest ./server
+          docker push ${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
           docker push ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest
 
-      # 🔥 Deploy to EC2
-      - name: Deploy on EC2
+      - name: Deploy to K8s on Oracle Cloud
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest
+            # Pull latest changes in the repository on server if it is a git repo
+            if [ -d "/home/opc/Quick_AI/.git" ]; then
+              cd /home/opc/Quick_AI
+              git pull origin main || true
+            fi
 
-            docker stop backend || true
-            docker rm backend || true
+            # Automatically create or update Kubernetes Secret from the server's .env file
+            if [ -f "/home/opc/Quick_AI/server/.env" ]; then
+              kubectl create secret generic quickai-secrets \
+                --from-env-file=/home/opc/Quick_AI/server/.env \
+                --dry-run=client -o yaml | kubectl apply -f -
+            fi
 
-            docker run -d \
-              --name backend \
-              --restart always \
-              -p 3000:3000 \
-              --env-file /home/ubuntu/Quick_AI/server/.env \
-              ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest
+            # Apply all Kubernetes manifests (ConfigMap, Deployment, Service)
+            kubectl apply -f /home/opc/Quick_AI/K8s/
+
+            # Trigger zero-downtime rolling update with the newly built SHA-tagged image
+            kubectl set image deployment/quickai-backend quickai-backend=${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
+
+            # Wait for rollout to complete (fails step if deployment fails)
+            kubectl rollout status deployment/quickai-backend --timeout=180s
