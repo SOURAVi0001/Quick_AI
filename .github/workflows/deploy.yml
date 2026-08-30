@@ -19,11 +19,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and Push Docker Image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }} -t ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest ./server
-          docker push ${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
-          docker push ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest
 
       - name: Copy K8s manifests to Oracle VM
         uses: appleboy/scp-action@v0.1.7
@@ -44,7 +51,6 @@ jobs:
           key: ${{ secrets.ORACLE_SSH_KEY }}
           envs: SERVER_ENV
           script: |
-            # 1. Create or update Kubernetes Secret securely from GitHub Secret (if provided)
             if [ -n "$SERVER_ENV" ]; then
               echo "$SERVER_ENV" > /tmp/.quickai_secrets.env
               kubectl create secret generic quickai-secrets \
@@ -52,15 +58,12 @@ jobs:
                 --dry-run=client -o yaml | kubectl apply -f -
               rm -f /tmp/.quickai_secrets.env
             elif ! kubectl get secret quickai-secrets >/dev/null 2>&1; then
-              # Create placeholder if not exists so pod creation does not fail
               kubectl create secret generic quickai-secrets
             fi
 
-            # 2. Apply manifests copied from checked-out repo
             kubectl apply -f /home/opc/deployments/quickai/K8s/
 
-            # 3. Roll out the exact immutable SHA image to the Deployment
-            kubectl set image deployment/quickai-backend quickai-backend=${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
+            kubectl set image deployment/quickai-backend \
+              quickai-backend=${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
 
-            # 4. Block and verify rollout status (fails if unhealthy)
             kubectl rollout status deployment/quickai-backend --timeout=180s
