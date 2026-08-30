@@ -43,7 +43,10 @@ const Testimonial = () => {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <Quote className="size-7 text-primary/50" strokeWidth={1.5} />
-              <blockquote className="text-h1 mt-5 flex-1 text-balance text-foreground" style={{ fontSize: 'clamp(1.35rem, 2vw, 1.65rem)' }}>
+              <blockquote
+                className="text-h1 mt-5 flex-1 text-balance text-foreground"
+                style={{ fontSize: 'clamp(1.35rem, 2vw, 1.65rem)' }}
+              >
                 &ldquo;{testimonial.content}&rdquo;
               </blockquote>
               <figcaption className="mt-7 flex items-center gap-3 border-t border-border pt-5">

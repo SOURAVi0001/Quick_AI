@@ -27,4 +27,3 @@ export const clerkAppearance = {
     headerTitle: 'font-display',
   },
 };
-

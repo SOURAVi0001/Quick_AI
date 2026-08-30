@@ -46,7 +46,7 @@ const LinkedinOptimizer = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const addPost = () => {
@@ -83,7 +83,7 @@ const LinkedinOptimizer = () => {
       setError(null);
       setActiveAnalysis(null);
 
-      const payload = { ...formData, posts: posts.filter(p => p.trim() !== '') };
+      const payload = { ...formData, posts: posts.filter((p) => p.trim() !== '') };
 
       const { data } = await api.post('/api/ai/linkedin/analyze', payload, {
         headers: { Authorization: `Bearer ${await getToken()}` },
@@ -93,7 +93,7 @@ const LinkedinOptimizer = () => {
         const raw = data.content !== undefined ? data.content : data;
         const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
         setActiveAnalysis(parsed);
-        setHistoryKey(k => k + 1);
+        setHistoryKey((k) => k + 1);
         toast.success('Analysis complete!');
       } else {
         const errMsg = data?.message || 'Failed to analyze profile';
@@ -112,7 +112,10 @@ const LinkedinOptimizer = () => {
   const ResultBlock = ({ title, original, recommended, alternatives }) => {
     const recText =
       typeof recommended === 'object' && recommended !== null
-        ? recommended.recommended || recommended.text || recommended.content || JSON.stringify(recommended)
+        ? recommended.recommended ||
+          recommended.text ||
+          recommended.content ||
+          JSON.stringify(recommended)
         : recommended;
     const origText =
       typeof original === 'object' && original !== null
@@ -151,8 +154,13 @@ const LinkedinOptimizer = () => {
               {alternatives.map((alt, idx) => {
                 const altText = typeof alt === 'object' ? alt.text || JSON.stringify(alt) : alt;
                 return (
-                  <div key={idx} className="flex items-center justify-between gap-4 rounded-md border border-border bg-surface-1 p-4">
-                    <div className="min-w-0 break-words text-sm leading-relaxed text-foreground/80">{altText}</div>
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between gap-4 rounded-md border border-border bg-surface-1 p-4"
+                  >
+                    <div className="min-w-0 break-words text-sm leading-relaxed text-foreground/80">
+                      {altText}
+                    </div>
                     <CopyButton text={altText} className="h-8 shrink-0" />
                   </div>
                 );
@@ -201,7 +209,9 @@ const LinkedinOptimizer = () => {
         <div className="mb-4 flex gap-2">
           <Badge variant="neutral">Topic: {topic}</Badge>
         </div>
-        <p className="mb-5 min-w-0 break-words text-sm leading-relaxed text-muted-foreground">{reason}</p>
+        <p className="mb-5 min-w-0 break-words text-sm leading-relaxed text-muted-foreground">
+          {reason}
+        </p>
 
         <div className="rounded-md border border-border bg-primary/5 p-5">
           <div className="mb-3 flex items-center justify-between gap-3">
@@ -234,51 +244,126 @@ const LinkedinOptimizer = () => {
               <form onSubmit={onSubmitHandler} className="space-y-4">
                 <div className="space-y-5 border-b border-border pb-6">
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-foreground">Target Role <span className="text-destructive">*</span></label>
-                    <Input name="targetRole" value={formData.targetRole} onChange={handleInputChange} placeholder="e.g., Senior Frontend Engineer" required />
+                    <label className="text-sm font-medium text-foreground">
+                      Target Role <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      name="targetRole"
+                      value={formData.targetRole}
+                      onChange={handleInputChange}
+                      placeholder="e.g., Senior Frontend Engineer"
+                      required
+                    />
                   </div>
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-foreground">Optimization Goal <span className="text-destructive">*</span></label>
-                    <Input name="optimizationGoal" value={formData.optimizationGoal} onChange={handleInputChange} placeholder="e.g., Get more recruiter messages" required />
+                    <label className="text-sm font-medium text-foreground">
+                      Optimization Goal <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      name="optimizationGoal"
+                      value={formData.optimizationGoal}
+                      onChange={handleInputChange}
+                      placeholder="e.g., Get more recruiter messages"
+                      required
+                    />
                   </div>
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-foreground">Current Headline <span className="text-destructive">*</span></label>
-                    <Textarea name="headline" value={formData.headline} onChange={handleInputChange} placeholder="Your current LinkedIn headline" required className="resize-none" rows={2} />
+                    <label className="text-sm font-medium text-foreground">
+                      Current Headline <span className="text-destructive">*</span>
+                    </label>
+                    <Textarea
+                      name="headline"
+                      value={formData.headline}
+                      onChange={handleInputChange}
+                      placeholder="Your current LinkedIn headline"
+                      required
+                      className="resize-none"
+                      rows={2}
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-5 border-b border-border pt-4 pb-6">
-                  <h3 className="text-sm font-semibold tracking-wide text-foreground">Optional Sections</h3>
+                  <h3 className="text-sm font-semibold tracking-wide text-foreground">
+                    Optional Sections
+                  </h3>
 
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-muted-foreground">About / Summary</label>
-                    <Textarea name="about" value={formData.about} onChange={handleInputChange} rows={3} placeholder="Paste your current about section" className="resize-y" />
+                    <label className="text-sm font-medium text-muted-foreground">
+                      About / Summary
+                    </label>
+                    <Textarea
+                      name="about"
+                      value={formData.about}
+                      onChange={handleInputChange}
+                      rows={3}
+                      placeholder="Paste your current about section"
+                      className="resize-y"
+                    />
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-sm font-medium text-muted-foreground">Experience</label>
-                    <Textarea name="experience" value={formData.experience} onChange={handleInputChange} rows={3} placeholder="Paste your experience entries" className="resize-y" />
+                    <Textarea
+                      name="experience"
+                      value={formData.experience}
+                      onChange={handleInputChange}
+                      rows={3}
+                      placeholder="Paste your experience entries"
+                      className="resize-y"
+                    />
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-sm font-medium text-muted-foreground">Projects</label>
-                    <Textarea name="projects" value={formData.projects} onChange={handleInputChange} rows={2} placeholder="Paste key projects" className="resize-y" />
+                    <Textarea
+                      name="projects"
+                      value={formData.projects}
+                      onChange={handleInputChange}
+                      rows={2}
+                      placeholder="Paste key projects"
+                      className="resize-y"
+                    />
                   </div>
                   <div className="space-y-2.5">
                     <label className="text-sm font-medium text-muted-foreground">Skills</label>
-                    <Input name="skills" value={formData.skills} onChange={handleInputChange} placeholder="e.g., React, Node.js, AWS" />
+                    <Input
+                      name="skills"
+                      value={formData.skills}
+                      onChange={handleInputChange}
+                      placeholder="e.g., React, Node.js, AWS"
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-5 pt-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="text-sm font-semibold tracking-wide text-foreground">Recent Posts</h3>
-                      <p className="mt-1 text-xs text-subtle-foreground">Add up to 10 recent posts for analysis</p>
+                      <h3 className="text-sm font-semibold tracking-wide text-foreground">
+                        Recent Posts
+                      </h3>
+                      <p className="mt-1 text-xs text-subtle-foreground">
+                        Add up to 10 recent posts for analysis
+                      </p>
                     </div>
                     <div className="flex shrink-0 gap-2">
                       {posts.length > 0 && (
-                        <Button type="button" variant="ghost" size="sm" onClick={clearPosts} className="h-8 text-xs">Clear</Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={clearPosts}
+                          className="h-8 text-xs"
+                        >
+                          Clear
+                        </Button>
                       )}
-                      <Button type="button" variant="outline" size="sm" onClick={addPost} disabled={posts.length >= 10} className="h-8 gap-1.5 text-xs">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addPost}
+                        disabled={posts.length >= 10}
+                        className="h-8 gap-1.5 text-xs"
+                      >
                         <Plus className="size-3.5" /> Add Post
                       </Button>
                     </div>
@@ -288,7 +373,9 @@ const LinkedinOptimizer = () => {
                     <div className="mt-4 space-y-3">
                       {posts.map((post, idx) => (
                         <div key={idx} className="flex items-start gap-3">
-                          <span className="w-4 pt-3 font-mono text-xs text-subtle-foreground">{idx + 1}.</span>
+                          <span className="w-4 pt-3 font-mono text-xs text-subtle-foreground">
+                            {idx + 1}.
+                          </span>
                           <Textarea
                             value={post}
                             onChange={(e) => updatePost(idx, e.target.value)}
@@ -296,7 +383,14 @@ const LinkedinOptimizer = () => {
                             placeholder="Paste post content here..."
                             className="resize-y"
                           />
-                          <Button type="button" variant="ghost" size="icon" onClick={() => removePost(idx)} aria-label={`Remove post ${idx + 1}`} className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removePost(idx)}
+                            aria-label={`Remove post ${idx + 1}`}
+                            className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                          >
                             <Trash2 className="size-4" />
                           </Button>
                         </div>
@@ -339,7 +433,6 @@ const LinkedinOptimizer = () => {
               />
             ) : (
               <div className="animate-rise space-y-8">
-
                 {/* Score & Summary */}
                 <div className="grid grid-cols-2 gap-4">
                   <Card className="relative overflow-hidden p-6">
@@ -348,7 +441,9 @@ const LinkedinOptimizer = () => {
                     </div>
                     <p className="text-eyebrow mb-2 text-subtle-foreground">Overall Score</p>
                     <div className="flex items-baseline gap-1">
-                      <div className="text-3xl font-bold text-foreground">{activeAnalysis.overallScore || 0}</div>
+                      <div className="text-3xl font-bold text-foreground">
+                        {activeAnalysis.overallScore || 0}
+                      </div>
                       <div className="text-sm font-medium text-muted-foreground">/100</div>
                     </div>
                   </Card>
@@ -358,7 +453,9 @@ const LinkedinOptimizer = () => {
                     </div>
                     <p className="text-eyebrow mb-2 text-subtle-foreground">Role Alignment</p>
                     <div className="flex items-baseline gap-1">
-                      <div className="text-3xl font-bold text-foreground">{activeAnalysis.roleAlignmentScore || 0}</div>
+                      <div className="text-3xl font-bold text-foreground">
+                        {activeAnalysis.roleAlignmentScore || 0}
+                      </div>
                       <div className="text-sm font-medium text-muted-foreground">/100</div>
                     </div>
                   </Card>
@@ -381,37 +478,61 @@ const LinkedinOptimizer = () => {
                   {activeAnalysis.headline && (
                     <ResultBlock
                       title="Headline"
-                      original={typeof activeAnalysis.headline === 'object' ? activeAnalysis.headline.current : formData.headline}
-                      recommended={typeof activeAnalysis.headline === 'object' ? activeAnalysis.headline.recommended : activeAnalysis.headline}
-                      alternatives={typeof activeAnalysis.headline === 'object' ? activeAnalysis.headline.alternatives : []}
+                      original={
+                        typeof activeAnalysis.headline === 'object'
+                          ? activeAnalysis.headline.current
+                          : formData.headline
+                      }
+                      recommended={
+                        typeof activeAnalysis.headline === 'object'
+                          ? activeAnalysis.headline.recommended
+                          : activeAnalysis.headline
+                      }
+                      alternatives={
+                        typeof activeAnalysis.headline === 'object'
+                          ? activeAnalysis.headline.alternatives
+                          : []
+                      }
                     />
                   )}
 
                   {activeAnalysis.about && (
                     <ResultBlock
                       title="About / Summary"
-                      original={typeof activeAnalysis.about === 'object' ? activeAnalysis.about.current : formData.about}
-                      recommended={typeof activeAnalysis.about === 'object' ? activeAnalysis.about.recommended : activeAnalysis.about}
+                      original={
+                        typeof activeAnalysis.about === 'object'
+                          ? activeAnalysis.about.current
+                          : formData.about
+                      }
+                      recommended={
+                        typeof activeAnalysis.about === 'object'
+                          ? activeAnalysis.about.recommended
+                          : activeAnalysis.about
+                      }
                     />
                   )}
 
-                  {activeAnalysis.experience && Array.isArray(activeAnalysis.experience) && activeAnalysis.experience.map((exp, idx) => (
-                    <ResultBlock
-                      key={idx}
-                      title={`Experience Entry ${idx + 1}`}
-                      original={typeof exp === 'object' ? exp.current : formData.experience}
-                      recommended={typeof exp === 'object' ? exp.recommended : exp}
-                    />
-                  ))}
+                  {activeAnalysis.experience &&
+                    Array.isArray(activeAnalysis.experience) &&
+                    activeAnalysis.experience.map((exp, idx) => (
+                      <ResultBlock
+                        key={idx}
+                        title={`Experience Entry ${idx + 1}`}
+                        original={typeof exp === 'object' ? exp.current : formData.experience}
+                        recommended={typeof exp === 'object' ? exp.recommended : exp}
+                      />
+                    ))}
 
-                  {activeAnalysis.projects && Array.isArray(activeAnalysis.projects) && activeAnalysis.projects.map((proj, idx) => (
-                    <ResultBlock
-                      key={idx}
-                      title={`Project Entry ${idx + 1}`}
-                      original={typeof proj === 'object' ? proj.current : formData.projects}
-                      recommended={typeof proj === 'object' ? proj.recommended : proj}
-                    />
-                  ))}
+                  {activeAnalysis.projects &&
+                    Array.isArray(activeAnalysis.projects) &&
+                    activeAnalysis.projects.map((proj, idx) => (
+                      <ResultBlock
+                        key={idx}
+                        title={`Project Entry ${idx + 1}`}
+                        original={typeof proj === 'object' ? proj.current : formData.projects}
+                        recommended={typeof proj === 'object' ? proj.recommended : proj}
+                      />
+                    ))}
 
                   {activeAnalysis.skills && (
                     <Card>
@@ -421,29 +542,49 @@ const LinkedinOptimizer = () => {
                       <CardContent className="space-y-6 pt-6">
                         <div>
                           <div className="mb-3 flex items-center justify-between gap-3">
-                            <h4 className="text-eyebrow text-subtle-foreground">Recommended Order</h4>
-                            <CopyButton text={(activeAnalysis.skills.recommendedOrder || []).join(', ')} className="h-8" />
+                            <h4 className="text-eyebrow text-subtle-foreground">
+                              Recommended Order
+                            </h4>
+                            <CopyButton
+                              text={(activeAnalysis.skills.recommendedOrder || []).join(', ')}
+                              className="h-8"
+                            />
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            {activeAnalysis.skills.recommendedOrder && activeAnalysis.skills.recommendedOrder.map((s, i) => (
-                              <Badge key={i} variant="accent">{s}</Badge>
-                            ))}
+                            {activeAnalysis.skills.recommendedOrder &&
+                              activeAnalysis.skills.recommendedOrder.map((s, i) => (
+                                <Badge key={i} variant="accent">
+                                  {s}
+                                </Badge>
+                              ))}
                           </div>
                         </div>
 
-                        {activeAnalysis.skills.missingSkills && activeAnalysis.skills.missingSkills.length > 0 && (
-                          <div>
-                            <div className="mb-3 flex items-center justify-between gap-3">
-                              <h4 className="text-eyebrow text-subtle-foreground">Missing Skills to Add</h4>
-                              <CopyButton text={activeAnalysis.skills.missingSkills.join(', ')} className="h-8" />
+                        {activeAnalysis.skills.missingSkills &&
+                          activeAnalysis.skills.missingSkills.length > 0 && (
+                            <div>
+                              <div className="mb-3 flex items-center justify-between gap-3">
+                                <h4 className="text-eyebrow text-subtle-foreground">
+                                  Missing Skills to Add
+                                </h4>
+                                <CopyButton
+                                  text={activeAnalysis.skills.missingSkills.join(', ')}
+                                  className="h-8"
+                                />
+                              </div>
+                              <div className="flex flex-wrap gap-2">
+                                {activeAnalysis.skills.missingSkills.map((s, i) => (
+                                  <Badge
+                                    key={i}
+                                    variant="outline"
+                                    className="border-destructive/30 text-destructive"
+                                  >
+                                    {s}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
-                            <div className="flex flex-wrap gap-2">
-                              {activeAnalysis.skills.missingSkills.map((s, i) => (
-                                <Badge key={i} variant="outline" className="border-destructive/30 text-destructive">{s}</Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                          )}
                       </CardContent>
                     </Card>
                   )}
@@ -494,11 +635,17 @@ const LinkedinOptimizer = () => {
         type="linkedin-optimizer"
         title="Optimization History"
         renderItem={(item, { handleCopy, format }) => {
-          const content = typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
+          const content =
+            typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
 
           // Intelligently determine role title
           let roleTitle = content?.targetRole;
-          if (!roleTitle && item.prompt && item.prompt !== 'LinkedIn Profile Optimization' && item.prompt !== 'Profile Optimization') {
+          if (
+            !roleTitle &&
+            item.prompt &&
+            item.prompt !== 'LinkedIn Profile Optimization' &&
+            item.prompt !== 'Profile Optimization'
+          ) {
             roleTitle = item.prompt;
           }
           if (!roleTitle && content?.summary) {
@@ -546,183 +693,231 @@ const LinkedinOptimizer = () => {
       />
 
       {/* Interactive Popover Modal Window */}
-      {popoverItem && (() => {
-        const popoverContent =
-          typeof popoverItem.content === 'string'
-            ? JSON.parse(popoverItem.content)
-            : popoverItem.content;
+      {popoverItem &&
+        (() => {
+          const popoverContent =
+            typeof popoverItem.content === 'string'
+              ? JSON.parse(popoverItem.content)
+              : popoverItem.content;
 
-        return (
-          <Dialog open={!!popoverItem} onOpenChange={(open) => !open && setPopoverItem(null)}>
-            <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] max-h-[90vh]">
-              <DialogHeader>
-                <div className="flex flex-wrap items-center gap-3">
-                  <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">
-                    {popoverItem._roleTitle || 'Profile Optimization'}
-                  </DialogTitle>
-                  <Badge variant="accent">
-                    {popoverContent?.overallScore || 0}/100 Score
-                  </Badge>
-                  {popoverContent?.roleAlignmentScore && (
-                    <Badge variant="neutral">
-                      {popoverContent.roleAlignmentScore}/100 Alignment
-                    </Badge>
-                  )}
-                </div>
-                <DialogDescription className="text-xs text-muted-foreground">
-                  Detailed evaluation, keyword density, headline positioning, and tailored copy-paste recommendations.
-                </DialogDescription>
-              </DialogHeader>
+          return (
+            <Dialog open={!!popoverItem} onOpenChange={(open) => !open && setPopoverItem(null)}>
+              <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] max-h-[90vh]">
+                <DialogHeader>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">
+                      {popoverItem._roleTitle || 'Profile Optimization'}
+                    </DialogTitle>
+                    <Badge variant="accent">{popoverContent?.overallScore || 0}/100 Score</Badge>
+                    {popoverContent?.roleAlignmentScore && (
+                      <Badge variant="neutral">
+                        {popoverContent.roleAlignmentScore}/100 Alignment
+                      </Badge>
+                    )}
+                  </div>
+                  <DialogDescription className="text-xs text-muted-foreground">
+                    Detailed evaluation, keyword density, headline positioning, and tailored
+                    copy-paste recommendations.
+                  </DialogDescription>
+                </DialogHeader>
 
-              <DialogBody className="space-y-6 py-5">
-                {/* Score & Summary Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="relative overflow-hidden p-6">
-                    <div className="absolute top-0 right-0 p-4 text-primary opacity-10">
-                      <Sparkles className="size-12" />
-                    </div>
-                    <p className="text-eyebrow mb-2 text-subtle-foreground">Overall Score</p>
-                    <div className="flex items-baseline gap-1">
-                      <div className="text-3xl font-bold text-foreground">{popoverContent?.overallScore || 0}</div>
-                      <div className="text-sm font-medium text-muted-foreground">/100</div>
-                    </div>
-                  </Card>
-                  <Card className="relative overflow-hidden p-6">
-                    <div className="absolute top-0 right-0 p-4 text-primary opacity-10">
-                      <Target className="size-12" />
-                    </div>
-                    <p className="text-eyebrow mb-2 text-subtle-foreground">Role Alignment</p>
-                    <div className="flex items-baseline gap-1">
-                      <div className="text-3xl font-bold text-foreground">{popoverContent?.roleAlignmentScore || 0}</div>
-                      <div className="text-sm font-medium text-muted-foreground">/100</div>
-                    </div>
-                  </Card>
-                </div>
-
-                {popoverContent?.summary && (
-                  <Card variant="result">
-                    <CardContent className="min-w-0 p-6 pt-6 text-sm leading-relaxed break-words text-foreground/90">
-                      {popoverContent.summary}
-                    </CardContent>
-                  </Card>
-                )}
-
-                <div className="space-y-4 pt-2">
-                  <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
-                    <Sparkles className="size-5 text-primary" />
-                    Profile Optimizations
-                  </h3>
-
-                  {popoverContent?.headline && (
-                    <ResultBlock
-                      title="Headline"
-                      original={typeof popoverContent.headline === 'object' ? popoverContent.headline.current : formData.headline}
-                      recommended={typeof popoverContent.headline === 'object' ? popoverContent.headline.recommended : popoverContent.headline}
-                      alternatives={typeof popoverContent.headline === 'object' ? popoverContent.headline.alternatives : []}
-                    />
-                  )}
-
-                  {popoverContent?.about && (
-                    <ResultBlock
-                      title="About / Summary"
-                      original={typeof popoverContent.about === 'object' ? popoverContent.about.current : formData.about}
-                      recommended={typeof popoverContent.about === 'object' ? popoverContent.about.recommended : popoverContent.about}
-                    />
-                  )}
-
-                  {popoverContent?.experience && Array.isArray(popoverContent.experience) && popoverContent.experience.map((exp, idx) => (
-                    <ResultBlock
-                      key={idx}
-                      title={`Experience Entry ${idx + 1}`}
-                      original={typeof exp === 'object' ? exp.current : formData.experience}
-                      recommended={typeof exp === 'object' ? exp.recommended : exp}
-                    />
-                  ))}
-
-                  {popoverContent?.projects && Array.isArray(popoverContent.projects) && popoverContent.projects.map((proj, idx) => (
-                    <ResultBlock
-                      key={idx}
-                      title={`Project Entry ${idx + 1}`}
-                      original={typeof proj === 'object' ? proj.current : formData.projects}
-                      recommended={typeof proj === 'object' ? proj.recommended : proj}
-                    />
-                  ))}
-
-                  {popoverContent?.skills && (
-                    <Card>
-                      <CardHeader className="border-b border-border pb-4">
-                        <CardTitle className="text-base">Skills Optimization</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-6 pt-6">
-                        <div>
-                          <div className="mb-3 flex items-center justify-between gap-3">
-                            <h4 className="text-eyebrow text-subtle-foreground">Recommended Order</h4>
-                            <CopyButton text={(popoverContent.skills.recommendedOrder || []).join(', ')} className="h-8" />
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {popoverContent.skills.recommendedOrder && popoverContent.skills.recommendedOrder.map((s, i) => (
-                              <Badge key={i} variant="accent">{s}</Badge>
-                            ))}
-                          </div>
+                <DialogBody className="space-y-6 py-5">
+                  {/* Score & Summary Grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <Card className="relative overflow-hidden p-6">
+                      <div className="absolute top-0 right-0 p-4 text-primary opacity-10">
+                        <Sparkles className="size-12" />
+                      </div>
+                      <p className="text-eyebrow mb-2 text-subtle-foreground">Overall Score</p>
+                      <div className="flex items-baseline gap-1">
+                        <div className="text-3xl font-bold text-foreground">
+                          {popoverContent?.overallScore || 0}
                         </div>
+                        <div className="text-sm font-medium text-muted-foreground">/100</div>
+                      </div>
+                    </Card>
+                    <Card className="relative overflow-hidden p-6">
+                      <div className="absolute top-0 right-0 p-4 text-primary opacity-10">
+                        <Target className="size-12" />
+                      </div>
+                      <p className="text-eyebrow mb-2 text-subtle-foreground">Role Alignment</p>
+                      <div className="flex items-baseline gap-1">
+                        <div className="text-3xl font-bold text-foreground">
+                          {popoverContent?.roleAlignmentScore || 0}
+                        </div>
+                        <div className="text-sm font-medium text-muted-foreground">/100</div>
+                      </div>
+                    </Card>
+                  </div>
 
-                        {popoverContent.skills.missingSkills && popoverContent.skills.missingSkills.length > 0 && (
-                          <div>
-                            <div className="mb-3 flex items-center justify-between gap-3">
-                              <h4 className="text-eyebrow text-subtle-foreground">Missing Skills to Add</h4>
-                              <CopyButton text={popoverContent.skills.missingSkills.join(', ')} className="h-8" />
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              {popoverContent.skills.missingSkills.map((s, i) => (
-                                <Badge key={i} variant="outline" className="border-destructive/30 text-destructive">{s}</Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                  {popoverContent?.summary && (
+                    <Card variant="result">
+                      <CardContent className="min-w-0 p-6 pt-6 text-sm leading-relaxed break-words text-foreground/90">
+                        {popoverContent.summary}
                       </CardContent>
                     </Card>
                   )}
-                </div>
 
-                {popoverContent?.posts && popoverContent.posts.length > 0 && (
                   <div className="space-y-4 pt-2">
                     <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
                       <Sparkles className="size-5 text-primary" />
-                      Post Enhancements
+                      Profile Optimizations
                     </h3>
-                    {popoverContent.posts.map((post, idx) => (
-                      <PostResultBlock
-                        key={idx}
-                        original={post.original}
-                        analysis={post.analysis}
-                        recommended={post.recommended}
-                      />
-                    ))}
-                  </div>
-                )}
 
-                {popoverContent?.postIdeas && popoverContent.postIdeas.length > 0 && (
-                  <div className="space-y-4 pt-2">
-                    <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
-                      <Sparkles className="size-5 text-primary" />
-                      Strategic Post Ideas
-                    </h3>
-                    {popoverContent.postIdeas.map((idea, idx) => (
-                      <IdeaBlock
-                        key={idx}
-                        title={idea.title}
-                        topic={idea.topic}
-                        reason={idea.reason}
-                        suggestedPost={idea.suggestedPost}
+                    {popoverContent?.headline && (
+                      <ResultBlock
+                        title="Headline"
+                        original={
+                          typeof popoverContent.headline === 'object'
+                            ? popoverContent.headline.current
+                            : formData.headline
+                        }
+                        recommended={
+                          typeof popoverContent.headline === 'object'
+                            ? popoverContent.headline.recommended
+                            : popoverContent.headline
+                        }
+                        alternatives={
+                          typeof popoverContent.headline === 'object'
+                            ? popoverContent.headline.alternatives
+                            : []
+                        }
                       />
-                    ))}
+                    )}
+
+                    {popoverContent?.about && (
+                      <ResultBlock
+                        title="About / Summary"
+                        original={
+                          typeof popoverContent.about === 'object'
+                            ? popoverContent.about.current
+                            : formData.about
+                        }
+                        recommended={
+                          typeof popoverContent.about === 'object'
+                            ? popoverContent.about.recommended
+                            : popoverContent.about
+                        }
+                      />
+                    )}
+
+                    {popoverContent?.experience &&
+                      Array.isArray(popoverContent.experience) &&
+                      popoverContent.experience.map((exp, idx) => (
+                        <ResultBlock
+                          key={idx}
+                          title={`Experience Entry ${idx + 1}`}
+                          original={typeof exp === 'object' ? exp.current : formData.experience}
+                          recommended={typeof exp === 'object' ? exp.recommended : exp}
+                        />
+                      ))}
+
+                    {popoverContent?.projects &&
+                      Array.isArray(popoverContent.projects) &&
+                      popoverContent.projects.map((proj, idx) => (
+                        <ResultBlock
+                          key={idx}
+                          title={`Project Entry ${idx + 1}`}
+                          original={typeof proj === 'object' ? proj.current : formData.projects}
+                          recommended={typeof proj === 'object' ? proj.recommended : proj}
+                        />
+                      ))}
+
+                    {popoverContent?.skills && (
+                      <Card>
+                        <CardHeader className="border-b border-border pb-4">
+                          <CardTitle className="text-base">Skills Optimization</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-6">
+                          <div>
+                            <div className="mb-3 flex items-center justify-between gap-3">
+                              <h4 className="text-eyebrow text-subtle-foreground">
+                                Recommended Order
+                              </h4>
+                              <CopyButton
+                                text={(popoverContent.skills.recommendedOrder || []).join(', ')}
+                                className="h-8"
+                              />
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {popoverContent.skills.recommendedOrder &&
+                                popoverContent.skills.recommendedOrder.map((s, i) => (
+                                  <Badge key={i} variant="accent">
+                                    {s}
+                                  </Badge>
+                                ))}
+                            </div>
+                          </div>
+
+                          {popoverContent.skills.missingSkills &&
+                            popoverContent.skills.missingSkills.length > 0 && (
+                              <div>
+                                <div className="mb-3 flex items-center justify-between gap-3">
+                                  <h4 className="text-eyebrow text-subtle-foreground">
+                                    Missing Skills to Add
+                                  </h4>
+                                  <CopyButton
+                                    text={popoverContent.skills.missingSkills.join(', ')}
+                                    className="h-8"
+                                  />
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {popoverContent.skills.missingSkills.map((s, i) => (
+                                    <Badge
+                                      key={i}
+                                      variant="outline"
+                                      className="border-destructive/30 text-destructive"
+                                    >
+                                      {s}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                        </CardContent>
+                      </Card>
+                    )}
                   </div>
-                )}
-              </DialogBody>
-            </DialogContent>
-          </Dialog>
-        );
-      })()}
+
+                  {popoverContent?.posts && popoverContent.posts.length > 0 && (
+                    <div className="space-y-4 pt-2">
+                      <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
+                        <Sparkles className="size-5 text-primary" />
+                        Post Enhancements
+                      </h3>
+                      {popoverContent.posts.map((post, idx) => (
+                        <PostResultBlock
+                          key={idx}
+                          original={post.original}
+                          analysis={post.analysis}
+                          recommended={post.recommended}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {popoverContent?.postIdeas && popoverContent.postIdeas.length > 0 && (
+                    <div className="space-y-4 pt-2">
+                      <h3 className="text-h2 mb-4 flex items-center gap-2 text-foreground">
+                        <Sparkles className="size-5 text-primary" />
+                        Strategic Post Ideas
+                      </h3>
+                      {popoverContent.postIdeas.map((idea, idx) => (
+                        <IdeaBlock
+                          key={idx}
+                          title={idea.title}
+                          topic={idea.topic}
+                          reason={idea.reason}
+                          suggestedPost={idea.suggestedPost}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </DialogBody>
+              </DialogContent>
+            </Dialog>
+          );
+        })()}
     </ToolShell>
   );
 };

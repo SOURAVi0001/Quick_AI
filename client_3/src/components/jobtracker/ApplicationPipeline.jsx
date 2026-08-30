@@ -45,7 +45,9 @@ export default function ApplicationPipeline({ pipeline, loading = false, activeS
                   <span className="text-eyebrow block leading-snug text-subtle-foreground">
                     {status}
                   </span>
-                  <span className="font-display text-2xl leading-none text-foreground">{count}</span>
+                  <span className="font-display text-2xl leading-none text-foreground">
+                    {count}
+                  </span>
                   <span className="h-1 w-full overflow-hidden rounded-full bg-surface-3">
                     <span
                       className={cn('block h-full rounded-full', barTone[tone])}

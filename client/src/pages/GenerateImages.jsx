@@ -6,8 +6,13 @@ import toast from 'react-hot-toast';
 import DemoBanner from '../components/DemoBanner';
 
 const imageStyles = [
-  'Realistic', 'Ghibli style', 'Anime style', 'Cartoon style',
-  'Fantasy style', '3D style', 'Portrait style',
+  'Realistic',
+  'Ghibli style',
+  'Anime style',
+  'Cartoon style',
+  'Fantasy style',
+  '3D style',
+  'Portrait style',
 ];
 
 const GenerateImages = () => {
@@ -48,9 +53,7 @@ const GenerateImages = () => {
           <p className="text-[11px] font-semibold text-[#555] tracking-[0.2em] uppercase mb-1">
             Image Studio
           </p>
-          <h1 className="text-xl font-bold tracking-tight text-white">
-            Generate Images
-          </h1>
+          <h1 className="text-xl font-bold tracking-tight text-white">Generate Images</h1>
         </div>
         <form onSubmit={onSubmitHandler} className="flex-1 flex flex-col px-6 pb-6">
           <div className="flex-1 space-y-6">
@@ -132,11 +135,7 @@ const GenerateImages = () => {
             <div className="w-full max-w-2xl">
               <DemoBanner visible={isDemo} />
               <div className="border border-[#333] bg-[#000]">
-                <img
-                  src={content}
-                  alt="Generated"
-                  className="w-full block"
-                />
+                <img src={content} alt="Generated" className="w-full block" />
               </div>
             </div>
           )}

@@ -89,9 +89,7 @@ export async function generateChatResponse(messages, options = {}) {
 
       const choice = response.data?.choices?.[0];
       if (!choice) {
-        throw new Error(
-          `OpenRouter returned no choices: ${JSON.stringify(response.data)}`,
-        );
+        throw new Error(`OpenRouter returned no choices: ${JSON.stringify(response.data)}`);
       }
 
       console.log('✅ OpenRouter response received successfully');

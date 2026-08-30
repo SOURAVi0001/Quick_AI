@@ -26,13 +26,7 @@ export default function ApplicationList({
   }
 
   if (error) {
-    return (
-      <ErrorState
-        title="Applications failed to load"
-        description={error}
-        onRetry={onRetry}
-      />
-    );
+    return <ErrorState title="Applications failed to load" description={error} onRetry={onRetry} />;
   }
 
   if (!applications.length) {

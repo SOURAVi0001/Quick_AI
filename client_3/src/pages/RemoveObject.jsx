@@ -80,7 +80,9 @@ const RemoveObject = () => {
                   <span className="text-sm font-medium text-foreground">
                     {input ? input.name : 'Click to upload an image'}
                   </span>
-                  <span className="text-xs text-subtle-foreground">Supports JPG, PNG and other common formats</span>
+                  <span className="text-xs text-subtle-foreground">
+                    Supports JPG, PNG and other common formats
+                  </span>
                 </button>
                 <input
                   ref={fileRef}
@@ -92,14 +94,18 @@ const RemoveObject = () => {
                 />
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-foreground">What should disappear?</label>
+                  <label className="text-sm font-medium text-foreground">
+                    What should disappear?
+                  </label>
                   <Input
                     onChange={(e) => setObject(e.target.value)}
                     value={object}
                     placeholder="e.g. watch, spoon, car (single object only)"
                     required
                   />
-                  <p className="text-xs text-subtle-foreground">One object at a time for best results</p>
+                  <p className="text-xs text-subtle-foreground">
+                    One object at a time for best results
+                  </p>
                 </div>
 
                 <Button type="submit" loading={loading} className="h-12 w-full">
@@ -114,7 +120,12 @@ const RemoveObject = () => {
         <div className="min-w-0 lg:col-span-7">
           <ResultRegion label="Processed image">
             {loading && (
-              <LoadingState title="Erasing your object..." description="Repainting the surrounding scene." lines={0} className="min-h-[400px]" />
+              <LoadingState
+                title="Erasing your object..."
+                description="Repainting the surrounding scene."
+                lines={0}
+                className="min-h-[400px]"
+              />
             )}
             {!loading && content && (
               <div className="animate-rise space-y-4">

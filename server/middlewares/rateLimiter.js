@@ -18,7 +18,6 @@ export const rateLimiter = async (req, res, next) => {
     const now = Date.now();
     const windowStart = now - limits.windowSeconds * 1000;
 
-
     if (isConnected) {
       try {
         const multi = redisClient.multi();

@@ -94,9 +94,7 @@ export default function AddApplicationForm({ open, onOpenChange, onSubmit }) {
         company: values.company.trim(),
         role: values.role.trim(),
         appliedDate: values.appliedDate ? new Date(values.appliedDate).toISOString() : '',
-        nextActionDate: values.nextActionDate
-          ? new Date(values.nextActionDate).toISOString()
-          : '',
+        nextActionDate: values.nextActionDate ? new Date(values.nextActionDate).toISOString() : '',
       });
       close(false);
     } finally {

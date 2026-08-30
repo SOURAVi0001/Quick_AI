@@ -8,9 +8,30 @@ import EmptyState from '../components/EmptyState';
 
 const Community = () => {
   const [posts, setPosts] = useState([
-    { id: 1, author: 'You', content: 'Just discovered the blog title generator — it is seriously good. Anyone else tried it?', likes: 3, time: '2h ago' },
-    { id: 2, author: 'Priya K.', content: 'The image generator saved me hours of design work for my newsletter. Huge time-saver.', likes: 7, time: '5h ago' },
-    { id: 3, author: 'Jordan M.', content: 'Feature request: could we get a tone customiser for the article writer? Loving it so far.', likes: 12, time: '1d ago' },
+    {
+      id: 1,
+      author: 'You',
+      content:
+        'Just discovered the blog title generator — it is seriously good. Anyone else tried it?',
+      likes: 3,
+      time: '2h ago',
+    },
+    {
+      id: 2,
+      author: 'Priya K.',
+      content:
+        'The image generator saved me hours of design work for my newsletter. Huge time-saver.',
+      likes: 7,
+      time: '5h ago',
+    },
+    {
+      id: 3,
+      author: 'Jordan M.',
+      content:
+        'Feature request: could we get a tone customiser for the article writer? Loving it so far.',
+      likes: 12,
+      time: '1d ago',
+    },
   ]);
   const [newPost, setNewPost] = useState('');
 

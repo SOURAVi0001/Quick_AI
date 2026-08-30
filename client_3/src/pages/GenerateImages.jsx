@@ -13,8 +13,13 @@ import LoadingState from '../components/LoadingState';
 import OptionGroup from '../components/OptionGroup';
 
 const imageStyles = [
-  'Realistic', 'Ghibli style', 'Anime style', 'Cartoon style',
-  'Fantasy style', '3D style', 'Portrait style',
+  'Realistic',
+  'Ghibli style',
+  'Anime style',
+  'Cartoon style',
+  'Fantasy style',
+  '3D style',
+  'Portrait style',
 ];
 
 const GenerateImages = () => {
@@ -120,7 +125,12 @@ const GenerateImages = () => {
         <div className="min-w-0 lg:col-span-7">
           <ResultRegion label="Generated image">
             {loading && (
-              <LoadingState title="Painting your scene..." description="This can take a few moments." lines={0} className="min-h-[400px]" />
+              <LoadingState
+                title="Painting your scene..."
+                description="This can take a few moments."
+                lines={0}
+                className="min-h-[400px]"
+              />
             )}
             {!loading && content && (
               <div className="animate-rise space-y-4">

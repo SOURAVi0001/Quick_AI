@@ -86,11 +86,7 @@ const RemoveBackground = () => {
           ) : (
             <>
               <DemoBanner visible={isDemo} />
-              <img
-                src={content}
-                alt="Processed image"
-                className="w-full rounded-lg mt-3 border"
-              />
+              <img src={content} alt="Processed image" className="w-full rounded-lg mt-3 border" />
             </>
           )}
         </CardContent>

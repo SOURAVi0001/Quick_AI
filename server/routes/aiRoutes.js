@@ -20,7 +20,7 @@ import {
   getLinkedinHistory,
   getRecruiterOutreachHistory,
   getInterviewHistory,
-  getCareerScoreHistory
+  getCareerScoreHistory,
 } from '../controllers/aiController.js';
 import { upload } from '../configs/muter.js';
 
@@ -42,7 +42,7 @@ aiRouter.post(
   upload.single('image'),
   auth,
   rateLimiter,
-  removeImageBackground
+  removeImageBackground,
 );
 aiRouter.post('/remove-image-object', upload.single('image'), auth, rateLimiter, removeImageObject);
 aiRouter.post('/review-resume', upload.single('resume'), auth, rateLimiter, resumeReview);

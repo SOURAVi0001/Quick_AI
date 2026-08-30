@@ -11,11 +11,7 @@ export default function PageHeader({ icon: Icon, title, description }) {
         )}
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">{title}</h1>
       </div>
-      {description && (
-        <p className="text-muted-foreground text-sm max-w-2xl mt-1">
-          {description}
-        </p>
-      )}
+      {description && <p className="text-muted-foreground text-sm max-w-2xl mt-1">{description}</p>}
     </div>
   );
 }

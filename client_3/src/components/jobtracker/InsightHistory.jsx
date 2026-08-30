@@ -25,9 +25,7 @@ export default function InsightHistory({ snapshots = [], loading = false }) {
     <Card variant="panel" className="overflow-hidden">
       <div className="border-b border-border px-5 py-4">
         <p className="text-h3 text-foreground">Insight history</p>
-        <p className="mt-1 text-xs text-subtle-foreground">
-          Every recalculation, newest first.
-        </p>
+        <p className="mt-1 text-xs text-subtle-foreground">Every recalculation, newest first.</p>
       </div>
 
       {loading && snapshots.length === 0 ? (

@@ -61,17 +61,19 @@ const WriteEmail = () => {
 
   return (
     <div className="pb-16 max-w-4xl mx-auto">
-      <PageHeader 
-        icon={Mail} 
-        title="Write Email" 
-        description="Generate professional, friendly, or persuasive emails instantly. Just provide a short topic and we'll handle the phrasing." 
+      <PageHeader
+        icon={Mail}
+        title="Write Email"
+        description="Generate professional, friendly, or persuasive emails instantly. Just provide a short topic and we'll handle the phrasing."
       />
 
       <Card className="mb-12">
         <CardContent className="p-6 sm:p-8">
           <form onSubmit={onSubmitHandler} className="space-y-8">
             <div className="space-y-3">
-              <label className="text-sm font-medium text-foreground">What do you want to email about?</label>
+              <label className="text-sm font-medium text-foreground">
+                What do you want to email about?
+              </label>
               <Input
                 onChange={(e) => setInput(e.target.value)}
                 value={input}
@@ -80,7 +82,7 @@ const WriteEmail = () => {
                 className="bg-background border-border/50 h-12 text-base focus-visible:ring-accent"
               />
             </div>
-            
+
             <div className="space-y-3">
               <label className="text-sm font-medium text-foreground">Select tone</label>
               <div className="flex gap-2 flex-wrap">
@@ -89,8 +91,8 @@ const WriteEmail = () => {
                     key={item.text}
                     variant="outline"
                     className={`cursor-pointer px-4 py-2 text-sm transition-all duration-200 ${
-                      selectedTone?.text === item.text 
-                        ? 'bg-accent/10 border-accent/50 text-accent hover:bg-accent/20' 
+                      selectedTone?.text === item.text
+                        ? 'bg-accent/10 border-accent/50 text-accent hover:bg-accent/20'
                         : 'border-border/50 hover:bg-muted/50 hover:border-border'
                     }`}
                     onClick={() => setSelectedTone(item)}
@@ -101,9 +103,9 @@ const WriteEmail = () => {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              disabled={loading || !input || !selectedTone} 
+            <Button
+              type="submit"
+              disabled={loading || !input || !selectedTone}
               className="w-full sm:w-auto h-12 px-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-md shadow-accent/20"
             >
               {loading ? (
@@ -121,17 +123,21 @@ const WriteEmail = () => {
         <div className="mb-16 animate-in slide-in-from-bottom-4 duration-500 fade-in">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-foreground">Generated Email</h3>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="text-xs h-8 border-border/50"
               onClick={() => handleCopy(content)}
             >
-              {copied ? <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
+              {copied ? (
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-green-500" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 mr-1.5" />
+              )}
               {copied ? 'Copied' : 'Copy'}
             </Button>
           </div>
-          
+
           <Card className="border-accent/20 bg-accent/5">
             <CardContent className="p-6 sm:p-8">
               <DemoBanner visible={isDemo} />
@@ -143,9 +149,9 @@ const WriteEmail = () => {
         </div>
       )}
 
-      <HistorySection 
-        type="email" 
-        title="Email History" 
+      <HistorySection
+        type="email"
+        title="Email History"
         renderItem={(item, { handleCopy, format }) => (
           <div className="p-6">
             <div className="flex justify-between items-start mb-4">
@@ -155,9 +161,9 @@ const WriteEmail = () => {
                 </p>
                 <p className="text-xs text-muted-foreground">{format(item.created_at)}</p>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-8 w-8 hover:bg-accent/10 hover:text-accent"
                 onClick={() => handleCopy(item.content)}
               >

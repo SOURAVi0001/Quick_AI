@@ -2,13 +2,13 @@
 @import 'tailwindcss';
 
 :root {
-  --background: 240 6% 8%;       /* Deep charcoal #131316 */
-  --foreground: 0 0% 98%;        /* Soft white */
-  --card: 240 6% 11%;            /* Slightly elevated charcoal #1a1a1e */
+  --background: 240 6% 8%; /* Deep charcoal #131316 */
+  --foreground: 0 0% 98%; /* Soft white */
+  --card: 240 6% 11%; /* Slightly elevated charcoal #1a1a1e */
   --card-foreground: 0 0% 98%;
   --popover: 240 6% 11%;
   --popover-foreground: 0 0% 98%;
-  --primary: 28 90% 55%;         /* Warm Amber/Orange #f37b1d */
+  --primary: 28 90% 55%; /* Warm Amber/Orange #f37b1d */
   --primary-foreground: 0 0% 10%;
   --secondary: 240 6% 16%;
   --secondary-foreground: 0 0% 98%;

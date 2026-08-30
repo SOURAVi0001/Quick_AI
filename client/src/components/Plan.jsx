@@ -15,8 +15,8 @@ const Plan = () => {
           </h2>
           <div className="mx-auto mt-4 w-12 h-0.5 bg-foreground/10 rounded-full" />
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            Every plan comes with a full set of tools. Upgrade only when your ambition outgrows
-            the free tier.
+            Every plan comes with a full set of tools. Upgrade only when your ambition outgrows the
+            free tier.
           </p>
         </div>
         <div className="max-sm:mx-4">

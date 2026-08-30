@@ -32,9 +32,7 @@ function Panel({ title, icon: Icon, hint, children, className = '' }) {
   );
 }
 
-const NoSignal = ({ children }) => (
-  <p className="text-sm text-subtle-foreground">{children}</p>
-);
+const NoSignal = ({ children }) => <p className="text-sm text-subtle-foreground">{children}</p>;
 
 function CountRow({ label, count, unit }) {
   return (
@@ -49,13 +47,7 @@ function CountRow({ label, count, unit }) {
 
 export default function JobSearchInsights({ insight, loading, error, onRefresh, onRetry }) {
   if (error) {
-    return (
-      <ErrorState
-        title="Couldn't generate insights"
-        description={error}
-        onRetry={onRetry}
-      />
-    );
+    return <ErrorState title="Couldn't generate insights" description={error} onRetry={onRetry} />;
   }
 
   if (loading && !insight) {
@@ -140,7 +132,9 @@ export default function JobSearchInsights({ insight, loading, error, onRefresh, 
           hint="Role families with offers or 50%+ interview conversion."
         >
           {insight.winning.length === 0 ? (
-            <NoSignal>No role family has converted often enough to call it a strength yet.</NoSignal>
+            <NoSignal>
+              No role family has converted often enough to call it a strength yet.
+            </NoSignal>
           ) : (
             <ul>
               {insight.winning.map((c) => (
@@ -183,10 +177,7 @@ export default function JobSearchInsights({ insight, loading, error, onRefresh, 
         >
           <ul>
             {insight.categories.map((c) => (
-              <li
-                key={c.category}
-                className="border-b border-border/60 py-2.5 last:border-0"
-              >
+              <li key={c.category} className="border-b border-border/60 py-2.5 last:border-0">
                 <div className="flex items-baseline justify-between gap-3">
                   <span className="min-w-0 truncate text-sm text-foreground/90">{c.category}</span>
                   <span className="text-meta shrink-0 tabular-nums text-subtle-foreground">
@@ -208,7 +199,9 @@ export default function JobSearchInsights({ insight, loading, error, onRefresh, 
           hint="Keywords appearing across your saved job descriptions."
         >
           {insight.requirements.length === 0 ? (
-            <NoSignal>Add job descriptions to your applications to see requirement patterns.</NoSignal>
+            <NoSignal>
+              Add job descriptions to your applications to see requirement patterns.
+            </NoSignal>
           ) : (
             <ul>
               {insight.requirements.map((k) => (
@@ -255,7 +248,9 @@ export default function JobSearchInsights({ insight, loading, error, onRefresh, 
           hint="Requested in 2+ of your job descriptions, not present in your profile skills."
         >
           {insight.gaps.length === 0 ? (
-            <NoSignal>Your profile skills cover the requirements repeated in your applications.</NoSignal>
+            <NoSignal>
+              Your profile skills cover the requirements repeated in your applications.
+            </NoSignal>
           ) : (
             <ul>
               {insight.gaps.map((g) => (

@@ -86,7 +86,9 @@ JSON Structure:
 `;
 
       try {
-        console.log(`📄 [LinkedIn Optimizer Worker] Job ${job.id}: Processing targetRole "${targetRole}" for user ${userId}`);
+        console.log(
+          `📄 [LinkedIn Optimizer Worker] Job ${job.id}: Processing targetRole "${targetRole}" for user ${userId}`,
+        );
         const { content: rawText } = await generateChatResponse([
           { role: 'user', content: prompt },
         ]);
@@ -96,11 +98,17 @@ JSON Structure:
         if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
           text = text.substring(firstBrace, lastBrace + 1);
         } else {
-          text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+          text = text
+            .replace(/```json/gi, '')
+            .replace(/```/g, '')
+            .trim();
         }
         content = JSON.parse(text);
       } catch (aiError) {
-        console.warn('⚠️ LinkedIn optimizer AI/parsing error, falling back to demo mode:', aiError?.message || aiError);
+        console.warn(
+          '⚠️ LinkedIn optimizer AI/parsing error, falling back to demo mode:',
+          aiError?.message || aiError,
+        );
         content = {
           overallScore: 88,
           roleAlignmentScore: 92,
@@ -110,33 +118,50 @@ JSON Structure:
             recommended: `${targetRole || 'Senior Software Engineer'} | Full-Stack Architect | Distributed Systems & Cloud Platforms`,
             alternatives: [
               `Building scalable systems as a ${targetRole || 'Software Engineer'} | React • Node.js • Cloud`,
-              `${targetRole || 'Software Engineer'} | High-Throughput Architectures & Engineering Leadership`
+              `${targetRole || 'Software Engineer'} | High-Throughput Architectures & Engineering Leadership`,
             ],
           },
           about: {
             current: about || '',
-            recommended: `Experienced ${targetRole || 'Software Engineer'} specializing in building scalable distributed web applications, modern cloud infrastructure, and developer-first platforms. Passionate about system design, performance optimization, and engineering excellence.`
+            recommended: `Experienced ${targetRole || 'Software Engineer'} specializing in building scalable distributed web applications, modern cloud infrastructure, and developer-first platforms. Passionate about system design, performance optimization, and engineering excellence.`,
           },
-          experience: experience ? [{
-            current: experience,
-            recommended: `• Architected and deployed scalable full-stack services for ${targetRole || 'the engineering team'}, improving throughput by 35%.\n• Collaborated cross-functionally with product and design to deliver production features on schedule.`
-          }] : [],
-          projects: projects ? [{
-            current: projects,
-            recommended: `• Designed and built high-performance web platform utilizing modern full-stack architectures and automated CI/CD pipelines.`
-          }] : [],
+          experience: experience
+            ? [
+                {
+                  current: experience,
+                  recommended: `• Architected and deployed scalable full-stack services for ${targetRole || 'the engineering team'}, improving throughput by 35%.\n• Collaborated cross-functionally with product and design to deliver production features on schedule.`,
+                },
+              ]
+            : [],
+          projects: projects
+            ? [
+                {
+                  current: projects,
+                  recommended: `• Designed and built high-performance web platform utilizing modern full-stack architectures and automated CI/CD pipelines.`,
+                },
+              ]
+            : [],
           skills: {
-            recommendedOrder: ['System Architecture', 'Distributed Systems', 'React', 'Node.js', 'PostgreSQL', 'Docker', 'AWS'],
-            missingSkills: ['Kubernetes', 'CI/CD Pipelines', 'Microservices']
+            recommendedOrder: [
+              'System Architecture',
+              'Distributed Systems',
+              'React',
+              'Node.js',
+              'PostgreSQL',
+              'Docker',
+              'AWS',
+            ],
+            missingSkills: ['Kubernetes', 'CI/CD Pipelines', 'Microservices'],
           },
           postIdeas: [
             {
               title: 'Architectural Deep Dive',
               topic: 'System Scalability',
               reason: 'Establishes technical credibility and thought leadership among recruiters.',
-              suggestedPost: 'How we reduced latency by 40% in our background queue processing: 3 key architectural decisions that made the difference.'
-            }
-          ]
+              suggestedPost:
+                'How we reduced latency by 40% in our background queue processing: 3 key architectural decisions that made the difference.',
+            },
+          ],
         };
         demo = true;
       }

@@ -3,7 +3,7 @@ import {
   getPublishedCreations,
   getUserCreations,
   toggleLikeCreations,
-  getFeatureHistory
+  getFeatureHistory,
 } from '../controllers/userController.js';
 import { auth } from '../middlewares/auth.js';
 const userRouter = express.Router();

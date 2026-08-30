@@ -2,7 +2,14 @@ import { useRef, useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { ArticleIcon, HashIcon, ImageIcon, BackgroundIcon, EraserIcon, ResumeIcon } from './FeatureIcons';
+import {
+  ArticleIcon,
+  HashIcon,
+  ImageIcon,
+  BackgroundIcon,
+  EraserIcon,
+  ResumeIcon,
+} from './FeatureIcons';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,7 +20,8 @@ const features = [
     id: 'email',
     title: 'AI Email Writer',
     subtitle: 'From a rough idea to a polished email in seconds.',
-    description: 'Pick your topic and tone, and let the words flow. Professional, friendly, or urgent — the AI adapts to your voice.',
+    description:
+      'Pick your topic and tone, and let the words flow. Professional, friendly, or urgent — the AI adapts to your voice.',
     Icon: ArticleIcon,
     visual: (
       <div className="w-full h-full flex flex-col p-5 sm:p-6">
@@ -43,7 +51,8 @@ const features = [
     id: 'titles',
     title: 'Blog Title Generator',
     subtitle: 'Stuck on a headline? We have dozens ready.',
-    description: 'Drop in a keyword and your category, and get a batch of click-worthy titles in seconds.',
+    description:
+      'Drop in a keyword and your category, and get a batch of click-worthy titles in seconds.',
     Icon: HashIcon,
     visual: (
       <div className="w-full h-full flex flex-col p-5 sm:p-6">
@@ -54,8 +63,16 @@ const features = [
           <div className="ml-auto text-[10px] text-white/20 font-mono">headlines</div>
         </div>
         <div className="flex-1 space-y-2">
-          {['The Future of AI in the Workplace', '10 Ways to Boost Your Productivity', 'Why Remote Work Is Here to Stay', 'A Beginner Guide to Machine Learning'].map((title, i) => (
-            <div key={i} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.04]">
+          {[
+            'The Future of AI in the Workplace',
+            '10 Ways to Boost Your Productivity',
+            'Why Remote Work Is Here to Stay',
+            'A Beginner Guide to Machine Learning',
+          ].map((title, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.04]"
+            >
               <div className="w-1 h-1 rounded-full bg-gradient-to-r from-red-500 to-orange-500" />
               <span className="text-[11px] text-white/40 truncate">{title}</span>
             </div>
@@ -68,7 +85,8 @@ const features = [
     id: 'image',
     title: 'AI Image Generation',
     subtitle: 'Describe it. Watch it appear.',
-    description: 'Thumbnails, social posts, mood boards — describe what you see in your head and the AI brings it to life.',
+    description:
+      'Thumbnails, social posts, mood boards — describe what you see in your head and the AI brings it to life.',
     Icon: ImageIcon,
     visual: (
       <div className="w-full h-full flex flex-col p-5 sm:p-6">
@@ -94,7 +112,8 @@ const features = [
     id: 'bg',
     title: 'Background Removal',
     subtitle: 'Clean cutouts in a single click.',
-    description: 'No Photoshop. No lasso tool. Just upload and get a professional cutout instantly.',
+    description:
+      'No Photoshop. No lasso tool. Just upload and get a professional cutout instantly.',
     Icon: BackgroundIcon,
     visual: (
       <div className="w-full h-full flex flex-col p-5 sm:p-6">
@@ -111,7 +130,15 @@ const features = [
           </div>
           <div className="flex flex-col gap-1.5">
             <div className="w-6 h-6 rounded-full bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
-              <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+              <svg
+                className="w-3 h-3 text-white"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
             </div>
             <div className="text-[10px] text-white/20 font-mono">done</div>
           </div>
@@ -126,7 +153,8 @@ const features = [
     id: 'object',
     title: 'Object Removal',
     subtitle: 'Unwanted photobomber? Make it vanish.',
-    description: 'Tell the AI what to remove and watch it disappear. Cluttered backgrounds, stray objects — gone.',
+    description:
+      'Tell the AI what to remove and watch it disappear. Cluttered backgrounds, stray objects — gone.',
     Icon: EraserIcon,
     visual: (
       <div className="w-full h-full flex flex-col p-5 sm:p-6">
@@ -139,7 +167,16 @@ const features = [
         <div className="flex-1 rounded-xl bg-gradient-to-br from-red-500/5 to-transparent border border-white/[0.06] relative overflow-hidden flex items-center justify-center">
           <div className="w-24 h-16 rounded-lg bg-white/8 relative">
             <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500/40 border-2 border-red-500/60 flex items-center justify-center">
-              <svg className="w-3 h-3 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              <svg
+                className="w-3 h-3 text-white/80"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </div>
           </div>
           <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2 p-2 rounded-lg bg-white/[0.04] border border-white/[0.04]">
@@ -154,7 +191,8 @@ const features = [
     id: 'resume',
     title: 'Resume Reviewer',
     subtitle: 'Land more interviews with AI-powered feedback.',
-    description: 'Get blunt, actionable insights on your resume before you hit send. Optimized for any role.',
+    description:
+      'Get blunt, actionable insights on your resume before you hit send. Optimized for any role.',
     Icon: ResumeIcon,
     visual: (
       <div className="w-full h-full flex flex-col p-5 sm:p-6">
@@ -245,11 +283,19 @@ const FeatureShowcase = () => {
         else progress = 0;
 
         if (textEls[idx]) gsap.set(textEls[idx], { opacity: progress, y: (1 - progress) * 24 });
-        if (screenEls[idx]) gsap.set(screenEls[idx], { opacity: progress, y: (1 - progress) * 24, scale: 0.93 + 0.07 * progress });
+        if (screenEls[idx])
+          gsap.set(screenEls[idx], {
+            opacity: progress,
+            y: (1 - progress) * 24,
+            scale: 0.93 + 0.07 * progress,
+          });
       },
     });
 
-    return () => { st.kill(); lenis.destroy(); };
+    return () => {
+      st.kill();
+      lenis.destroy();
+    };
   }, []);
 
   return (
@@ -266,10 +312,7 @@ const FeatureShowcase = () => {
         .icon-glow-effect { animation: icon-glow 2.5s ease-in-out infinite; }
         .icon-float { animation: icon-float 3s ease-in-out infinite; }
       `}</style>
-      <div
-        ref={pinnedRef}
-        className="h-screen w-full overflow-hidden bg-[#0a0a0a]"
-      >
+      <div ref={pinnedRef} className="h-screen w-full overflow-hidden bg-[#0a0a0a]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(220,38,38,0.08),transparent)] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_80%_80%,rgba(249,115,22,0.06),transparent)] pointer-events-none" />
 
@@ -317,7 +360,10 @@ const FeatureShowcase = () => {
               <div className="flex items-center justify-center">
                 <div className="w-full max-w-md">
                   <div className="relative rounded-2xl bg-white/[0.03] border border-white/[0.07] shadow-2xl shadow-red-500/5 overflow-hidden backdrop-blur-xl">
-                    <div className="relative mx-auto overflow-hidden" style={{ aspectRatio: '4/3' }}>
+                    <div
+                      className="relative mx-auto overflow-hidden"
+                      style={{ aspectRatio: '4/3' }}
+                    >
                       {features.map((feature, i) => (
                         <div
                           key={i}
@@ -325,9 +371,7 @@ const FeatureShowcase = () => {
                           className="absolute inset-0"
                           style={{ backfaceVisibility: 'hidden' }}
                         >
-                          <div className="h-full bg-[#0d0d0d]">
-                            {feature.visual}
-                          </div>
+                          <div className="h-full bg-[#0d0d0d]">{feature.visual}</div>
                         </div>
                       ))}
                     </div>
@@ -344,7 +388,11 @@ const FeatureShowcase = () => {
                 onClick={() => {
                   const st = ScrollTrigger.getAll().find((t) => t.trigger === sectionRef.current);
                   if (st) {
-                    gsap.to(st, { progress: (i + 0.5) / features.length, duration: 0.8, ease: 'power3.inOut' });
+                    gsap.to(st, {
+                      progress: (i + 0.5) / features.length,
+                      duration: 0.8,
+                      ease: 'power3.inOut',
+                    });
                   }
                 }}
                 className={`rounded-full transition-all duration-500 ${

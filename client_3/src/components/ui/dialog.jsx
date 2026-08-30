@@ -45,10 +45,7 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
 DialogContent.displayName = 'DialogContent';
 
 const DialogHeader = ({ className, ...props }) => (
-  <div
-    className={cn('border-b border-border px-5 py-4 pr-14 sm:px-6', className)}
-    {...props}
-  />
+  <div className={cn('border-b border-border px-5 py-4 pr-14 sm:px-6', className)} {...props} />
 );
 
 const DialogBody = ({ className, ...props }) => (

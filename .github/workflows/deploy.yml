@@ -1,4 +1,4 @@
-name: Deploy Full Stack App
+name: Deploy to Kubernetes
 
 on:
   push:
@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -25,31 +25,42 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
           docker push ${{ secrets.DOCKER_USERNAME }}/quickai-backend:latest
 
-      - name: Deploy to K8s on Oracle Cloud
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Copy K8s manifests to Oracle VM
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.ORACLE_HOST }}
           username: ${{ secrets.ORACLE_USER }}
           key: ${{ secrets.ORACLE_SSH_KEY }}
+          source: 'K8s/*'
+          target: '/home/opc/deployments/quickai'
+
+      - name: Deploy to K8s on Oracle Cloud
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          SERVER_ENV: ${{ secrets.SERVER_ENV }}
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ${{ secrets.ORACLE_USER }}
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          envs: SERVER_ENV
           script: |
-            # Pull latest changes in the repository on server if it is a git repo
-            if [ -d "/home/opc/Quick_AI/.git" ]; then
-              cd /home/opc/Quick_AI
-              git pull origin main || true
-            fi
-
-            # Automatically create or update Kubernetes Secret from the server's .env file
-            if [ -f "/home/opc/Quick_AI/server/.env" ]; then
+            # 1. Create or update Kubernetes Secret securely from GitHub Secret (if provided)
+            if [ -n "$SERVER_ENV" ]; then
+              echo "$SERVER_ENV" > /tmp/.quickai_secrets.env
               kubectl create secret generic quickai-secrets \
-                --from-env-file=/home/opc/Quick_AI/server/.env \
+                --from-env-file=/tmp/.quickai_secrets.env \
                 --dry-run=client -o yaml | kubectl apply -f -
+              rm -f /tmp/.quickai_secrets.env
+            elif ! kubectl get secret quickai-secrets >/dev/null 2>&1; then
+              # Create placeholder if not exists so pod creation does not fail
+              kubectl create secret generic quickai-secrets
             fi
 
-            # Apply all Kubernetes manifests (ConfigMap, Deployment, Service)
-            kubectl apply -f /home/opc/Quick_AI/K8s/
+            # 2. Apply manifests copied from checked-out repo
+            kubectl apply -f /home/opc/deployments/quickai/K8s/
 
-            # Trigger zero-downtime rolling update with the newly built SHA-tagged image
+            # 3. Roll out the exact immutable SHA image to the Deployment
             kubectl set image deployment/quickai-backend quickai-backend=${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
 
-            # Wait for rollout to complete (fails step if deployment fails)
+            # 4. Block and verify rollout status (fails if unhealthy)
             kubectl rollout status deployment/quickai-backend --timeout=180s

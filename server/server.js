@@ -99,8 +99,8 @@ try {
   } catch (configErr) {
     console.warn(
       '⚠️ Could not dynamically configure Redis maxmemory-policy to noeviction. ' +
-      'If you are using a managed Redis provider (like Render/Redis Labs), please set the eviction policy ' +
-      'to "noeviction" manually in their dashboard to prevent BullMQ job eviction.'
+        'If you are using a managed Redis provider (like Render/Redis Labs), please set the eviction policy ' +
+        'to "noeviction" manually in their dashboard to prevent BullMQ job eviction.',
     );
   }
 

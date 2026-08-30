@@ -11,7 +11,7 @@ const AiTools = () => {
     <section className="relative py-32 bg-background dot-grid bg-noise overflow-hidden">
       <div className="absolute inset-0 bg-mesh pointer-events-none opacity-50" />
       <div className="absolute inset-0 bg-glow pointer-events-none opacity-50" />
-      
+
       {/* Decorative ambient glowing orbs */}
       <div className="absolute top-1/4 -left-1/4 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-1/4 -right-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -30,7 +30,7 @@ const AiTools = () => {
             powered by AI.
           </p>
         </div>
-        
+
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {AiToolsData.map((tool, index) => (
             <Card
@@ -40,12 +40,14 @@ const AiTools = () => {
             >
               {/* Subtle animated gradient background on hover */}
               <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               <CardHeader className="relative z-10 p-8">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-foreground to-foreground/80 shadow-[0_8px_16px_-6px_rgba(0,0,0,0.3)] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500 ease-out">
                   <tool.Icon className="w-6 h-6 text-background" strokeWidth={2.5} />
                 </div>
-                <CardTitle className="text-xl font-semibold tracking-tight text-foreground mb-3">{tool.title}</CardTitle>
+                <CardTitle className="text-xl font-semibold tracking-tight text-foreground mb-3">
+                  {tool.title}
+                </CardTitle>
                 <CardDescription className="text-base leading-relaxed text-muted-foreground/80">
                   {tool.description}
                 </CardDescription>

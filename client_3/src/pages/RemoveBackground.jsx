@@ -64,7 +64,9 @@ const RemoveBackground = () => {
                   <span className="text-sm font-medium text-foreground">
                     {input ? input.name : 'Click to upload an image'}
                   </span>
-                  <span className="text-xs text-subtle-foreground">Supports JPG, PNG and other common formats</span>
+                  <span className="text-xs text-subtle-foreground">
+                    Supports JPG, PNG and other common formats
+                  </span>
                 </button>
                 <input
                   ref={fileRef}
@@ -86,7 +88,12 @@ const RemoveBackground = () => {
         <div className="min-w-0 lg:col-span-7">
           <ResultRegion label="Processed image">
             {loading && (
-              <LoadingState title="Lifting your subject..." description="Cutting out the background." lines={0} className="min-h-[400px]" />
+              <LoadingState
+                title="Lifting your subject..."
+                description="Cutting out the background."
+                lines={0}
+                className="min-h-[400px]"
+              />
             )}
             {!loading && content && (
               <div className="animate-rise space-y-4">

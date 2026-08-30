@@ -52,7 +52,6 @@ const JobTracker = () => {
   const pipeline = useMemo(() => computePipeline(applications), [applications]);
   const upcoming = useMemo(() => upcomingActions(applications), [applications]);
 
-
   const visible = useMemo(
     () => sortApplications(filterApplications(applications, filters), sort),
     [applications, filters, sort],
@@ -149,8 +148,6 @@ const JobTracker = () => {
           </div>
         </div>
       </Zone>
-
-
 
       <AddApplicationForm open={addOpen} onOpenChange={setAddOpen} onSubmit={addApplication} />
       <ApplicationDetail

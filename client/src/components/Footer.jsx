@@ -11,9 +11,7 @@ const Footer = () => {
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-4 h-4 text-white/80" />
-              <span className="text-base font-semibold tracking-tight text-white/90">
-                QuickAI
-              </span>
+              <span className="text-base font-semibold tracking-tight text-white/90">QuickAI</span>
             </div>
             <p className="text-sm text-white/40 leading-relaxed max-w-xs">
               Making creators unstoppable, one AI tool at a time. Cut the busywork, keep the craft.

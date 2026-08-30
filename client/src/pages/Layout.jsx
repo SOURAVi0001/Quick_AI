@@ -14,16 +14,25 @@ const Layout = () => {
     <div className="flex flex-col h-screen bg-background text-foreground relative z-0">
       <AnimatedBackground />
       <div className="w-full h-12 flex items-center justify-between px-6 border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-10">
-        <button onClick={() => navigate('/')} className="flex items-center gap-2 cursor-pointer group">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-2 cursor-pointer group"
+        >
           <span className="text-[11px] font-semibold text-muted-foreground tracking-[0.2em] uppercase group-hover:text-foreground transition-colors">
             QuickAI
           </span>
         </button>
         <div className="sm:hidden">
           {sidebar ? (
-            <X onClick={() => setSidebar(false)} className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+            <X
+              onClick={() => setSidebar(false)}
+              className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+            />
           ) : (
-            <Menu onClick={() => setSidebar(true)} className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors" />
+            <Menu
+              onClick={() => setSidebar(true)}
+              className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
+            />
           )}
         </div>
       </div>

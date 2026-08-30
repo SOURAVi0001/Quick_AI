@@ -18,7 +18,7 @@ export default function AnimatedBackground() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
-    
+
     setDimensions();
     window.addEventListener('resize', setDimensions);
 
@@ -39,11 +39,15 @@ export default function AnimatedBackground() {
 
     const drawParticles = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       // Draw radial gradient background
       const gradient = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height / 2, 0,
-        canvas.width / 2, canvas.height / 2, canvas.width
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        canvas.width,
       );
       gradient.addColorStop(0, 'rgba(30, 28, 26, 0.4)'); // subtle warm glow
       gradient.addColorStop(1, 'rgba(19, 19, 22, 1)');
@@ -51,7 +55,7 @@ export default function AnimatedBackground() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Draw stars
-      particles.forEach(p => {
+      particles.forEach((p) => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(243, 123, 29, ${p.opacity})`; // Warm amber color

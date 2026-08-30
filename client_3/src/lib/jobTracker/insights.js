@@ -92,7 +92,13 @@ function categoryStats(applications) {
   const map = new Map();
   applications.forEach((app) => {
     const key = roleCategory(app.role);
-    const entry = map.get(key) || { category: key, total: 0, interviews: 0, offers: 0, rejected: 0 };
+    const entry = map.get(key) || {
+      category: key,
+      total: 0,
+      interviews: 0,
+      offers: 0,
+      rejected: 0,
+    };
     entry.total += 1;
     if (reachedInterview(app)) entry.interviews += 1;
     if (OFFERED.includes(app.status)) entry.offers += 1;
@@ -176,7 +182,8 @@ function recommendations({ gaps, categories, profileSkills, hasExplicit }) {
     });
   }
 
-  const noRecruiterContact = 'Applications without a recruiter contact tend to stall at the screen stage.';
+  const noRecruiterContact =
+    'Applications without a recruiter contact tend to stall at the screen stage.';
   recs.push({
     id: 'rec-outreach',
     title: 'Add a recruiter touchpoint to applications that have gone quiet',
@@ -261,7 +268,9 @@ export function buildInsights(applications = [], profile = mockProfile) {
 
   const categories = categoryStats(considered).sort((a, b) => b.total - a.total);
   const winning = categories
-    .filter((c) => c.total >= 2 && (c.offers > 0 || (c.interviewRate >= 50 && c.rejectionRate < 50)))
+    .filter(
+      (c) => c.total >= 2 && (c.offers > 0 || (c.interviewRate >= 50 && c.rejectionRate < 50)),
+    )
     .sort((a, b) => b.offerRate - a.offerRate || b.interviewRate - a.interviewRate);
   const struggling = categories
     .filter((c) => c.total >= 2 && c.rejectionRate >= 50 && c.offers === 0)
@@ -274,8 +283,7 @@ export function buildInsights(applications = [], profile = mockProfile) {
   const strongSkills = profileSkills.filter((s) =>
     winning.length
       ? considered.some(
-          (a) =>
-            OFFERED.includes(a.status) && a.jobDescription && hasKeyword(a.jobDescription, s),
+          (a) => OFFERED.includes(a.status) && a.jobDescription && hasKeyword(a.jobDescription, s),
         )
       : false,
   );
@@ -292,7 +300,9 @@ export function buildInsights(applications = [], profile = mockProfile) {
       ? `Requirements such as ${rejectedKeywords
           .slice(0, 3)
           .map((k) => k.keyword)
-          .join(', ')} appear frequently in applications that ended in rejection — a correlation in your history, not a stated reason.`
+          .join(
+            ', ',
+          )} appear frequently in applications that ended in rejection — a correlation in your history, not a stated reason.`
       : 'No requirement appears often enough across rejected applications to call it a pattern.',
   ].join(' ');
 

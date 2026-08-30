@@ -183,8 +183,7 @@ export async function handleInsightsTask(job) {
 
     const winning = categories
       .filter(
-        (c) =>
-          c.total >= 2 && (c.offers > 0 || (c.interviewRate >= 50 && c.rejectionRate < 50)),
+        (c) => c.total >= 2 && (c.offers > 0 || (c.interviewRate >= 50 && c.rejectionRate < 50)),
       )
       .sort((a, b) => b.offerRate - a.offerRate || b.interviewRate - a.interviewRate);
 

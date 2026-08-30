@@ -100,10 +100,7 @@ export default function useJobTracker() {
     [pushActivity, getToken],
   );
 
-  const roles = useMemo(
-    () => [...new Set(applications.map((a) => a.role))].sort(),
-    [applications],
-  );
+  const roles = useMemo(() => [...new Set(applications.map((a) => a.role))].sort(), [applications]);
   const locations = useMemo(
     () => [...new Set(applications.map((a) => a.location).filter(Boolean))].sort(),
     [applications],

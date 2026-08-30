@@ -62,6 +62,7 @@ Quick_AI/
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
+
 - Node.js 20+
 - Docker & Docker Compose
 - Redis (local or Upstash/cloud)
@@ -70,12 +71,14 @@ Quick_AI/
 ### 2. Environment Setup
 
 #### Client (`client/.env`)
+
 ```env
 VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 VITE_BASE_URL=http://localhost:3000
 ```
 
 #### Server (`server/.env`)
+
 ```env
 PORT=3000
 CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
@@ -94,6 +97,7 @@ FRONTEND_ORIGIN=http://localhost:5173
 ### 3. Running Locally
 
 #### Run Backend
+
 ```bash
 cd server
 npm install
@@ -101,6 +105,7 @@ npm run dev
 ```
 
 #### Run Frontend
+
 ```bash
 cd client
 npm install
@@ -112,6 +117,7 @@ npm run dev
 ## 🐳 Docker & Kubernetes Deployment
 
 ### Local Docker Build
+
 ```bash
 cd server
 docker build -t quickai-backend:latest .
@@ -119,6 +125,7 @@ docker run -p 3000:3000 --env-file .env quickai-backend:latest
 ```
 
 ### Deploying to Kubernetes on EC2
+
 ```bash
 # Apply all Kubernetes manifests in one shot
 kubectl apply -f K8s/

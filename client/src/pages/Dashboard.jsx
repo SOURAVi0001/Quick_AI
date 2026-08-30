@@ -49,8 +49,8 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <HistorySection 
-          title="Recent Activity" 
+        <HistorySection
+          title="Recent Activity"
           renderItem={(item, { format }) => (
             <div className="p-5 flex items-start gap-4">
               <div className="p-2 rounded bg-muted/30">

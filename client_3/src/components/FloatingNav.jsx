@@ -203,10 +203,13 @@ const FloatingNav = () => {
     [animate, reduced, setOffsetValue],
   );
 
-  useEffect(() => () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    if (restTimer.current) clearTimeout(restTimer.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (restTimer.current) clearTimeout(restTimer.current);
+    },
+    [],
+  );
 
   /* external route change (links, back button, refresh) re-centers the dial */
   useEffect(() => {
@@ -280,7 +283,13 @@ const FloatingNav = () => {
   const onKeyDown = (e) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
-      commit(clamp(Math.round(offsetRef.current) + (e.key === 'ArrowDown' ? 1 : -1), 0, flatItems.length - 1));
+      commit(
+        clamp(
+          Math.round(offsetRef.current) + (e.key === 'ArrowDown' ? 1 : -1),
+          0,
+          flatItems.length - 1,
+        ),
+      );
     }
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -402,9 +411,6 @@ const FloatingNav = () => {
             />
           </svg>
 
-
-
-
           {/* items placed on the ellipse */}
           <div className="absolute inset-0">
             {flatItems.map((item, index) => {
@@ -433,7 +439,6 @@ const FloatingNav = () => {
                     'focus-visible:ring-2 focus-visible:ring-ring/60',
                     expanded ? 'w-[14.5rem]' : 'w-[3.25rem] justify-center',
                   )}
-
                 >
                   <item.Icon
                     className={cn(
@@ -454,7 +459,6 @@ const FloatingNav = () => {
               );
             })}
           </div>
-
         </div>
 
         <span className="hairline-glow mx-3 h-px w-[3.5rem] shrink-0" aria-hidden="true" />

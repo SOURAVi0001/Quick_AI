@@ -104,8 +104,7 @@ export const sortApplications = (applications, sort) => {
       return list.sort((a, b) => time(b.updatedAt) - time(a.updatedAt));
     case 'nextAction':
       return list.sort(
-        (a, b) =>
-          (time(a.nextActionDate) || Infinity) - (time(b.nextActionDate) || Infinity),
+        (a, b) => (time(a.nextActionDate) || Infinity) - (time(b.nextActionDate) || Infinity),
       );
     case 'newest':
     default:

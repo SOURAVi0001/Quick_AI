@@ -34,7 +34,9 @@ export async function handleResumeTask(job) {
 
     case 'resume-tailor': {
       const { pdfText, jobDescription } = job.data;
-      console.log(`📄 [Resume Tailor Worker] Job ${job.id}: Processing Resume (${pdfText?.length || 0} chars) against JD (${jobDescription?.length || 0} chars)`);
+      console.log(
+        `📄 [Resume Tailor Worker] Job ${job.id}: Processing Resume (${pdfText?.length || 0} chars) against JD (${jobDescription?.length || 0} chars)`,
+      );
 
       const systemPrompt = `You are a Principal Executive Resume Writer, ATS Algorithm Architect, and Fortune 500 Technical Recruiter.
 Your objective is to take the candidate's resume and aggressively tailor and optimize it to maximize interview callback rates for the target Job Description.
@@ -111,19 +113,23 @@ Return ONLY valid JSON matching this exact structure:
         if (firstBrace !== -1 && lastBrace > firstBrace) {
           text = text.substring(firstBrace, lastBrace + 1);
         } else {
-          text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+          text = text
+            .replace(/```json/gi, '')
+            .replace(/```/g, '')
+            .trim();
         }
         content = JSON.parse(text);
       } catch (aiError) {
-        console.warn('⚠️ Resume tailor AI/parsing error, falling back to demo mode:', aiError?.message || aiError);
+        console.warn(
+          '⚠️ Resume tailor AI/parsing error, falling back to demo mode:',
+          aiError?.message || aiError,
+        );
         content = {
           matchScore: 82,
           matchingSkills: ['JavaScript', 'React', 'Node.js'],
           missingKeywords: ['Kafka', 'GraphQL'],
           underEmphasizedKeywords: ['AWS'],
-          experienceGaps: [
-            'No direct experience with large-scale distributed systems mentioned.',
-          ],
+          experienceGaps: ['No direct experience with large-scale distributed systems mentioned.'],
           atsRecommendations: ["Use exact phrasing from JD for 'Frontend Development'"],
           summaryOptimization: {
             current: 'Software Developer with experience in JS.',
@@ -141,7 +147,8 @@ Return ONLY valid JSON matching this exact structure:
           projects: [
             {
               current: 'Personal Portfolio & Full-stack Web Apps',
-              recommended: 'Engineered high-performance web applications with CI/CD and automated test coverage.',
+              recommended:
+                'Engineered high-performance web applications with CI/CD and automated test coverage.',
               reason: 'Demonstrates end-to-end engineering rigor aligned with job requirements.',
             },
           ],

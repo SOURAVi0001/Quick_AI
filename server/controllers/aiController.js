@@ -131,7 +131,7 @@ export const resumeReview = async (req, res, next) => {
     const parser = new PDFParse({ data: new Uint8Array(dataBuffer) });
     await parser.load();
     const pdfResult = await parser.getText();
-    const pdfText = typeof pdfResult === 'string' ? pdfResult : (pdfResult?.text || '');
+    const pdfText = typeof pdfResult === 'string' ? pdfResult : pdfResult?.text || '';
 
     const prompt = `Review the following resume and provide feedback on strengths and weaknesses within 300 words:\n\n${pdfText}`;
 
@@ -189,7 +189,7 @@ export const resumeTailor = async (req, res, next) => {
     const parser = new PDFParse({ data: new Uint8Array(dataBuffer) });
     await parser.load();
     const pdfResult = await parser.getText();
-    const pdfText = typeof pdfResult === 'string' ? pdfResult : (pdfResult?.text || '');
+    const pdfText = typeof pdfResult === 'string' ? pdfResult : pdfResult?.text || '';
 
     const taskId = await addTask('resume-tailor', {
       type: 'resume-tailor',
@@ -485,10 +485,12 @@ export const answerInterview = async (req, res, next) => {
 
     if (answers && Array.isArray(answers)) {
       sessionData.answers = answers;
-      sessionData.history = (sessionData.questions || []).map((q, i) => ([
-        { role: 'interviewer', content: q },
-        { role: 'candidate', content: answers[i] || '' }
-      ])).flat();
+      sessionData.history = (sessionData.questions || [])
+        .map((q, i) => [
+          { role: 'interviewer', content: q },
+          { role: 'candidate', content: answers[i] || '' },
+        ])
+        .flat();
 
       await saveInterviewSession(userId, sessionId, sessionData);
 

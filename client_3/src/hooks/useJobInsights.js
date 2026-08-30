@@ -28,21 +28,24 @@ export default function useJobInsights(applications, { ready = true } = {}) {
     }
   }, [getToken]);
 
-  const run = useCallback(async ({ announce = false } = {}) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const token = await getToken();
-      const next = await jobTrackerApi.generateInsights(appsRef.current, mockProfile, token);
-      setInsight(next);
-      setHistory((prev) => [next, ...prev].slice(0, 24));
-      if (announce) toast.success('Insights recalculated from your latest history');
-    } catch (err) {
-      setError(err.message || 'Failed to generate insights');
-    } finally {
-      setLoading(false);
-    }
-  }, [getToken]);
+  const run = useCallback(
+    async ({ announce = false } = {}) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const token = await getToken();
+        const next = await jobTrackerApi.generateInsights(appsRef.current, mockProfile, token);
+        setInsight(next);
+        setHistory((prev) => [next, ...prev].slice(0, 24));
+        if (announce) toast.success('Insights recalculated from your latest history');
+      } catch (err) {
+        setError(err.message || 'Failed to generate insights');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [getToken],
+  );
 
   useEffect(() => {
     if (!ready) return;

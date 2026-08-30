@@ -68,7 +68,9 @@ export function ComparePanel({
     if (!val) return '';
     if (typeof val === 'string') return val;
     if (Array.isArray(val)) {
-      return val.map((item) => (typeof item === 'string' ? `• ${item}` : `• ${JSON.stringify(item)}`)).join('\n\n');
+      return val
+        .map((item) => (typeof item === 'string' ? `• ${item}` : `• ${JSON.stringify(item)}`))
+        .join('\n\n');
     }
     if (typeof val === 'object') {
       return Object.entries(val)
@@ -87,9 +89,7 @@ export function ComparePanel({
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-3.5 sm:px-6">
           <h3 className="text-h3 text-foreground">{title}</h3>
           {reason && (
-            <span className="text-xs text-muted-foreground italic max-w-md truncate">
-              {reason}
-            </span>
+            <span className="text-xs text-muted-foreground italic max-w-md truncate">{reason}</span>
           )}
         </div>
       )}
@@ -101,7 +101,9 @@ export function ComparePanel({
               <Markdown>{currentFormatted}</Markdown>
             </div>
           ) : (
-            <p className="text-sm italic text-muted-foreground/40">Not specified in original resume</p>
+            <p className="text-sm italic text-muted-foreground/40">
+              Not specified in original resume
+            </p>
           )}
         </div>
         <div className="relative min-w-0 bg-primary/[0.04] p-5 sm:p-6">

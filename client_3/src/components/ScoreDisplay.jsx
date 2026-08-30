@@ -57,8 +57,7 @@ export default function ScoreDisplay({
 }) {
   const safe = Math.max(0, Math.min(max, Number(value) || 0));
   const pct = (safe / max) * 100;
-  const numeral =
-    size === 'sm' ? 'text-4xl' : size === 'md' ? 'text-6xl' : 'text-7xl sm:text-8xl';
+  const numeral = size === 'sm' ? 'text-4xl' : size === 'md' ? 'text-6xl' : 'text-7xl sm:text-8xl';
 
   return (
     <div className={cn('min-w-0', className)}>

@@ -39,7 +39,7 @@ const RecruiterOutreach = () => {
     try {
       setLoading(true);
       setResults(null);
-      
+
       const { data } = await api.post('/api/ai/recruiter-outreach', formData, {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
@@ -59,10 +59,10 @@ const RecruiterOutreach = () => {
 
   return (
     <div className="pb-16 max-w-6xl mx-auto">
-      <PageHeader 
-        icon={Send} 
-        title="Recruiter Outreach Generator" 
-        description="Generate personalized, high-converting messages to connect with recruiters on LinkedIn or via cold email." 
+      <PageHeader
+        icon={Send}
+        title="Recruiter Outreach Generator"
+        description="Generate personalized, high-converting messages to connect with recruiters on LinkedIn or via cold email."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
@@ -77,23 +77,43 @@ const RecruiterOutreach = () => {
               <form onSubmit={handleGenerate} className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-foreground">Target Role <span className="text-destructive">*</span></label>
-                    <Input name="targetRole" value={formData.targetRole} onChange={handleInputChange} placeholder="e.g. Frontend Developer" required className="bg-background border-border/50 focus-visible:ring-accent h-12" />
+                    <label className="text-sm font-medium text-foreground">
+                      Target Role <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      name="targetRole"
+                      value={formData.targetRole}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Frontend Developer"
+                      required
+                      className="bg-background border-border/50 focus-visible:ring-accent h-12"
+                    />
                   </div>
-                  
+
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-foreground">Target Company <span className="text-destructive">*</span></label>
-                    <Input name="company" value={formData.company} onChange={handleInputChange} placeholder="e.g. Netflix" required className="bg-background border-border/50 focus-visible:ring-accent h-12" />
+                    <label className="text-sm font-medium text-foreground">
+                      Target Company <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      name="company"
+                      value={formData.company}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Netflix"
+                      required
+                      className="bg-background border-border/50 focus-visible:ring-accent h-12"
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-foreground">My Profile / Resume <span className="text-destructive">*</span></label>
-                  <Textarea 
-                    name="myProfile" 
-                    value={formData.myProfile} 
-                    onChange={handleInputChange} 
-                    placeholder="Paste your LinkedIn summary or key resume points here..." 
+                  <label className="text-sm font-medium text-foreground">
+                    My Profile / Resume <span className="text-destructive">*</span>
+                  </label>
+                  <Textarea
+                    name="myProfile"
+                    value={formData.myProfile}
+                    onChange={handleInputChange}
+                    placeholder="Paste your LinkedIn summary or key resume points here..."
                     rows={4}
                     required
                     className="bg-background border-border/50 focus-visible:ring-accent resize-none"
@@ -101,30 +121,38 @@ const RecruiterOutreach = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-foreground">Recruiter's Profile (Optional)</label>
-                  <Textarea 
-                    name="recruiterProfile" 
-                    value={formData.recruiterProfile} 
-                    onChange={handleInputChange} 
-                    placeholder="Paste anything you know about the recruiter to personalize it..." 
+                  <label className="text-sm font-medium text-foreground">
+                    Recruiter's Profile (Optional)
+                  </label>
+                  <Textarea
+                    name="recruiterProfile"
+                    value={formData.recruiterProfile}
+                    onChange={handleInputChange}
+                    placeholder="Paste anything you know about the recruiter to personalize it..."
                     rows={3}
                     className="bg-background border-border/50 focus-visible:ring-accent resize-none"
                   />
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-foreground">Job Description (Optional)</label>
-                  <Textarea 
-                    name="jobDescription" 
-                    value={formData.jobDescription} 
-                    onChange={handleInputChange} 
-                    placeholder="Paste the job description if you have a specific role in mind..." 
+                  <label className="text-sm font-medium text-foreground">
+                    Job Description (Optional)
+                  </label>
+                  <Textarea
+                    name="jobDescription"
+                    value={formData.jobDescription}
+                    onChange={handleInputChange}
+                    placeholder="Paste the job description if you have a specific role in mind..."
                     rows={3}
                     className="bg-background border-border/50 focus-visible:ring-accent resize-none"
                   />
                 </div>
 
-                <Button type="submit" disabled={loading} className="w-full h-12 mt-4 bg-accent text-accent-foreground hover:bg-accent/90 shadow-md shadow-accent/20">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 mt-4 bg-accent text-accent-foreground hover:bg-accent/90 shadow-md shadow-accent/20"
+                >
                   {loading ? (
                     <span className="w-5 h-5 rounded-full border-2 border-accent-foreground/30 border-t-accent-foreground animate-spin mr-2" />
                   ) : (
@@ -142,7 +170,9 @@ const RecruiterOutreach = () => {
             <Card className="h-full border-dashed border-border/50 bg-transparent">
               <CardContent className="h-full flex flex-col items-center justify-center min-h-[400px] text-muted-foreground p-8">
                 <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mb-5 shadow-lg shadow-accent/20"></div>
-                <p className="text-sm font-medium animate-pulse text-foreground/80">Crafting personalized messages...</p>
+                <p className="text-sm font-medium animate-pulse text-foreground/80">
+                  Crafting personalized messages...
+                </p>
               </CardContent>
             </Card>
           )}
@@ -190,18 +220,25 @@ const RecruiterOutreach = () => {
                       <Mail className="w-5 h-5 text-red-400" />
                       Cold Email
                     </CardTitle>
-                    <CopyButton text={`Subject: ${results.coldEmail?.subject}\n\n${results.coldEmail?.body}`} className="h-8" />
+                    <CopyButton
+                      text={`Subject: ${results.coldEmail?.subject}\n\n${results.coldEmail?.body}`}
+                      className="h-8"
+                    />
                   </div>
                 </CardHeader>
                 <CardContent className="p-5 bg-background text-sm space-y-4">
                   <div>
-                    <span className="font-bold text-[11px] uppercase tracking-widest text-muted-foreground block mb-2">Subject</span>
+                    <span className="font-bold text-[11px] uppercase tracking-widest text-muted-foreground block mb-2">
+                      Subject
+                    </span>
                     <div className="bg-muted/30 p-3 rounded-lg border border-border/50 text-foreground font-medium">
                       {results.coldEmail?.subject}
                     </div>
                   </div>
                   <div>
-                    <span className="font-bold text-[11px] uppercase tracking-widest text-muted-foreground block mb-2">Body</span>
+                    <span className="font-bold text-[11px] uppercase tracking-widest text-muted-foreground block mb-2">
+                      Body
+                    </span>
                     <div className="whitespace-pre-wrap bg-muted/10 p-4 rounded-lg border border-border/50 text-foreground/90 leading-relaxed">
                       {results.coldEmail?.body}
                     </div>
@@ -210,7 +247,7 @@ const RecruiterOutreach = () => {
               </Card>
             </div>
           )}
-          
+
           {!loading && !results && (
             <Card className="h-full border-dashed border-border/50 bg-transparent">
               <CardContent className="h-full flex flex-col items-center justify-center min-h-[400px] text-center p-8">
@@ -219,19 +256,21 @@ const RecruiterOutreach = () => {
                 </div>
                 <h3 className="text-lg font-medium text-foreground mb-2">Ready to Connect</h3>
                 <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-                  Fill out the details on the left to generate customized, high-converting outreach messages for recruiters.
+                  Fill out the details on the left to generate customized, high-converting outreach
+                  messages for recruiters.
                 </p>
               </CardContent>
             </Card>
           )}
         </div>
       </div>
-      
-      <HistorySection 
-        type="recruiter-outreach" 
-        title="Outreach History" 
+
+      <HistorySection
+        type="recruiter-outreach"
+        title="Outreach History"
         renderItem={(item, { handleCopy, format }) => {
-          const content = typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
+          const content =
+            typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
           return (
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
@@ -241,7 +280,12 @@ const RecruiterOutreach = () => {
                   </p>
                   <p className="text-xs text-muted-foreground">{format(item.created_at)}</p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => handleCopy(content.recruiterDM || content.connectionRequest)} className="h-8 px-2 text-xs hover:bg-accent/10 hover:text-accent">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCopy(content.recruiterDM || content.connectionRequest)}
+                  className="h-8 px-2 text-xs hover:bg-accent/10 hover:text-accent"
+                >
                   Copy DM
                 </Button>
               </div>

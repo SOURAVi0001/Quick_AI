@@ -17,13 +17,7 @@ export default function ActivityHistory({ activity = [], loading = false, error,
   }, [page, totalPages]);
 
   if (error) {
-    return (
-      <ErrorState
-        title="Activity failed to load"
-        description={error}
-        onRetry={onRetry}
-      />
-    );
+    return <ErrorState title="Activity failed to load" description={error} onRetry={onRetry} />;
   }
 
   const items = activity.slice((page - 1) * PER_PAGE, page * PER_PAGE);

@@ -78,18 +78,38 @@ const RecruiterOutreach = () => {
               <form onSubmit={handleGenerate} className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-foreground">Target Role <span className="text-destructive">*</span></label>
-                    <Input name="targetRole" value={formData.targetRole} onChange={handleInputChange} placeholder="e.g. Frontend Developer" required className="h-12" />
+                    <label className="text-sm font-medium text-foreground">
+                      Target Role <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      name="targetRole"
+                      value={formData.targetRole}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Frontend Developer"
+                      required
+                      className="h-12"
+                    />
                   </div>
 
                   <div className="space-y-2.5">
-                    <label className="text-sm font-medium text-foreground">Target Company <span className="text-destructive">*</span></label>
-                    <Input name="company" value={formData.company} onChange={handleInputChange} placeholder="e.g. Netflix" required className="h-12" />
+                    <label className="text-sm font-medium text-foreground">
+                      Target Company <span className="text-destructive">*</span>
+                    </label>
+                    <Input
+                      name="company"
+                      value={formData.company}
+                      onChange={handleInputChange}
+                      placeholder="e.g. Netflix"
+                      required
+                      className="h-12"
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-foreground">My Profile / Resume <span className="text-destructive">*</span></label>
+                  <label className="text-sm font-medium text-foreground">
+                    My Profile / Resume <span className="text-destructive">*</span>
+                  </label>
                   <Textarea
                     name="myProfile"
                     value={formData.myProfile}
@@ -102,7 +122,9 @@ const RecruiterOutreach = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-foreground">Recruiter's Profile (Optional)</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Recruiter's Profile (Optional)
+                  </label>
                   <Textarea
                     name="recruiterProfile"
                     value={formData.recruiterProfile}
@@ -114,7 +136,9 @@ const RecruiterOutreach = () => {
                 </div>
 
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium text-foreground">Job Description (Optional)</label>
+                  <label className="text-sm font-medium text-foreground">
+                    Job Description (Optional)
+                  </label>
                   <Textarea
                     name="jobDescription"
                     value={formData.jobDescription}
@@ -187,12 +211,17 @@ const RecruiterOutreach = () => {
                         <Mail className="size-5 text-primary" />
                         Cold Email
                       </CardTitle>
-                      <CopyButton text={`Subject: ${results.coldEmail?.subject}\n\n${results.coldEmail?.body}`} className="h-8" />
+                      <CopyButton
+                        text={`Subject: ${results.coldEmail?.subject}\n\n${results.coldEmail?.body}`}
+                        className="h-8"
+                      />
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4 p-5 pt-5 text-sm">
                     <div>
-                      <span className="text-eyebrow mb-2 block text-subtle-foreground">Subject</span>
+                      <span className="text-eyebrow mb-2 block text-subtle-foreground">
+                        Subject
+                      </span>
                       <div className="min-w-0 break-words rounded-md border border-border bg-surface-2 p-3 font-medium text-foreground">
                         {results.coldEmail?.subject}
                       </div>
@@ -224,7 +253,8 @@ const RecruiterOutreach = () => {
         type="recruiter-outreach"
         title="Outreach History"
         renderItem={(item, { handleCopy, format }) => {
-          const content = typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
+          const content =
+            typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
           return (
             <div className="p-6">
               <div className="mb-4 flex items-start justify-between gap-3">
@@ -234,7 +264,12 @@ const RecruiterOutreach = () => {
                   </p>
                   <p className="text-xs text-subtle-foreground">{format(item.created_at)}</p>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => handleCopy(content.recruiterDM || content.connectionRequest)} className="h-8 shrink-0 px-2 text-xs hover:bg-primary/10 hover:text-primary">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCopy(content.recruiterDM || content.connectionRequest)}
+                  className="h-8 shrink-0 px-2 text-xs hover:bg-primary/10 hover:text-primary"
+                >
                   Copy DM
                 </Button>
               </div>

@@ -1,4 +1,12 @@
-import { BarChart3, TrendingUp, AlertTriangle, Lightbulb, Activity, CheckCircle2, Target } from 'lucide-react';
+import {
+  BarChart3,
+  TrendingUp,
+  AlertTriangle,
+  Lightbulb,
+  Activity,
+  CheckCircle2,
+  Target,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
 import api from '../lib/api';
 import { useAuth } from '@clerk/clerk-react';
@@ -87,20 +95,31 @@ const CareerScore = () => {
                 <Target className="size-3.5 text-primary" /> Overall Readiness
               </h2>
 
-              <ScoreDisplay value={scoreData.overallScore} size="lg" className="mb-8 items-center text-center" />
+              <ScoreDisplay
+                value={scoreData.overallScore}
+                size="lg"
+                className="mb-8 items-center text-center"
+              />
 
               <div className="w-full rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-foreground/90">
-                  Target Score: <span className="font-bold text-primary">{Math.min(100, scoreData.overallScore + 6)}</span>
+                  Target Score:{' '}
+                  <span className="font-bold text-primary">
+                    {Math.min(100, scoreData.overallScore + 6)}
+                  </span>
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">Complete recommended actions to improve.</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Complete recommended actions to improve.
+                </p>
               </div>
             </Card>
 
             <Card className="lg:col-span-2">
               <CardHeader className="border-b border-border pb-5">
                 <CardTitle className="text-lg">Category Breakdown</CardTitle>
-                <CardDescription>Performance across different areas based on your data</CardDescription>
+                <CardDescription>
+                  Performance across different areas based on your data
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-8 pt-8">
                 {['resume', 'linkedin', 'jobMatch', 'communication'].map((cat) => {
@@ -117,7 +136,9 @@ const CareerScore = () => {
                   ) : (
                     <div key={cat} className="flex items-center justify-between gap-4 text-sm">
                       <span className="font-medium text-foreground">{labels[cat]}</span>
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-subtle-foreground italic">Not analyzed</span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wider text-subtle-foreground italic">
+                        Not analyzed
+                      </span>
                     </div>
                   );
                 })}
@@ -134,11 +155,19 @@ const CareerScore = () => {
                 <CardContent className="pt-5">
                   <ul className="space-y-3">
                     {scoreData.strengths?.map((str, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/90">
-                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" /> <span className="min-w-0 break-words">{str}</span>
+                      <li
+                        key={i}
+                        className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/90"
+                      >
+                        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />{' '}
+                        <span className="min-w-0 break-words">{str}</span>
                       </li>
                     ))}
-                    {(!scoreData.strengths || scoreData.strengths.length === 0) && <li className="text-sm italic text-muted-foreground">No strengths identified yet.</li>}
+                    {(!scoreData.strengths || scoreData.strengths.length === 0) && (
+                      <li className="text-sm italic text-muted-foreground">
+                        No strengths identified yet.
+                      </li>
+                    )}
                   </ul>
                 </CardContent>
               </Card>
@@ -152,11 +181,19 @@ const CareerScore = () => {
                 <CardContent className="pt-5">
                   <ul className="space-y-3">
                     {scoreData.weaknesses?.map((wk, i) => (
-                      <li key={i} className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/90">
-                        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" /> <span className="min-w-0 break-words">{wk}</span>
+                      <li
+                        key={i}
+                        className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground/90"
+                      >
+                        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />{' '}
+                        <span className="min-w-0 break-words">{wk}</span>
                       </li>
                     ))}
-                    {(!scoreData.weaknesses || scoreData.weaknesses.length === 0) && <li className="text-sm italic text-muted-foreground">No areas to improve identified yet.</li>}
+                    {(!scoreData.weaknesses || scoreData.weaknesses.length === 0) && (
+                      <li className="text-sm italic text-muted-foreground">
+                        No areas to improve identified yet.
+                      </li>
+                    )}
                   </ul>
                 </CardContent>
               </Card>
@@ -170,12 +207,21 @@ const CareerScore = () => {
                 <CardContent className="pt-5">
                   <ul className="space-y-4">
                     {scoreData.recommendations?.map((rec, i) => (
-                      <li key={i} className="flex items-start gap-3 rounded-lg border border-border bg-surface-2 p-3 text-sm text-foreground/90 shadow-subtle">
-                        <StatusBadge tone="accent" className="mt-0.5 shrink-0">+{rec.impact}</StatusBadge>
+                      <li
+                        key={i}
+                        className="flex items-start gap-3 rounded-lg border border-border bg-surface-2 p-3 text-sm text-foreground/90 shadow-subtle"
+                      >
+                        <StatusBadge tone="accent" className="mt-0.5 shrink-0">
+                          +{rec.impact}
+                        </StatusBadge>
                         <span className="min-w-0 break-words leading-relaxed">{rec.action}</span>
                       </li>
                     ))}
-                    {(!scoreData.recommendations || scoreData.recommendations.length === 0) && <li className="text-sm italic text-muted-foreground">No recommendations available.</li>}
+                    {(!scoreData.recommendations || scoreData.recommendations.length === 0) && (
+                      <li className="text-sm italic text-muted-foreground">
+                        No recommendations available.
+                      </li>
+                    )}
                   </ul>
                 </CardContent>
               </Card>
@@ -188,7 +234,8 @@ const CareerScore = () => {
         type="career-score"
         title="Score History"
         renderItem={(item, { format }) => {
-          const content = typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
+          const content =
+            typeof item.content === 'string' ? JSON.parse(item.content) : item.content;
           return (
             <div className="p-6">
               <div className="mb-4 flex items-start justify-between gap-4">
@@ -202,9 +249,18 @@ const CareerScore = () => {
               </div>
               <div className="rounded-lg border border-border bg-surface-2 p-4">
                 <div className="flex flex-wrap gap-4 text-sm text-foreground">
-                  <div><span className="text-muted-foreground">Resume:</span> {content.categories?.resume || 'N/A'}</div>
-                  <div><span className="text-muted-foreground">LinkedIn:</span> {content.categories?.linkedin || 'N/A'}</div>
-                  <div><span className="text-muted-foreground">Interview:</span> {content.categories?.communication || 'N/A'}</div>
+                  <div>
+                    <span className="text-muted-foreground">Resume:</span>{' '}
+                    {content.categories?.resume || 'N/A'}
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">LinkedIn:</span>{' '}
+                    {content.categories?.linkedin || 'N/A'}
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Interview:</span>{' '}
+                    {content.categories?.communication || 'N/A'}
+                  </div>
                 </div>
               </div>
             </div>

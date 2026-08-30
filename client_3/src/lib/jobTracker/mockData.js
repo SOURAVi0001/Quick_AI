@@ -284,7 +284,12 @@ export const mockActivity = [
   { id: 'act-6', company: 'Zerodha', message: 'Offer received', at: day(-4) },
   { id: 'act-7', company: 'Notion', message: 'Role saved for later', at: day(-6) },
   { id: 'act-8', company: 'Atlassian', message: 'Status changed → Rejected', at: day(-11) },
-  { id: 'act-9', company: 'Postman', message: 'Resume attached: Frontend_Craft_v2.pdf', at: day(-12) },
+  {
+    id: 'act-9',
+    company: 'Postman',
+    message: 'Resume attached: Frontend_Craft_v2.pdf',
+    at: day(-12),
+  },
   { id: 'act-10', company: 'Swiggy', message: 'Status changed → Withdrawn', at: day(-18) },
   { id: 'act-11', company: 'Amazon', message: 'Recruiter call completed', at: day(-20) },
   { id: 'act-12', company: 'Google', message: 'Application added', at: day(-9) },

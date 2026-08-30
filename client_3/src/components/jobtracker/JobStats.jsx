@@ -7,7 +7,13 @@ const items = [
   { key: 'active', label: 'Active', Icon: Activity, tone: 'text-primary-soft' },
   { key: 'interviews', label: 'Interviews', Icon: CalendarCheck, tone: 'text-accent' },
   { key: 'offers', label: 'Offers', Icon: Trophy, tone: 'text-success' },
-  { key: 'responseRate', label: 'Response Rate', Icon: Percent, tone: 'text-foreground', suffix: '%' },
+  {
+    key: 'responseRate',
+    label: 'Response Rate',
+    Icon: Percent,
+    tone: 'text-foreground',
+    suffix: '%',
+  },
 ];
 
 export default function JobStats({ stats, loading = false }) {

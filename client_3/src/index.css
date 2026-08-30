@@ -210,12 +210,7 @@ body {
 }
 
 @utility hairline-glow {
-  background-image: linear-gradient(
-    90deg,
-    transparent,
-    hsl(var(--primary) / 0.35),
-    transparent
-  );
+  background-image: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.35), transparent);
 }
 
 /* ---------- Motion ---------- */

@@ -11,13 +11,15 @@ const VALID_STATUSES = [
   'Final Round',
   'Offer',
   'Rejected',
-  'Withdrawn'
+  'Withdrawn',
 ];
 
 // Helper to validate input status
 const validateStatus = (status) => {
   if (status && !VALID_STATUSES.includes(status)) {
-    throw new ValidationError(`Invalid application status: ${status}. Allowed: ${VALID_STATUSES.join(', ')}`);
+    throw new ValidationError(
+      `Invalid application status: ${status}. Allowed: ${VALID_STATUSES.join(', ')}`,
+    );
   }
 };
 
@@ -40,7 +42,7 @@ export const createApplication = async (req, res, next) => {
       resumeReference,
       notes,
       nextAction,
-      nextActionDate
+      nextActionDate,
     } = req.body;
 
     if (!company || !role) {
@@ -92,7 +94,7 @@ export const listApplications = async (req, res, next) => {
       role,
       location,
       sortBy = 'created_at',
-      sortOrder = 'desc'
+      sortOrder = 'desc',
     } = req.query;
 
     const pageNum = parseInt(page, 10) || 1;
@@ -104,7 +106,14 @@ export const listApplications = async (req, res, next) => {
     const roleFilter = role || null;
     const locationFilter = location || null;
 
-    const allowedSortCols = ['company', 'role', 'status', 'applied_date', 'created_at', 'updated_at'];
+    const allowedSortCols = [
+      'company',
+      'role',
+      'status',
+      'applied_date',
+      'created_at',
+      'updated_at',
+    ];
     const sortCol = allowedSortCols.includes(sortBy) ? sortBy : 'created_at';
     const sortDir = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
@@ -163,7 +172,7 @@ export const listApplications = async (req, res, next) => {
       page: pageNum,
       limit: limitNum,
       totalItems: total,
-      totalPages
+      totalPages,
     });
   } catch (error) {
     next(error);
@@ -199,8 +208,8 @@ export const getApplicationDetail = async (req, res, next) => {
       success: true,
       content: {
         ...application,
-        activities
-      }
+        activities,
+      },
     });
   } catch (error) {
     next(error);
@@ -237,18 +246,41 @@ export const updateApplication = async (req, res, next) => {
     const company = updateData.company !== undefined ? updateData.company : application.company;
     const role = updateData.role !== undefined ? updateData.role : application.role;
     const jobUrl = updateData.jobUrl !== undefined ? updateData.jobUrl : application.job_url;
-    const jobDescription = updateData.jobDescription !== undefined ? updateData.jobDescription : application.job_description;
+    const jobDescription =
+      updateData.jobDescription !== undefined
+        ? updateData.jobDescription
+        : application.job_description;
     const location = updateData.location !== undefined ? updateData.location : application.location;
-    const employmentType = updateData.employmentType !== undefined ? updateData.employmentType : application.employment_type;
-    const appliedDate = updateData.appliedDate !== undefined ? updateData.appliedDate : application.applied_date;
+    const employmentType =
+      updateData.employmentType !== undefined
+        ? updateData.employmentType
+        : application.employment_type;
+    const appliedDate =
+      updateData.appliedDate !== undefined ? updateData.appliedDate : application.applied_date;
     const status = newStatus !== undefined ? newStatus : application.status;
-    const recruiterName = updateData.recruiterName !== undefined ? updateData.recruiterName : application.recruiter_name;
-    const recruiterEmail = updateData.recruiterEmail !== undefined ? updateData.recruiterEmail : application.recruiter_email;
-    const recruiterLinkedIn = updateData.recruiterLinkedIn !== undefined ? updateData.recruiterLinkedIn : application.recruiter_linkedin;
-    const resumeReference = updateData.resumeReference !== undefined ? updateData.resumeReference : application.resume_reference;
+    const recruiterName =
+      updateData.recruiterName !== undefined
+        ? updateData.recruiterName
+        : application.recruiter_name;
+    const recruiterEmail =
+      updateData.recruiterEmail !== undefined
+        ? updateData.recruiterEmail
+        : application.recruiter_email;
+    const recruiterLinkedIn =
+      updateData.recruiterLinkedIn !== undefined
+        ? updateData.recruiterLinkedIn
+        : application.recruiter_linkedin;
+    const resumeReference =
+      updateData.resumeReference !== undefined
+        ? updateData.resumeReference
+        : application.resume_reference;
     const notes = updateData.notes !== undefined ? updateData.notes : application.notes;
-    const nextAction = updateData.nextAction !== undefined ? updateData.nextAction : application.next_action;
-    const nextActionDate = updateData.nextActionDate !== undefined ? updateData.nextActionDate : application.next_action_date;
+    const nextAction =
+      updateData.nextAction !== undefined ? updateData.nextAction : application.next_action;
+    const nextActionDate =
+      updateData.nextActionDate !== undefined
+        ? updateData.nextActionDate
+        : application.next_action_date;
 
     const [updatedApplication] = await sql`
       UPDATE job_applications SET
@@ -366,7 +398,7 @@ export const getApplicationActivities = async (req, res, next) => {
       page: pageNum,
       limit: limitNum,
       totalItems: total,
-      totalPages
+      totalPages,
     });
   } catch (error) {
     next(error);
@@ -416,16 +448,17 @@ export const getAnalytics = async (req, res, next) => {
       'Final Round': 0,
       Offer: 0,
       Rejected: 0,
-      Withdrawn: 0
+      Withdrawn: 0,
     };
 
-    statusCounts.forEach(row => {
+    statusCounts.forEach((row) => {
       if (counts[row.status] !== undefined) {
         counts[row.status] = row.count;
       }
     });
 
-    const activeCount = counts.Applied + counts['Online Assessment'] + counts.Interview + counts['Final Round'];
+    const activeCount =
+      counts.Applied + counts['Online Assessment'] + counts.Interview + counts['Final Round'];
 
     // Rates calculation logic:
     // Interview Rate: applications that reached Interview or later / total applications
@@ -457,8 +490,8 @@ export const getAnalytics = async (req, res, next) => {
         interviewRate,
         offerRate,
         rejectionRate,
-        statusDistribution: counts
-      }
+        statusDistribution: counts,
+      },
     });
   } catch (error) {
     next(error);
@@ -476,19 +509,22 @@ export const analyzeJobSearchInsights = async (req, res, next) => {
     const count = countRes[0]?.count || 0;
 
     if (count === 0) {
-      throw new ValidationError('No historical data available. Please add some job applications first.');
+      throw new ValidationError(
+        'No historical data available. Please add some job applications first.',
+      );
     }
 
     if (count < 3) {
       return res.json({
         success: true,
         status: 'insufficient_data',
-        message: 'Not enough historical data to identify reliable patterns. Please add at least 3 job applications.',
+        message:
+          'Not enough historical data to identify reliable patterns. Please add at least 3 job applications.',
         dataQuality: {
           applicationCount: count,
           confidence: 'low',
-          sufficientForPatterns: false
-        }
+          sufficientForPatterns: false,
+        },
       });
     }
 
@@ -496,13 +532,13 @@ export const analyzeJobSearchInsights = async (req, res, next) => {
     const taskId = await addTask('job-search-insights', {
       type: 'job-search-insights',
       userId,
-      plan: req.plan
+      plan: req.plan,
     });
 
     res.status(202).json({
       success: true,
       taskId,
-      status: 'queued'
+      status: 'queued',
     });
   } catch (error) {
     next(error);
@@ -538,7 +574,7 @@ export const getInsightHistory = async (req, res, next) => {
       page: pageNum,
       limit: limitNum,
       totalItems: total,
-      totalPages
+      totalPages,
     });
   } catch (error) {
     next(error);

@@ -34,14 +34,7 @@ export default function ScoreRing({ value = 0, max = 100, size = 'md', label, cl
       aria-label={`${label ? label + ': ' : ''}${safe} out of ${max}`}
     >
       <svg width={box} height={box} className="-rotate-90">
-        <circle
-          cx={c}
-          cy={c}
-          r={r}
-          fill="none"
-          strokeWidth={stroke}
-          className="stroke-surface-3"
-        />
+        <circle cx={c} cy={c} r={r} fill="none" strokeWidth={stroke} className="stroke-surface-3" />
         <circle
           cx={c}
           cy={c}
@@ -57,9 +50,7 @@ export default function ScoreRing({ value = 0, max = 100, size = 'md', label, cl
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className={cn('font-semibold tabular-nums tracking-tight', text, tone)}>{safe}</span>
-        {label && (
-          <span className="text-eyebrow mt-1 text-subtle-foreground">{label}</span>
-        )}
+        {label && <span className="text-eyebrow mt-1 text-subtle-foreground">{label}</span>}
       </div>
     </div>
   );

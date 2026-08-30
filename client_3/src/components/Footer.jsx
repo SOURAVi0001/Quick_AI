@@ -17,8 +17,8 @@ const Footer = () => {
           <div className="lg:col-span-5">
             <Logo />
             <p className="text-h1 mt-8 max-w-md text-balance text-foreground">
-              Making creators <span className="display-accent">unstoppable</span>, one AI tool at
-              a time.
+              Making creators <span className="display-accent">unstoppable</span>, one AI tool at a
+              time.
             </p>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               Cut the busywork, keep the craft.
@@ -53,7 +53,12 @@ const Footer = () => {
                 <label htmlFor="footer-email" className="sr-only">
                   Email address
                 </label>
-                <Input id="footer-email" type="email" placeholder="you@example.com" className="flex-1" />
+                <Input
+                  id="footer-email"
+                  type="email"
+                  placeholder="you@example.com"
+                  className="flex-1"
+                />
                 <Button type="submit" variant="outline">
                   Subscribe
                 </Button>

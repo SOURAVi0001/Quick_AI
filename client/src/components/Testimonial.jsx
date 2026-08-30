@@ -44,8 +44,8 @@ const Testimonial = () => {
           </h2>
           <div className="mx-auto mt-4 w-12 h-0.5 bg-white/10 rounded-full" />
           <p className="mt-4 text-white/50 leading-relaxed max-w-lg mx-auto">
-            Hundreds of creators, marketers, and founders use QuickAI daily. Here is what they
-            have to say.
+            Hundreds of creators, marketers, and founders use QuickAI daily. Here is what they have
+            to say.
           </p>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

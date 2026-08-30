@@ -11,11 +11,9 @@ const cardVariants = cva('relative rounded-lg text-card-foreground', {
   variants: {
     variant: {
       default: 'border border-border bg-card/70 shadow-card backdrop-blur-xl',
-      panel:
-        'border border-border bg-surface-1/60 shadow-card backdrop-blur-xl',
+      panel: 'border border-border bg-surface-1/60 shadow-card backdrop-blur-xl',
       inset: 'border border-border/60 bg-surface-2/70',
-      result:
-        'border border-primary/20 bg-surface-1/70 shadow-lift backdrop-blur-xl',
+      result: 'border border-primary/20 bg-surface-1/70 shadow-lift backdrop-blur-xl',
       interactive:
         'tactile border border-border bg-card/70 shadow-card backdrop-blur-xl hover:border-primary/35 hover:shadow-glow',
       glass: 'border border-border/70 bg-surface-1/40 backdrop-blur-2xl',

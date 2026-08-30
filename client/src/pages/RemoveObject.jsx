@@ -77,9 +77,7 @@ const RemoveObject = () => {
                 placeholder="e.g. watch, spoon, car (single object only)"
                 required
               />
-              <p className="text-xs text-muted-foreground">
-                One object at a time for best results
-              </p>
+              <p className="text-xs text-muted-foreground">One object at a time for best results</p>
             </div>
             <Button type="submit" disabled={loading} className="w-full">
               {loading ? (
@@ -110,11 +108,7 @@ const RemoveObject = () => {
           ) : (
             <>
               <DemoBanner visible={isDemo} />
-              <img
-                src={content}
-                alt="Processed image"
-                className="w-full rounded-lg mt-3 border"
-              />
+              <img src={content} alt="Processed image" className="w-full rounded-lg mt-3 border" />
             </>
           )}
         </CardContent>

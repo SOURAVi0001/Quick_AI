@@ -16,12 +16,7 @@ export function CopyButton({ text, className = '' }) {
   };
 
   return (
-    <Button
-      variant="outline"
-      size="sm"
-      className={`gap-2 ${className}`}
-      onClick={handleCopy}
-    >
+    <Button variant="outline" size="sm" className={`gap-2 ${className}`} onClick={handleCopy}>
       {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
       {copied ? 'Copied' : 'Copy'}
     </Button>

@@ -18,7 +18,7 @@ async function migrate() {
     {
       name: 'idx_creations_type',
       description: 'Index for filtering by creation type (article, image, etc.)',
-    }
+    },
   ];
 
   try {

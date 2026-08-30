@@ -1,2 +1,7 @@
 node_modules
 .env
+.env.*
+.DS_Store
+*secret*.yaml
+!*secret*.example.yaml
+K8s/secret.yaml

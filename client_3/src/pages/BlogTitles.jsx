@@ -14,8 +14,14 @@ import OptionGroup from '../components/OptionGroup';
 import CopyBlock from '../components/CopyBlock';
 
 const categories = [
-  'General', 'Technology', 'Business', 'Health',
-  'Lifestyle', 'Education', 'Travel', 'Food',
+  'General',
+  'Technology',
+  'Business',
+  'Health',
+  'Lifestyle',
+  'Education',
+  'Travel',
+  'Food',
 ];
 
 const BlogTitles = () => {
@@ -82,7 +88,12 @@ const BlogTitles = () => {
                     onChange={setSelectedCategory}
                   />
                 </div>
-                <Button type="submit" loading={loading} disabled={!selectedCategory} className="h-12 w-full">
+                <Button
+                  type="submit"
+                  loading={loading}
+                  disabled={!selectedCategory}
+                  className="h-12 w-full"
+                >
                   {!loading && <Sparkles className="size-5" />}
                   {loading ? 'Generating...' : 'Generate Titles'}
                 </Button>
@@ -94,7 +105,10 @@ const BlogTitles = () => {
         <div className="min-w-0 lg:col-span-7">
           <ResultRegion label="Generated blog titles">
             {loading && (
-              <LoadingState title="Drafting headlines..." description="Sifting your keyword for angles that get clicks." />
+              <LoadingState
+                title="Drafting headlines..."
+                description="Sifting your keyword for angles that get clicks."
+              />
             )}
             {!loading && content && (
               <div className="animate-rise">

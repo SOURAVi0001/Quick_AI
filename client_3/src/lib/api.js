@@ -33,9 +33,7 @@ api.interceptors.response.use(
           }
           if (!headerValue) {
             headerValue =
-              headers['Authorization'] ||
-              headers['authorization'] ||
-              headers['AUTHORIZATION'];
+              headers['Authorization'] || headers['authorization'] || headers['AUTHORIZATION'];
           }
         }
         return headerValue;
@@ -90,10 +88,7 @@ api.interceptors.response.use(
 
       try {
         // Race Socket.IO real-time event and HTTP Polling for instant response
-        const taskResult = await Promise.race([
-          waitForTaskSocket(taskId),
-          pollTask(),
-        ]);
+        const taskResult = await Promise.race([waitForTaskSocket(taskId), pollTask()]);
 
         if (pollTask.stop) pollTask.stop();
         removeTaskSocketListener(taskId);

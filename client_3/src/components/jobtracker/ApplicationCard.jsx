@@ -44,7 +44,9 @@ export default function ApplicationCard({ application, onOpen }) {
             <p className="mt-3 inline-flex flex-wrap items-center gap-2 rounded-md border border-accent/20 bg-accent/[0.07] px-2.5 py-1.5 text-xs text-accent">
               <CalendarClock className="size-3" aria-hidden="true" />
               Next: {a.nextAction}
-              {a.nextActionDate && <span className="text-accent/70">— {formatDate(a.nextActionDate)}</span>}
+              {a.nextActionDate && (
+                <span className="text-accent/70">— {formatDate(a.nextActionDate)}</span>
+              )}
             </p>
           )}
         </div>

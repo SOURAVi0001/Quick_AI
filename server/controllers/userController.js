@@ -121,7 +121,7 @@ export const getFeatureHistory = async (req, res, next) => {
       page: pageNum,
       limit: limitNum,
       total,
-      totalPages
+      totalPages,
     });
   } catch (error) {
     next(error);

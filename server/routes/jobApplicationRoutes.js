@@ -13,7 +13,7 @@ import {
   getApplicationActivities,
   updateApplication,
   deleteApplication,
-  listAllActivities
+  listAllActivities,
 } from '../controllers/jobApplicationController.js';
 
 const jobApplicationRouter = express.Router();

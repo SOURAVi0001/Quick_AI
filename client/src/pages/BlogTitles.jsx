@@ -11,8 +11,14 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 
 const categories = [
-  'General', 'Technology', 'Business', 'Health',
-  'Lifestyle', 'Education', 'Travel', 'Food',
+  'General',
+  'Technology',
+  'Business',
+  'Health',
+  'Lifestyle',
+  'Education',
+  'Travel',
+  'Food',
 ];
 
 const BlogTitles = () => {
@@ -103,7 +109,9 @@ const BlogTitles = () => {
             <div className="flex items-center justify-center min-h-[300px]">
               <div className="text-sm flex flex-col items-center gap-4 text-muted-foreground">
                 <Hash className="w-8" />
-                <p>Drop in a keyword, pick a category, and get a batch of click-stopping headlines.</p>
+                <p>
+                  Drop in a keyword, pick a category, and get a batch of click-stopping headlines.
+                </p>
               </div>
             </div>
           ) : (

@@ -7,11 +7,15 @@ import toast from 'react-hot-toast';
 
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
   });
 };
 
-export default function HistorySection({ type, title = "History", renderItem }) {
+export default function HistorySection({ type, title = 'History', renderItem }) {
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -23,12 +27,12 @@ export default function HistorySection({ type, title = "History", renderItem }) 
     setLoading(true);
     setError(false);
     try {
-      const url = type 
+      const url = type
         ? `/api/user/history?type=${type}&page=${pageNumber}&limit=${limit}`
         : `/api/user/history?page=${pageNumber}&limit=${limit}`;
       const { data } = await axios.get(url, {
         headers: { Authorization: `Bearer ${window.localStorage.getItem('clerk-db-jwt')}` },
-        withCredentials: true
+        withCredentials: true,
       });
       if (data.success) {
         setItems(data.items);
@@ -66,8 +70,11 @@ export default function HistorySection({ type, title = "History", renderItem }) 
       <div className="mt-12 w-full max-w-4xl mx-auto space-y-4">
         <div className="h-8 w-32 bg-muted/50 rounded animate-pulse"></div>
         <div className="space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-32 bg-muted/30 rounded-xl animate-pulse border border-border/30"></div>
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-32 bg-muted/30 rounded-xl animate-pulse border border-border/30"
+            ></div>
           ))}
         </div>
       </div>
@@ -80,7 +87,9 @@ export default function HistorySection({ type, title = "History", renderItem }) 
         <History className="w-12 h-12 text-destructive/50 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-foreground">Something went wrong</h3>
         <p className="text-muted-foreground mb-4">We couldn't load your previous results.</p>
-        <Button variant="outline" onClick={() => fetchHistory(page)}>Try Again</Button>
+        <Button variant="outline" onClick={() => fetchHistory(page)}>
+          Try Again
+        </Button>
       </div>
     );
   }
@@ -92,7 +101,9 @@ export default function HistorySection({ type, title = "History", renderItem }) 
           <History className="w-8 h-8 text-accent" />
         </div>
         <h3 className="text-lg font-semibold text-foreground">No history yet</h3>
-        <p className="text-muted-foreground">Your generated results will appear here after your first analysis.</p>
+        <p className="text-muted-foreground">
+          Your generated results will appear here after your first analysis.
+        </p>
       </div>
     );
   }

@@ -12,7 +12,12 @@ const TIERS = [
     price: '$0',
     cadence: 'forever',
     blurb: 'Everything you need to test-drive the suite.',
-    features: ['All 7 career tools', '10 generations / month', 'Resume review & score', 'History for 7 days'],
+    features: [
+      'All 7 career tools',
+      '10 generations / month',
+      'Resume review & score',
+      'History for 7 days',
+    ],
     cta: 'Start free',
     featured: false,
   },

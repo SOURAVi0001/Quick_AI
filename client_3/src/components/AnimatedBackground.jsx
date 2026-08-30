@@ -58,8 +58,7 @@ export default function AnimatedBackground({ stars = 70, className = '', variant
           className="absolute bottom-[-25%] right-[-10%] h-[40rem] w-[40rem] rounded-full opacity-50 blur-[120px] motion-safe:animate-drift"
           style={{
             animationDirection: 'alternate-reverse',
-            background:
-              'radial-gradient(circle, hsl(var(--accent) / 0.13) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, hsl(var(--accent) / 0.13) 0%, transparent 70%)',
           }}
         />
       )}

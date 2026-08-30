@@ -160,7 +160,10 @@ export default function ApplicationDetail({ application, open, onOpenChange, onS
 
               <Group title="Next action">
                 <Row label="Action" value={a.nextAction} />
-                <Row label="Date" value={a.nextActionDate ? formatLongDate(a.nextActionDate) : ''} />
+                <Row
+                  label="Date"
+                  value={a.nextActionDate ? formatLongDate(a.nextActionDate) : ''}
+                />
               </Group>
 
               <Group title="Notes">
@@ -176,7 +179,12 @@ export default function ApplicationDetail({ application, open, onOpenChange, onS
               <Group title="Quick actions">
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
                   {quickActions.map(({ label, to, Icon }) => (
-                    <Button key={to} variant="outline" className="justify-start" onClick={() => goTo(to)}>
+                    <Button
+                      key={to}
+                      variant="outline"
+                      className="justify-start"
+                      onClick={() => goTo(to)}
+                    >
                       <Icon className="size-4 text-accent" /> {label}
                     </Button>
                   ))}

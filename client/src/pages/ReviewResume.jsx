@@ -51,10 +51,10 @@ const ReviewResume = () => {
 
   return (
     <div className="pb-16 max-w-4xl mx-auto">
-      <PageHeader 
-        icon={FileText} 
-        title="Resume Review" 
-        description="Get blunt, actionable feedback on your resume before you send it out. We analyze strengths, weaknesses, and ATS issues." 
+      <PageHeader
+        icon={FileText}
+        title="Resume Review"
+        description="Get blunt, actionable feedback on your resume before you send it out. We analyze strengths, weaknesses, and ATS issues."
       />
 
       <Card className="mb-12">
@@ -71,10 +71,10 @@ const ReviewResume = () => {
               />
               <p className="text-xs text-muted-foreground">Supports PDF format</p>
             </div>
-            
-            <Button 
-              type="submit" 
-              disabled={loading || !file} 
+
+            <Button
+              type="submit"
+              disabled={loading || !file}
               className="w-full sm:w-auto h-12 px-8 bg-accent text-accent-foreground hover:bg-accent/90 shadow-md shadow-accent/20"
             >
               {loading ? (
@@ -92,17 +92,21 @@ const ReviewResume = () => {
         <div className="mb-16 animate-in slide-in-from-bottom-4 duration-500 fade-in">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-foreground">Analysis Result</h3>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="text-xs h-8 border-border/50"
               onClick={() => handleCopy(content)}
             >
-              {copied ? <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
+              {copied ? (
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-green-500" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 mr-1.5" />
+              )}
               {copied ? 'Copied' : 'Copy'}
             </Button>
           </div>
-          
+
           <Card className="border-accent/20 bg-accent/5">
             <CardContent className="p-6 sm:p-8">
               <DemoBanner visible={isDemo} />
@@ -114,9 +118,9 @@ const ReviewResume = () => {
         </div>
       )}
 
-      <HistorySection 
-        type="resume-review" 
-        title="Review History" 
+      <HistorySection
+        type="resume-review"
+        title="Review History"
         renderItem={(item, { handleCopy, format }) => (
           <div className="p-6">
             <div className="flex justify-between items-start mb-4">
@@ -126,9 +130,9 @@ const ReviewResume = () => {
                 </p>
                 <p className="text-xs text-muted-foreground">{format(item.created_at)}</p>
               </div>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="h-8 w-8 hover:bg-accent/10 hover:text-accent"
                 onClick={() => handleCopy(item.content)}
               >

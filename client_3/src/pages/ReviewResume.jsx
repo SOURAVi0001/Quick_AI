@@ -74,7 +74,9 @@ const ReviewResume = () => {
           <CardContent className="p-6 sm:p-8">
             <form onSubmit={onSubmitHandler} className="space-y-6">
               <div className="space-y-3">
-                <label className="text-sm font-medium text-foreground" htmlFor="resume-file">Upload your resume</label>
+                <label className="text-sm font-medium text-foreground" htmlFor="resume-file">
+                  Upload your resume
+                </label>
                 <input
                   ref={inputRef}
                   id="resume-file"
@@ -88,7 +90,9 @@ const ReviewResume = () => {
                   role="button"
                   tabIndex={0}
                   onClick={() => inputRef.current?.click()}
-                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && inputRef.current?.click()}
+                  onKeyDown={(e) =>
+                    (e.key === 'Enter' || e.key === ' ') && inputRef.current?.click()
+                  }
                   onDragEnter={handleDrag}
                   onDragOver={handleDrag}
                   onDragLeave={handleDrag}
@@ -105,7 +109,9 @@ const ReviewResume = () => {
                       <div className="grid size-12 place-items-center rounded-full border border-primary/25 bg-primary/10 text-primary">
                         <FileIcon className="size-5" />
                       </div>
-                      <p className="max-w-full truncate text-sm font-medium text-foreground">{file.name}</p>
+                      <p className="max-w-full truncate text-sm font-medium text-foreground">
+                        {file.name}
+                      </p>
                       <button
                         type="button"
                         onClick={(e) => {
@@ -123,14 +129,24 @@ const ReviewResume = () => {
                       <div className="grid size-12 place-items-center rounded-full border border-border bg-surface-2/80 text-subtle-foreground transition-colors group-hover:text-primary">
                         <UploadCloud className="size-5" />
                       </div>
-                      <p className="text-sm font-medium text-foreground">Drag &amp; drop your resume here</p>
-                      <p className="text-xs text-muted-foreground">or click to browse &middot; PDF format only</p>
+                      <p className="text-sm font-medium text-foreground">
+                        Drag &amp; drop your resume here
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        or click to browse &middot; PDF format only
+                      </p>
                     </>
                   )}
                 </div>
               </div>
 
-              <Button type="submit" disabled={!file} loading={loading} size="lg" className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                disabled={!file}
+                loading={loading}
+                size="lg"
+                className="w-full sm:w-auto"
+              >
                 <Search className="size-4" />
                 {loading ? 'Analyzing resume...' : 'Review Resume'}
               </Button>
@@ -140,7 +156,10 @@ const ReviewResume = () => {
 
         <ResultRegion label="Resume analysis result" className="min-w-0">
           {loading ? (
-            <LoadingState title="Analyzing resume…" description="Reading your document and scoring it for clarity and impact." />
+            <LoadingState
+              title="Analyzing resume…"
+              description="Reading your document and scoring it for clarity and impact."
+            />
           ) : content ? (
             <CopyBlock
               label="Analysis Result"

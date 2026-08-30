@@ -38,7 +38,7 @@ export default function HistorySection({ type, title = 'History', renderItem }) 
       const url = type
         ? `/api/user/history?type=${type}&page=${pageNumber}&limit=${limit}`
         : `/api/user/history?page=${pageNumber}&limit=${limit}`;
-      
+
       const token = await getToken();
       const { data } = await api.get(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -136,7 +136,11 @@ export default function HistorySection({ type, title = 'History', renderItem }) 
           aria-hidden="true"
         />
         {items.map((item, i) => (
-          <li key={item.id} className="animate-reveal relative min-w-0" style={{ animationDelay: `${i * 70}ms` }}>
+          <li
+            key={item.id}
+            className="animate-reveal relative min-w-0"
+            style={{ animationDelay: `${i * 70}ms` }}
+          >
             <span
               className="absolute -left-6 top-7 hidden size-[7px] rounded-full border border-primary/50 bg-background sm:block"
               aria-hidden="true"
