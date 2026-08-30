@@ -60,6 +60,16 @@ app.use(
   }),
 );
 
+// ─── Public Health Check Routes (Before Auth Middleware) ─────────────
+app.get('/', (req, res) => res.send('Server is Live!'));
+app.get('/health', (req, res) =>
+  res.json({
+    status: 'healthy',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  }),
+);
+
 // ─── Socket.IO ───────────────────────────────────────────────────────
 const io = new SocketServer(httpServer, {
   cors: {
@@ -137,19 +147,9 @@ try {
   console.warn('Redis connection failed — running without cache & queues:', err.message || err);
 }
 
-// ─── Middleware ──────────────────────────────────────────────────────
+// ─── Middleware & Protected Routes ──────────────────────────────────
 app.use(express.json());
 app.use(clerkMiddleware());
-
-// ─── Routes ─────────────────────────────────────────────────────────
-app.get('/', (req, res) => res.send('Server is Live!'));
-app.get('/health', (req, res) =>
-  res.json({
-    status: 'healthy',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  }),
-);
 
 app.use('/api/ai', aiRouter);
 app.use('/api/user', userRouter);
