@@ -5,4 +5,5 @@ metadata:
 data:
   PORT: '3000'
   NODE_ENV: 'production'
-  FRONTEND_ORIGIN: 'https://your-cloudfront-domain.cloudfront.net'
+  FRONTEND_ORIGIN: 'https://d30jzk0hgtqxk3.cloudfront.net'
+  REDIS_URL: 'redis://quickai-redis:6379'

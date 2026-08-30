@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quickai-redis
+  labels:
+    app: quickai-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quickai-redis
+  template:
+    metadata:
+      labels:
+        app: quickai-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command:
+            - redis-server
+            - "--maxmemory"
+            - "180mb"
+            - "--maxmemory-policy"
+            - "allkeys-lru"
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "25m"
+            limits:
+              memory: "200Mi"
+              cpu: "150m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quickai-redis
+spec:
+  selector:
+    app: quickai-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
