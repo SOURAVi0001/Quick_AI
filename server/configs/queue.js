@@ -8,10 +8,13 @@ function getValidRedisUrl(raw) {
       return new URL(raw);
     } catch (e) {}
   }
-  return new URL('redis://127.0.0.1:6379');
+  const defaultHost = process.env.NODE_ENV === 'production' ? 'quickai-redis' : '127.0.0.1';
+  return new URL(
+    `redis://${process.env.REDIS_HOST || defaultHost}:${process.env.REDIS_PORT || 6379}`,
+  );
 }
 
-const rawRedisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const rawRedisUrl = process.env.REDIS_URL;
 const parsedUrl = getValidRedisUrl(rawRedisUrl);
 
 const connection = {
@@ -19,9 +22,10 @@ const connection = {
   port: parseInt(parsedUrl.port || '6379'),
   ...(parsedUrl.password && { password: parsedUrl.password }),
   ...(parsedUrl.username && { username: parsedUrl.username }),
-  ...(rawRedisUrl.startsWith('rediss://') && {
-    tls: { rejectUnauthorized: false },
-  }),
+  ...(rawRedisUrl &&
+    rawRedisUrl.startsWith('rediss://') && {
+      tls: { rejectUnauthorized: false },
+    }),
 };
 
 const QUEUE_NAME = 'ai-tasks';

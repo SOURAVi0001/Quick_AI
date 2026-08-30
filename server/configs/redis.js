@@ -9,7 +9,8 @@ function getValidRedisUrl(raw) {
       return raw;
     } catch (e) {}
   }
-  return `redis://${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || 6379}`;
+  const defaultHost = process.env.NODE_ENV === 'production' ? 'quickai-redis' : '127.0.0.1';
+  return `redis://${process.env.REDIS_HOST || defaultHost}:${process.env.REDIS_PORT || 6379}`;
 }
 
 const redisUrl = getValidRedisUrl(process.env.REDIS_URL);
