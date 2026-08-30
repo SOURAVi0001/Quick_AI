@@ -2,9 +2,17 @@ import { createClient } from 'redis';
 import 'dotenv/config';
 import memCache from './memcache.js';
 
-const redisUrl =
-  process.env.REDIS_URL ||
-  `redis://${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || 6379}`;
+function getValidRedisUrl(raw) {
+  if (raw && (raw.startsWith('redis://') || raw.startsWith('rediss://'))) {
+    try {
+      new URL(raw);
+      return raw;
+    } catch (e) {}
+  }
+  return `redis://${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || 6379}`;
+}
+
+const redisUrl = getValidRedisUrl(process.env.REDIS_URL);
 
 const client = createClient({
   url: redisUrl,

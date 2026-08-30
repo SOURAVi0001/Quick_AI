@@ -2,15 +2,24 @@ import { Queue, Worker } from 'bullmq';
 import { isConnected } from './redis.js';
 import 'dotenv/config';
 
-const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-const parsedUrl = new URL(redisUrl);
+function getValidRedisUrl(raw) {
+  if (raw && (raw.startsWith('redis://') || raw.startsWith('rediss://'))) {
+    try {
+      return new URL(raw);
+    } catch (e) {}
+  }
+  return new URL('redis://127.0.0.1:6379');
+}
+
+const rawRedisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const parsedUrl = getValidRedisUrl(rawRedisUrl);
 
 const connection = {
   host: parsedUrl.hostname,
   port: parseInt(parsedUrl.port || '6379'),
   ...(parsedUrl.password && { password: parsedUrl.password }),
   ...(parsedUrl.username && { username: parsedUrl.username }),
-  ...(redisUrl.startsWith('rediss://') && {
+  ...(rawRedisUrl.startsWith('rediss://') && {
     tls: { rejectUnauthorized: false },
   }),
 };
