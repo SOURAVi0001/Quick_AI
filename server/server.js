@@ -34,7 +34,7 @@ if (missing.length > 0) {
 const app = express();
 const httpServer = createServer(app);
 
-// ─── CORS ────────────────────────────────────────────────────────────
+// ─── CORS ────────────────────────────────────────────────────────
 const allowedOrigins = [
   'https://quick-ai-frontend.onrender.com',
   'https://d30jzk0hgtqxk3.cloudfront.net',
