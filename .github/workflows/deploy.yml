@@ -57,11 +57,18 @@ jobs:
           envs: SERVER_ENV
           script: |
             if [ -n "$SERVER_ENV" ]; then
+
+              # DEBUG: Show only the DATABASE_URL host, with credentials masked
+              echo "$SERVER_ENV" | grep '^DATABASE_URL=' | sed -E 's#(postgresql|postgres)://([^:]+):([^@]+)@#\1://\2:***@#'
+
               echo "$SERVER_ENV" > /tmp/.quickai_secrets.env
+
               kubectl create secret generic quickai-secrets \
                 --from-env-file=/tmp/.quickai_secrets.env \
                 --dry-run=client -o yaml | kubectl apply -f -
+
               rm -f /tmp/.quickai_secrets.env
+
             elif ! kubectl get secret quickai-secrets >/dev/null 2>&1; then
               kubectl create secret generic quickai-secrets
             fi
@@ -72,3 +79,28 @@ jobs:
               quickai-backend=${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
 
             kubectl rollout status deployment/quickai-backend --timeout=180s
+            uses: appleboy/ssh-action@v1.0.3
+            env:
+              SERVER_ENV: ${{ secrets.SERVER_ENV }}
+            with:
+              host: ${{ secrets.ORACLE_HOST }}
+              username: ${{ secrets.ORACLE_USER }}
+              key: ${{ secrets.ORACLE_SSH_KEY }}
+              envs: SERVER_ENV
+              script: |
+                if [ -n "$SERVER_ENV" ]; then
+                  echo "$SERVER_ENV" > /tmp/.quickai_secrets.env
+                  kubectl create secret generic quickai-secrets \
+                    --from-env-file=/tmp/.quickai_secrets.env \
+                    --dry-run=client -o yaml | kubectl apply -f -
+                  rm -f /tmp/.quickai_secrets.env
+                elif ! kubectl get secret quickai-secrets >/dev/null 2>&1; then
+                  kubectl create secret generic quickai-secrets
+                fi
+
+                kubectl apply -f /home/opc/deployments/quickai/K8s/
+
+                kubectl set image deployment/quickai-backend \
+                  quickai-backend=${{ secrets.DOCKER_USERNAME }}/quickai-backend:${{ github.sha }}
+
+                kubectl rollout status deployment/quickai-backend --timeout=180s
