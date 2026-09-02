@@ -5,3 +5,4 @@ node_modules
 *secret*.yaml
 !*secret*.example.yaml
 K8s/secret.yaml
+full context project devops , code.md
