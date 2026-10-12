@@ -1,0 +1,23 @@
+# Core REST API Framework and Server
+fastapi>=0.110.0,<1.0.0
+uvicorn[standard]>=0.28.0,<1.0.0
+
+# Data Validation and Settings Management
+pydantic>=2.6.0,<3.0.0
+pydantic-settings>=2.2.0,<3.0.0
+
+# HTTP Client for LLM Provider (LM Studio OpenAI-compatible endpoint)
+httpx>=0.27.0,<1.0.0
+
+# Numerical operations for vector retrieval & cosine similarity
+numpy>=1.26.0
+
+# Automated Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+
+# Optional production-grade embedding & vector index libraries:
+# (If installed, the retriever automatically enables dense neural embeddings;
+# otherwise, it seamlessly utilizes the built-in deterministic vector index.)
+# sentence-transformers>=2.5.0
+# faiss-cpu>=1.8.0

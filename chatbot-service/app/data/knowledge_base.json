@@ -1,0 +1,131 @@
+[
+  {
+    "document_id": "doc_quickai_overview",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "Quick.AI is an AI career workspace built for job seekers. It provides seven core tools to accelerate your job search: Smart Email Writer, Resume Reviewer, Resume Tailor, Career Score, LinkedIn Optimizer, Recruiter Outreach, and AI Interview Coach. Users can track their past activity, account plan, and remaining generations.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "overview",
+      "tags": ["quickai", "career", "platform", "overview"]
+    }
+  },
+  {
+    "document_id": "doc_tool_01_smart_email_writer",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "01 Smart Email Writer / AI Article Writer: How does the AI Article Writer work? Draft professional, persuasive emails, articles, and messages in seconds. Just say who it's for and what you need. It helps users quickly write networking emails, professional articles, follow-ups, and career correspondence.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "career_tools",
+      "tool_number": "01",
+      "tags": ["smart_email_writer", "email", "article", "networking", "career"]
+    }
+  },
+  {
+    "document_id": "doc_tool_02_resume_reviewer",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "02 Resume Reviewer: Get blunt, actionable feedback on your resume before you hit send. Land more interviews. It analyzes formatting, clarity, strengths, and areas of improvement to help candidates stand out to hiring managers.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "career_tools",
+      "tool_number": "02",
+      "tags": ["resume_reviewer", "resume_feedback", "ats", "career"]
+    }
+  },
+  {
+    "document_id": "doc_tool_03_resume_tailor",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "03 Resume Tailor: Rewrite your resume for a specific job description so every bullet earns its place. It aligns your qualifications with the job requirements and highlights relevant achievements.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "career_tools",
+      "tool_number": "03",
+      "tags": ["resume_tailor", "job_description", "custom_resume", "career"]
+    }
+  },
+  {
+    "document_id": "doc_tool_04_career_score",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "04 Career Score: Benchmark your profile across skills, experience, and impact — with a clear score breakdown. It gives candidates insight into their overall market competitiveness and career readiness.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "career_tools",
+      "tool_number": "04",
+      "tags": ["career_score", "benchmark", "profile_score", "career"]
+    }
+  },
+  {
+    "document_id": "doc_tool_05_linkedin_optimizer",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "05 LinkedIn Optimizer: Sharpen your headline, about section, and keywords so recruiters actually find you. It helps optimize your profile visibility for recruiter search filters and keyword matching.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "career_tools",
+      "tool_number": "05",
+      "tags": ["linkedin_optimizer", "headline", "about_section", "keywords", "career"]
+    }
+  },
+  {
+    "document_id": "doc_tool_06_recruiter_outreach",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "06 Recruiter Outreach: Generate concise, personalised messages that get replies from recruiters and hiring managers. It crafts tailored LinkedIn connection requests, recruiter DMs, and cold outreach emails.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "career_tools",
+      "tool_number": "06",
+      "tags": ["recruiter_outreach", "cold_email", "linkedin_dm", "hiring_managers", "career"]
+    }
+  },
+  {
+    "document_id": "doc_tool_07_interview_coach",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "07 AI Interview Coach: Practise real interview questions and get instant feedback on structure and delivery. Candidates can rehearse behavioral, situational, and role-specific interview answers.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "career_tools",
+      "tool_number": "07",
+      "tags": ["interview_coach", "mock_interview", "feedback", "practice", "career"]
+    }
+  },
+  {
+    "document_id": "doc_plans_and_pricing",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "Quick.AI offers two membership tiers: Free Plan and Premium Plan. Free Plan includes up to 5 free generations to test the tools. Premium Plan provides unlimited generations across all career tools.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "billing",
+      "tags": ["plans", "free", "premium", "pricing", "quota"]
+    }
+  },
+  {
+    "document_id": "doc_user_dashboard_history",
+    "application_id": "quickai",
+    "source": "application_documentation",
+    "content": "Quick.AI Dashboard allows users to review actions performed in the past, including total creations, past activity timestamps, and current plan quota.",
+    "updated_at": "2026-10-11T00:00:00Z",
+    "metadata": {
+      "category": "user_features",
+      "tags": ["dashboard", "past_actions", "creations_history", "account"]
+    }
+  },
+  {
+    "document_id": "change_001_career_platform",
+    "application_id": "quickai",
+    "source": "application_change_log",
+    "content": "Quick.AI release updates and historical changelog: On October 9, 2026, Quick.AI introduced changes to the platform, releasing the 7 Career Tools suite: Smart Email Writer, Resume Reviewer, Resume Tailor, Career Score, LinkedIn Optimizer, Recruiter Outreach, and AI Interview Coach. Free tier users receive 5 generations, while Premium provides unlimited access.",
+    "updated_at": "2026-10-09T00:00:00Z",
+    "metadata": {
+      "category": "release_notes",
+      "date": "2026-10-09",
+      "tags": ["release", "career_tools", "changelog"]
+    }
+  }
+]

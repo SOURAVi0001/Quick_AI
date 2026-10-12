@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick.AI Chatbot Studio | Live RAG Pipeline Debugger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/client/styles.css">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="studio-header">
+    <div class="logo-group">
+      <div class="logo-icon" style="background: linear-gradient(135deg, #3588F2, #c306e9);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="studio-title">Quick.AI Chatbot Studio</h1>
+        <p class="studio-subtitle">Live RAG Flow Visualizer & Grounded Assistant Debugger</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="status-badge" id="backend-status-badge">
+        <span class="status-dot"></span>
+        <span id="backend-status-text">Checking Backend...</span>
+      </div>
+
+      <button class="btn btn-secondary" id="btn-open-data-modal" title="Inspect source Quick.AI knowledge base and user JSON records">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+        </svg>
+        Data & User Info Explorer
+      </button>
+
+      <button class="btn btn-secondary" id="btn-clear-chat" title="Clear conversation history">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        Clear Chat
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container: Split View -->
+  <main class="studio-workspace">
+    <!-- Left Column: Chat & Testing Playground -->
+    <section class="chat-section">
+      <div class="section-card chat-card">
+        <div class="card-header">
+          <div class="header-info" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span class="badge badge-primary">Client Interface</span>
+            <span class="header-meta">
+              User:
+              <select id="select-user-switcher" class="select-sm" style="font-weight: 600; color: #6366f1; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 2px 8px;">
+                <option value="user_2yMX02PRbyMtQK6PebpjnxvRNIA" selected>Alex Johnson (Free: 3/5 used)</option>
+                <option value="user_premium_01">Sarah Connor (Premium: Unlimited)</option>
+                <option value="user_101">Alice Smith (Free: 2/5 used)</option>
+              </select>
+              &bull; App: <strong>quickai</strong>
+            </span>
+          </div>
+          <div class="playback-controls">
+            <label for="select-playback-speed" class="control-label">Speed:</label>
+            <select id="select-playback-speed" class="select-sm">
+              <option value="animated" selected>Step-by-Step Flow</option>
+              <option value="instant">Instant Execution</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Preset Test Queries Carousel -->
+        <div class="preset-queries-container">
+          <div class="preset-header">
+            <span>Sample Test Queries (Click to Run):</span>
+          </div>
+          <div class="preset-pills" id="preset-pills">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- Chat Conversation Messages -->
+        <div class="chat-messages" id="chat-messages">
+          <div class="message-bubble system-welcome">
+            <div class="msg-avatar">🤖</div>
+            <div class="msg-body">
+              <p><strong>Welcome to the Quick.AI Chatbot Studio!</strong></p>
+              <p>I answer questions grounded strictly in the <strong>Quick.AI platform documentation</strong> and your authorized <strong>account user info</strong>.</p>
+              <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+                🛡️ <em>Strict Guardrails Active:</em> No agentic workflow execution &bull; Out-of-scope refusal &bull; Anti-hallucination factual grounding &bull; User privacy isolation.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Footer -->
+        <div class="chat-input-wrapper">
+          <form id="chat-form" class="chat-form">
+            <div class="input-container">
+              <textarea
+                id="query-input"
+                class="query-textarea"
+                rows="1"
+                placeholder="Ask about Quick.AI tools, plans, quotas, DB migrations, your creations, or test guardrails..."
+                required
+              ></textarea>
+              <button type="submit" id="btn-submit-query" class="btn btn-primary btn-send">
+                <span>Send</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Interactive Live Data Flowchart -->
+    <section class="flowchart-section">
+      <div class="section-card flowchart-card">
+        <div class="card-header flowchart-header">
+          <div>
+            <span class="badge badge-accent">Live Data Flow Graph</span>
+            <span class="header-meta" id="flowchart-meta">Ready &bull; Waiting for query</span>
+          </div>
+          <div class="flowchart-stats" id="flowchart-stats">
+            <span class="stat-pill" id="stat-latency" style="display: none;">Latency: --</span>
+            <span class="stat-pill" id="stat-status" style="display: none;">Status: --</span>
+          </div>
+        </div>
+
+        <!-- Flowchart Canvas Area -->
+        <div class="flowchart-canvas" id="flowchart-canvas">
+          <div class="flowchart-nodes-wrapper" id="flowchart-nodes-wrapper">
+            <!-- Node elements rendered dynamically by app.js -->
+            <div class="flowchart-empty-state">
+              <div class="empty-icon">⚡</div>
+              <h3>Interactive Flow Graph Idle</h3>
+              <p>Submit a query on the left to watch each function and file execute live with exact inputs, outputs, and branch decisions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Node Debugger Inspector Drawer (Slide-out) -->
+  <aside class="node-inspector-drawer" id="node-inspector-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="badge" id="drawer-node-badge">NODE</span>
+        <h3 id="drawer-node-name">Node Inspection</h3>
+      </div>
+      <button class="btn-close-drawer" id="btn-close-drawer" title="Close drawer">&times;</button>
+    </div>
+
+    <div class="drawer-content" id="drawer-content">
+      <!-- File & Function Signature -->
+      <div class="drawer-section">
+        <label class="drawer-label">Source File & Function</label>
+        <div class="code-signature">
+          <span class="file-tag" id="drawer-file">app/services/example.py</span>
+          <span class="func-tag" id="drawer-function">example_func()</span>
+        </div>
+      </div>
+
+      <!-- Stage Description -->
+      <div class="drawer-section">
+        <label class="drawer-label">Execution Summary</label>
+        <p class="drawer-desc" id="drawer-desc">Description of what occurred in this node.</p>
+      </div>
+
+      <!-- Execution Timing & Status -->
+      <div class="drawer-section metrics-row">
+        <div>
+          <label class="drawer-label">Status</label>
+          <span class="badge badge-success" id="drawer-status">COMPLETED</span>
+        </div>
+        <div>
+          <label class="drawer-label">Duration</label>
+          <span class="metric-val" id="drawer-duration">0.0 ms</span>
+        </div>
+      </div>
+
+      <!-- Node Input Data -->
+      <div class="drawer-section">
+        <div class="drawer-subhead">
+          <label class="drawer-label">Input Received (Payload / Arguments)</label>
+          <button class="btn-copy" id="btn-copy-input">Copy</button>
+        </div>
+        <pre class="json-code-block"><code id="drawer-input-json">{}</code></pre>
+      </div>
+
+      <!-- Node Output Data -->
+      <div class="drawer-section">
+        <div class="drawer-subhead">
+          <label class="drawer-label">Output Produced (Passed to Next Node)</label>
+          <button class="btn-copy" id="btn-copy-output">Copy</button>
+        </div>
+        <pre class="json-code-block"><code id="drawer-output-json">{}</code></pre>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Dummy Data Explorer Modal -->
+  <div class="modal-backdrop" id="data-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+          <h2>Quick.AI Knowledge Base & User Data Explorer</h2>
+        </div>
+        <button class="modal-close" id="btn-close-data-modal">&times;</button>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="tab-kb">Knowledge Base Docs (<span id="kb-count">14</span>)</button>
+        <button class="modal-tab" data-tab="tab-user">User Context Records (<span id="user-count">3</span>)</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Tab 1: Knowledge Base -->
+        <div class="tab-pane active" id="tab-kb">
+          <div class="filter-bar">
+            <input type="text" id="kb-search-input" class="search-input" placeholder="Filter Quick.AI documents by title or keyword...">
+          </div>
+          <div class="data-cards-grid" id="kb-cards-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Tab 2: User Context -->
+        <div class="tab-pane" id="tab-user">
+          <div class="user-context-view" id="user-context-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/client/app.js"></script>
+</body>
+</html>

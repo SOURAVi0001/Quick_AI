@@ -1,0 +1,157 @@
+{
+  "user_2yMX02PRbyMtQK6PebpjnxvRNIA": {
+    "user_id": "user_2yMX02PRbyMtQK6PebpjnxvRNIA",
+    "application_id": "quickai",
+    "full_name": "Alex Johnson",
+    "email": "alex.johnson@example.com",
+    "plan": "free",
+    "free_usage": 3,
+    "max_free_usage": 5,
+    "remaining_free_usage": 2,
+    "total_creations": 3,
+    "recent_creations": [
+      {
+        "id": 9,
+        "type": "blog-title",
+        "prompt": "Generate a blog title for the keyword blog in the category Technology.",
+        "content": "The Tech Blog: News, Reviews, and Insights; Technology Today: Your Daily Dose of Tech; The Future is Now: Exploring the World of Technology",
+        "publish": false,
+        "likes_count": 0,
+        "created_at": "2026-10-09T11:09:50.492Z"
+      },
+      {
+        "id": 8,
+        "type": "blog-title",
+        "prompt": "Generate a blog title for the keyword blog in the category General.",
+        "content": "The Blog Blog: Everything You Need to Know About Blogging; Blogging Insights: Tips, Tricks, and Trends; Your Guide to the World of Blogging",
+        "publish": false,
+        "likes_count": 0,
+        "created_at": "2026-10-09T11:08:10.450Z"
+      },
+      {
+        "id": 7,
+        "type": "article",
+        "prompt": "Write an article about AI With Coding in Short (500-800 word).",
+        "content": "## AI and Coding: A Symbiotic Partnership Reshaping the Future\nArtificial intelligence (AI) and coding are deeply intertwined...",
+        "publish": true,
+        "likes_count": 4,
+        "created_at": "2026-10-08T10:15:30.120Z"
+      }
+    ],
+    "recent_activity": [
+      {
+        "activity_id": "act_01",
+        "action": "Generated blog title for 'Technology'",
+        "timestamp": "2026-10-09T11:09:50Z"
+      },
+      {
+        "activity_id": "act_02",
+        "action": "Published creation #7 (AI and Coding article) to Community Showcase",
+        "timestamp": "2026-10-08T10:20:00Z"
+      },
+      {
+        "activity_id": "act_03",
+        "action": "Generated article 'AI and Coding' (approx 650 words)",
+        "timestamp": "2026-10-08T10:15:30Z"
+      }
+    ],
+    "relevant_historical_changes": [
+      "Database indexing migration improved dashboard loading speed on October 5, 2026",
+      "BullMQ asynchronous task execution and real-time Socket.IO alerts added on October 7, 2026"
+    ]
+  },
+  "user_premium_01": {
+    "user_id": "user_premium_01",
+    "application_id": "quickai",
+    "full_name": "Sarah Connor",
+    "email": "sarah.connor@example.com",
+    "plan": "premium",
+    "free_usage": 0,
+    "max_free_usage": "unlimited",
+    "remaining_free_usage": "unlimited",
+    "total_creations": 14,
+    "recent_creations": [
+      {
+        "id": 24,
+        "type": "image",
+        "prompt": "Cyberpunk futuristic skyline at twilight with neon lights",
+        "content": "https://res.cloudinary.com/demo/image/upload/sample.jpg",
+        "publish": true,
+        "likes_count": 12,
+        "created_at": "2026-10-10T14:22:00.000Z"
+      },
+      {
+        "id": 23,
+        "type": "article",
+        "prompt": "The Ethics of Autonomous AI Systems in Modern Society",
+        "content": "## The Ethics of Autonomous AI Systems...",
+        "publish": false,
+        "likes_count": 0,
+        "created_at": "2026-10-10T12:00:00.000Z"
+      }
+    ],
+    "recent_activity": [
+      {
+        "activity_id": "act_p01",
+        "action": "Generated AI Image 'Cyberpunk futuristic skyline' via ClipDrop and Cloudinary",
+        "timestamp": "2026-10-10T14:22:00Z"
+      },
+      {
+        "activity_id": "act_p02",
+        "action": "Published image creation #24 to Community",
+        "timestamp": "2026-10-10T14:25:00Z"
+      }
+    ],
+    "relevant_historical_changes": [
+      "AI Image Generation unlocked with Premium access",
+      "Priority background task processing enabled"
+    ]
+  },
+  "user_101": {
+    "user_id": "user_101",
+    "application_id": "quickai",
+    "full_name": "Alice Smith",
+    "email": "alice.smith@example.com",
+    "plan": "free",
+    "free_usage": 2,
+    "max_free_usage": 5,
+    "remaining_free_usage": 3,
+    "total_creations": 2,
+    "recent_creations": [
+      {
+        "id": 12,
+        "type": "article",
+        "prompt": "Modern Web Development with React and Express",
+        "content": "Modern web development combines responsive frontends with resilient backends...",
+        "publish": true,
+        "likes_count": 5,
+        "created_at": "2026-10-08T14:30:00Z"
+      },
+      {
+        "id": 11,
+        "type": "blog-title",
+        "prompt": "Catchy titles for full-stack engineering blog",
+        "content": "Full Stack Mastery; The Modern Web Blueprint; Code to Cloud",
+        "publish": false,
+        "likes_count": 0,
+        "created_at": "2026-10-08T11:15:00Z"
+      }
+    ],
+    "recent_activity": [
+      {
+        "activity_id": "act_101_01",
+        "action": "Generated article 'Modern Web Development with React and Express'",
+        "timestamp": "2026-10-08T14:30:00Z"
+      },
+      {
+        "activity_id": "act_101_02",
+        "action": "Published creation #12 to Community Showcase",
+        "timestamp": "2026-10-08T14:35:00Z"
+      }
+    ],
+    "relevant_historical_changes": [
+      "Database indexing migration improved dashboard loading speed on October 5, 2026",
+      "BullMQ asynchronous queue and Socket.IO notifications deployed on October 7, 2026"
+    ]
+  }
+}
