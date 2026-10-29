@@ -1,1 +1,1 @@
-"""ProjectHub Chatbot Backend Application Package."""
+"""Quick.AI Chatbot Backend Application Package."""

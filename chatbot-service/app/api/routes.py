@@ -27,7 +27,7 @@ def get_llm_provider() -> BaseLLMProvider:
     """Dependency provider yielding the configured LLM implementation."""
     provider_type = settings.LLM_PROVIDER.lower().strip()
     if provider_type == "lm_studio":
-        return LMStudioProvider()
+        return LMStudioProvider(fallback_provider=MockLLMProvider())
     return MockLLMProvider()
 
 

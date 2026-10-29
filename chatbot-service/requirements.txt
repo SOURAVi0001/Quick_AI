@@ -16,8 +16,7 @@ numpy>=1.26.0
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
 
-# Optional production-grade embedding & vector index libraries:
-# (If installed, the retriever automatically enables dense neural embeddings;
-# otherwise, it seamlessly utilizes the built-in deterministic vector index.)
-# sentence-transformers>=2.5.0
-# faiss-cpu>=1.8.0
+asyncpg>=0.29.0
+openai>=1.14.0
+faiss-cpu>=1.8.0
+sentence-transformers>=2.5.0

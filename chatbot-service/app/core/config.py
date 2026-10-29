@@ -4,6 +4,7 @@ Loads settings from environment variables or a .env file with safe defaults.
 """
 
 from pathlib import Path
+from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -40,6 +41,19 @@ class Settings(BaseSettings):
 
     # Logging
     LOG_LEVEL: str = "INFO"
+
+    # Database & Backend settings
+    DATABASE_URL: Optional[str] = "postgresql://neondb_owner:npg_A3P0ceWxQtIn@ep-silent-union-a4a58299-pooler.us-east-1.aws.neon.tech/neondb"
+    BACKEND_API_URL: str = "http://localhost:3000"
+
+    # Embedding & Vector Database settings
+    # Options: "openrouter", "sentence_transformers", or "mock"
+    EMBEDDING_PROVIDER: str = "openrouter"
+    OPENROUTER_API_KEY: Optional[str] = None
+    EMBEDDING_MODEL: str = "nvidia/nemotron-3-embed-1b:free"
+    FAISS_INDEX_PATH: Path = DATA_DIR / "faiss_index.bin"
+    FAISS_METADATA_PATH: Path = DATA_DIR / "faiss_metadata.json"
+    DOCUMENTATION_PATH: Path = BASE_DIR / "docs" / "quickai_documentation.md"
 
     # Data file paths
     KNOWLEDGE_BASE_PATH: Path = DATA_DIR / "knowledge_base.json"

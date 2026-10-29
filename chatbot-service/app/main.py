@@ -1,4 +1,4 @@
-"""FastAPI Application Entry Point for ProjectHub Chatbot Backend."""
+"""FastAPI Application Entry Point for Quick.AI Chatbot Backend."""
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
@@ -24,7 +24,7 @@ async def lifespan(app: FastAPI):
 def create_application() -> FastAPI:
     """Factory creating and configuring the FastAPI app instance."""
     app = FastAPI(
-        title="Quick.AI Chatbot Backend Service",
+        title="Fizzi AI - Quick.AI Chatbot Backend Service",
         description=(
             "Independent modular RAG chatbot backend for Quick.AI providing query classification, "
             "conversational rewriting, dual-source context retrieval, grounded LLM generation, "
@@ -77,7 +77,14 @@ def create_application() -> FastAPI:
             index_file = client_dir / "index.html"
             if index_file.exists():
                 return FileResponse(index_file)
-            return {"message": "ProjectHub Chatbot Backend is running."}
+            return {"message": "Quick.AI Chatbot Backend is running."}
+
+        @app.get("/flow", include_in_schema=False)
+        async def serve_flow():
+            flow_file = client_dir / "chatbot_flow.html"
+            if flow_file.exists():
+                return FileResponse(flow_file)
+            return {"message": "Flow visualizer not found."}
 
     return app
 

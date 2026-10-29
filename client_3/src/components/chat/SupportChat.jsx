@@ -9,7 +9,6 @@ import {
   Info,
   Lock,
   LogIn,
-  MessageCircle,
   RefreshCw,
   RotateCcw,
   ShieldCheck,
@@ -34,14 +33,25 @@ import { MessageBubble } from "./MessageBubble";
 
 const DEFAULT_SUGGESTIONS = [
   "How many free generations do I have left?",
-  "What are my recent creations and which are published?",
-  "What changes and database migrations were made recently?",
   "What does the Resume Reviewer do?",
+  "How can I improve based on my past career tool results?",
+  "Show me my recent job applications",
   "Free vs Premium — what's the difference?",
 ];
 
 const CHAT_STORAGE_KEY = "quickai_support_chat_history";
 const CONV_STORAGE_KEY = "quickai_support_conversation_id";
+
+const FEATURE_LINKS = [
+  { label: "Smart Email Writer", href: "/ai/write-email" },
+  { label: "Resume Reviewer", href: "/ai/review-resume" },
+  { label: "Resume Tailor", href: "/ai/resume-tailor" },
+  { label: "Career Score", href: "/ai/career-score" },
+  { label: "LinkedIn Optimizer", href: "/ai/linkedin-optimizer" },
+  { label: "Recruiter Outreach", href: "/ai/recruiter-outreach" },
+  { label: "AI Interview Coach", href: "/ai/interview-coach" },
+  { label: "Job Tracker", href: "/ai/job-tracker" },
+];
 
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
@@ -51,6 +61,7 @@ const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(
  */
 async function defaultQuickAiTransport({ message, history, user, conversationId }) {
   const userId = user?.id || (window.Clerk?.user?.id) || "user_guest";
+  const token = window.Clerk?.session ? await window.Clerk.session.getToken() : null;
 
   const payload = {
     request_id: `req_${Date.now().toString(36)}`,
@@ -58,7 +69,7 @@ async function defaultQuickAiTransport({ message, history, user, conversationId 
     application_id: "quickai",
     conversation_id: conversationId || `conv_${Date.now().toString(36)}`,
     query: message,
-    history: history.slice(-6).map((m) => ({ role: m.role, content: m.content })),
+    history: history.slice(-20).map((m) => ({ role: m.role, content: m.content })),
     user_info: user
       ? {
           user_id: userId,
@@ -78,11 +89,11 @@ async function defaultQuickAiTransport({ message, history, user, conversationId 
 
   const candidateEndpoints = Array.from(
     new Set([
-      import.meta.env.VITE_CHATBOT_URL,
       "/api/v1/chat",
+      `${import.meta.env.VITE_SERVER_URL || import.meta.env.VITE_BASE_URL || ""}/api/chatbot/chat`,
+      import.meta.env.VITE_CHATBOT_URL,
       "http://127.0.0.1:8000/api/v1/chat",
       "http://localhost:8000/api/v1/chat",
-      "/api/chatbot/chat",
     ].filter(Boolean))
   );
 
@@ -93,12 +104,17 @@ async function defaultQuickAiTransport({ message, history, user, conversationId 
     try {
       res = await fetch(ep, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        signal: AbortSignal.timeout(120000),
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(payload),
       });
       if (res.ok) break;
       const errorBody = await res.text().catch(() => "");
-      lastError = new Error(`Endpoint ${ep} returned ${res.status}: ${errorBody || res.statusText}`);
+      lastError = new Error(`Chat endpoint ${ep} returned ${res.status}: ${errorBody || res.statusText}`);
     } catch (netErr) {
       lastError = netErr;
     }
@@ -112,10 +128,11 @@ async function defaultQuickAiTransport({ message, history, user, conversationId 
 
   // Detect relevant interactive tool links based ONLY on the actual answer content
   const detectedLinks = [];
-  const textCorpus = (data.answer || "").toLowerCase();
+  const textCorpus = `${message} ${data.answer || ""}`.toLowerCase();
 
   const toolMappings = [
     { pattern: /recruiter-outreach|outreach|\/ai\/recruiter-outreach/i, label: "Recruiter Outreach", href: "/ai/recruiter-outreach" },
+    { pattern: /smart email writer|write-email|email writer|draft.*email|write.*email/i, label: "Smart Email Writer", href: "/ai/write-email" },
     { pattern: /resume-tailor|tailor.*resume|\/ai\/resume-tailor/i, label: "Resume Tailor", href: "/ai/resume-tailor" },
     { pattern: /review-resume|resume.*review|\/ai\/review-resume/i, label: "Resume Reviewer", href: "/ai/review-resume" },
     { pattern: /linkedin-optimizer|linkedin|\/ai\/linkedin-optimizer/i, label: "LinkedIn Optimizer", href: "/ai/linkedin-optimizer" },
@@ -167,7 +184,7 @@ export function SupportChat({
   onNavigate,
   position = "bottom-right",
   defaultOpen = false,
-  title = "Quick.AI Assistant",
+  title = "Fizzi AI",
   welcome,
   suggestions = DEFAULT_SUGGESTIONS,
   className,
@@ -297,7 +314,7 @@ export function SupportChat({
 
   // Session & History persistence
   const [conversationId, setConversationId] = useState(() => {
-    return localStorage.getItem(CONV_STORAGE_KEY) || `conv_${uid()}`;
+    return localStorage.getItem(`${CONV_STORAGE_KEY}:${currentUser?.id || "guest"}`) || `conv_${uid()}`;
   });
 
   const [open, setOpen] = useState(defaultOpen);
@@ -307,7 +324,7 @@ export function SupportChat({
 
   const [messages, setMessages] = useState(() => {
     try {
-      const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+      const saved = localStorage.getItem(`${CHAT_STORAGE_KEY}:${currentUser?.id || "guest"}`);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -318,15 +335,32 @@ export function SupportChat({
     return [];
   });
 
-  // Save messages and conversationId to localStorage on change
+  const storageIdentity = currentUser?.id || "guest";
+  const [loadedStorageIdentity, setLoadedStorageIdentity] = useState(storageIdentity);
+
   useEffect(() => {
+    if (loadedStorageIdentity === storageIdentity) return;
     try {
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
-      localStorage.setItem(CONV_STORAGE_KEY, conversationId);
+      const saved = localStorage.getItem(`${CHAT_STORAGE_KEY}:${storageIdentity}`);
+      setMessages(saved ? JSON.parse(saved) : []);
+      setConversationId(localStorage.getItem(`${CONV_STORAGE_KEY}:${storageIdentity}`) || `conv_${uid()}`);
+    } catch {
+      setMessages([]);
+    } finally {
+      setLoadedStorageIdentity(storageIdentity);
+    }
+  }, [storageIdentity, loadedStorageIdentity]);
+
+  // Save messages and conversationId per signed-in user.
+  useEffect(() => {
+    if (loadedStorageIdentity !== storageIdentity) return;
+    try {
+      localStorage.setItem(`${CHAT_STORAGE_KEY}:${storageIdentity}`, JSON.stringify(messages.slice(-40)));
+      localStorage.setItem(`${CONV_STORAGE_KEY}:${storageIdentity}`, conversationId);
     } catch {
       // Ignore
     }
-  }, [messages, conversationId]);
+  }, [messages, conversationId, storageIdentity, loadedStorageIdentity]);
 
   // Live Backend Connection State & Details
   const [connStatus, setConnStatus] = useState("checking");
@@ -417,8 +451,8 @@ export function SupportChat({
     () =>
       welcome ??
       (currentUser
-        ? `Hi ${currentUser.name.split(" ")[0]} — ask me about any Quick.AI tool, your plan and quota, your recent creations, or recent platform updates.`
-        : "Hi — please sign in to access the Quick.AI Intelligent Assistant."),
+        ? `Hi ${currentUser.name.split(" ")[0]} — I'm Fizzi AI, focused on Quick.AI. I can answer questions about your career activity and help you choose a tool. Select a feature below or tell me what you want to do.`
+        : "Hi — please sign in to access Fizzi AI."),
     [welcome, currentUser],
   );
 
@@ -561,8 +595,8 @@ export function SupportChat({
     const newConvId = `conv_${uid()}`;
     setConversationId(newConvId);
     try {
-      localStorage.removeItem(CHAT_STORAGE_KEY);
-      localStorage.setItem(CONV_STORAGE_KEY, newConvId);
+      localStorage.removeItem(`${CHAT_STORAGE_KEY}:${storageIdentity}`);
+      localStorage.setItem(`${CONV_STORAGE_KEY}:${storageIdentity}`, newConvId);
     } catch {
       // Ignore
     }
@@ -599,9 +633,15 @@ export function SupportChat({
           {/* Header */}
           <header className="relative border-b border-white/[0.06] px-4 py-3">
             <div className="flex items-center gap-3">
-              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ember-gradient shadow-[0_0_24px_-4px_rgba(224,124,56,0.7)]">
+              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-[#08080d] shadow-[0_0_24px_-4px_rgba(59,130,246,0.5)]">
                 {currentUser ? (
-                  <Sparkles className="h-4 w-4 text-ink-950" strokeWidth={2.4} />
+                  <img
+                    src="/chatbot.png"
+                    alt=""
+                    aria-hidden="true"
+                    className="max-w-none shrink-0"
+                    style={{ width: 92, height: 69 }}
+                  />
                 ) : (
                   <Lock className="h-4 w-4 text-ink-950" strokeWidth={2.4} />
                 )}
@@ -815,7 +855,7 @@ export function SupportChat({
               </div>
 
               <h3 className="relative text-[16px] font-semibold text-white tracking-tight">
-                Sign in to use Quick.AI Assistant
+                Sign in to use Fizzi AI
               </h3>
               <p className="relative mt-1.5 max-w-[280px] text-[12px] leading-relaxed text-white/55">
                 User authentication is required to access the assistant, query your quota, and link your creation history.
@@ -870,6 +910,24 @@ export function SupportChat({
                 message={{ id: "welcome", role: "assistant", content: greeting, createdAt: 0 }}
                 onNavigate={navigate}
               />
+
+              {messages.length === 0 && (
+                <div className="animate-fade-up space-y-2 pl-8 pt-1">
+                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/35">Quick links</p>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {FEATURE_LINKS.map((feature) => (
+                      <button
+                        key={feature.href}
+                        type="button"
+                        onClick={() => navigate(feature.href)}
+                        className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-2.5 py-2 text-left text-[11px] text-white/75 transition hover:border-ember-500/40 hover:bg-ember-500/10 hover:text-ember-200"
+                      >
+                        {feature.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {messages.length === 0 && (
                 <div className="animate-fade-up space-y-1.5 pl-8 pt-1">
@@ -965,17 +1023,23 @@ export function SupportChat({
           "group relative flex h-14 w-14 items-center justify-center rounded-full border border-white/10 transition-all duration-300",
           open
             ? "bg-ink-800 text-white hover:bg-ink-700"
-            : "bg-ember-gradient text-ink-950 shadow-[0_14px_40px_-10px_rgba(224,124,56,0.75)] hover:scale-105 hover:shadow-[0_18px_48px_-10px_rgba(224,124,56,0.9)]",
+          : "bg-[#08080d] text-white shadow-[0_14px_40px_-10px_rgba(59,130,246,0.55)] hover:scale-105 hover:shadow-[0_18px_48px_-10px_rgba(59,130,246,0.75)]",
         )}
       >
         {!open && (
           <span className="pointer-events-none absolute inset-0 rounded-full bg-ember-500/40 animate-pulse-ring" />
         )}
-        <span className="relative">
+        <span className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
           {open ? (
             <X className="h-5 w-5" strokeWidth={2.2} />
           ) : (
-            <MessageCircle className="h-6 w-6" strokeWidth={2.1} />
+            <img
+              src="/chatbot.png"
+              alt=""
+              aria-hidden="true"
+              className="max-w-none shrink-0"
+              style={{ width: 144, height: 108 }}
+            />
           )}
         </span>
         {!open && unread > 0 && (

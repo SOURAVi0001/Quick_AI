@@ -345,21 +345,33 @@ export function getDemoImage() {
  * Check if an error is an API quota/key exhaustion error.
  */
 export function isQuotaError(error) {
+  if (!error) return false;
   const msg = (error?.message || '').toLowerCase();
+  const dataMsg = (error?.response?.data?.error?.message || '').toLowerCase();
+  const combined = `${msg} ${dataMsg}`;
   const status = error?.response?.status || error?.status;
   return (
     status === 429 ||
     status === 402 ||
     status === 403 ||
-    msg.includes('quota') ||
-    msg.includes('rate limit') ||
-    msg.includes('exceeded') ||
-    msg.includes('exhausted') ||
-    msg.includes('billing') ||
-    msg.includes('payment') ||
-    msg.includes('insufficient') ||
-    msg.includes('api key') ||
-    msg.includes('unauthorized') ||
-    msg.includes('too many requests')
+    status === 404 ||
+    status === 400 ||
+    status === 502 ||
+    status === 503 ||
+    combined.includes('quota') ||
+    combined.includes('rate limit') ||
+    combined.includes('exceeded') ||
+    combined.includes('exhausted') ||
+    combined.includes('billing') ||
+    combined.includes('payment') ||
+    combined.includes('insufficient') ||
+    combined.includes('api key') ||
+    combined.includes('guardrail') ||
+    combined.includes('endpoints out of') ||
+    combined.includes('not found') ||
+    combined.includes('unauthorized') ||
+    combined.includes('too many requests') ||
+    combined.includes('bad request') ||
+    combined.includes('failed with status code')
   );
 }

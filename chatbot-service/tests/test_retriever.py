@@ -120,3 +120,36 @@ def test_top_k_parameter_enforcement(retriever: ContextRetriever):
             top_k=k,
         )
         assert len(result.documents) <= k
+
+
+def test_faiss_vector_store_semantic_search():
+    """Verifies that FAISS IndexFlatIP executes semantic similarity search with high precision."""
+    from app.services.retriever import FAISSVectorStore, MockEmbeddingModel
+
+    store = FAISSVectorStore(MockEmbeddingModel(dimension=64))
+    sample_docs = [
+        {"document_id": "d1", "application_id": "quickai", "content": "Resume Reviewer evaluates ATS compatibility"},
+        {"document_id": "d2", "application_id": "quickai", "content": "Smart Email Writer drafts networking emails"},
+        {"document_id": "d3", "application_id": "quickai", "content": "LinkedIn Optimizer creates professional headlines"},
+    ]
+    store.add_documents(sample_docs)
+    assert store.index is not None
+    assert store.index.ntotal == 3
+
+    matches = store.search(query="ATS resume review", application_id="quickai", top_k=1)
+    assert len(matches) == 1
+    assert matches[0].document_id == "d1"
+    assert matches[0].similarity_score > 0.0
+
+
+def test_faiss_retrieves_markdown_documentation(retriever: ContextRetriever):
+    """Verifies that FAISS retriever ingests and retrieves chunks from quickai_documentation.md."""
+    result = retriever.retrieve_context(
+        rewritten_query="How is the Career Profile Score calculated?",
+        user_id="user_2yMX02PRbyMtQK6PebpjnxvRNIA",
+        application_id="quickai",
+        top_k=3,
+    )
+    assert len(result.documents) > 0
+    scores = [d.similarity_score for d in result.documents]
+    assert max(scores) > 0.0

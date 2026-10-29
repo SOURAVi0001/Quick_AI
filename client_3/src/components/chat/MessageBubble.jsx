@@ -1,4 +1,4 @@
-import { ArrowUpRight, Ban, Info, Sparkles } from "lucide-react";
+import { ArrowUpRight, Ban, Info } from "lucide-react";
 import { cn } from "../../utils/cn";
 
 /** Renders **bold** and line breaks without pulling a markdown lib. */
@@ -59,8 +59,14 @@ export function MessageBubble({ message, onNavigate }) {
 
   return (
     <div className="flex items-end gap-2 animate-fade-up">
-      <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ember-500/30 bg-ember-500/10">
-        <Sparkles className="h-3 w-3 text-ember-400" strokeWidth={2.2} />
+      <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-[#08080d]">
+        <img
+          src="/chatbot.png"
+          alt=""
+          aria-hidden="true"
+          className="max-w-none shrink-0"
+          style={{ width: 96, height: 72 }}
+        />
       </div>
       <div className="max-w-[86%] space-y-2">
         <div

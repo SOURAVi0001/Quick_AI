@@ -22,6 +22,14 @@ async function migrate() {
   ];
 
   try {
+    await sql`ALTER TABLE creations ADD COLUMN IF NOT EXISTS source_resume TEXT`;
+    await sql`ALTER TABLE creations ADD COLUMN IF NOT EXISTS resume_job_description TEXT`;
+    console.log('  ✅ Resume source context columns created or already exist');
+  } catch (err) {
+    console.error('  ❌ Resume source context columns failed:', err.message);
+  }
+
+  try {
     await sql`CREATE INDEX IF NOT EXISTS idx_creations_user_date ON creations (user_id, created_at DESC)`;
     console.log(`  ✅ ${migrations[0].name}: ${migrations[0].description}`);
   } catch (err) {

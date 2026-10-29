@@ -15,8 +15,8 @@ class ChatMessage(BaseModel):
     @classmethod
     def validate_role(cls, value: str) -> str:
         role = value.strip().lower()
-        if role not in ("user", "assistant", "system"):
-            raise ValueError("Role must be 'user', 'assistant', or 'system'")
+        if role not in ("user", "assistant"):
+            raise ValueError("Role must be 'user' or 'assistant'")
         return role
 
     @field_validator("content")

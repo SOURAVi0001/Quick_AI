@@ -51,9 +51,7 @@ export async function generateChatResponse(messages, options = {}) {
 
   console.log('🔍 [AI Routing Diagnostics]:', {
     hasOpenRouterKey: !!openRouterKey,
-    openRouterPrefix: openRouterKey ? `${openRouterKey.slice(0, 10)}...` : 'NONE',
     hasGeminiKey: !!geminiKey,
-    geminiPrefix: geminiKey ? `${geminiKey.slice(0, 10)}...` : 'NONE',
     sameKey: openRouterKey && geminiKey ? openRouterKey === geminiKey : false,
   });
 
@@ -105,6 +103,39 @@ export async function generateChatResponse(messages, options = {}) {
         data: error.response?.data,
       });
 
+/**
+ * Generate response using local LM Studio server if available.
+ */
+async function generateWithLMStudio(messages, options = {}) {
+  console.log('🚀 Attempting fallback to local LM Studio (http://localhost:1234/v1)...');
+  const response = await axios.post(
+    'http://localhost:1234/v1/chat/completions',
+    {
+      model: options.model || 'local-model',
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      temperature: 0.2,
+      max_tokens: options.max_tokens || 1500,
+    },
+    { timeout: 90000 },
+  );
+
+  const choice = response.data?.choices?.[0];
+  if (!choice) {
+    throw new Error('LM Studio returned empty choices');
+  }
+
+  let content = choice.message?.content || '';
+  if (content.includes('<think>') && content.includes('</think>')) {
+    content = content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+  }
+
+  console.log('✅ Local LM Studio response received successfully');
+  return {
+    content,
+    reasoning_details: null,
+  };
+}
+
       // If OpenRouter fails and Gemini key is available, attempt Level 2 fallback
       if (geminiKey) {
         console.log('🔄 Attempting Level 2 fallback to Google Gemini SDK...');
@@ -115,13 +146,31 @@ export async function generateChatResponse(messages, options = {}) {
         }
       }
 
+      // Level 3 fallback: Local LM Studio (if running)
+      try {
+        return await generateWithLMStudio(messages, options);
+      } catch (lmStudioError) {
+        console.warn('⚠️ Local LM Studio fallback not available:', lmStudioError.message);
+      }
+
       throw error;
     }
   }
 
   // Otherwise, if only Gemini Key is available
   if (geminiKey) {
-    return await generateWithGeminiSDK(messages, geminiKey);
+    try {
+      return await generateWithGeminiSDK(messages, geminiKey);
+    } catch (geminiError) {
+      console.error('❌ Gemini SDK failed:', geminiError.message);
+    }
+  }
+
+  // Try Local LM Studio
+  try {
+    return await generateWithLMStudio(messages, options);
+  } catch (lmStudioError) {
+    console.warn('⚠️ Local LM Studio not available:', lmStudioError.message);
   }
 
   throw new Error('No valid AI provider configuration available.');

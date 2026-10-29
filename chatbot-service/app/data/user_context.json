@@ -56,8 +56,8 @@
       }
     ],
     "relevant_historical_changes": [
-      "Database indexing migration improved dashboard loading speed on October 5, 2026",
-      "BullMQ asynchronous task execution and real-time Socket.IO alerts added on October 7, 2026"
+      "Access enabled for Quick.AI Career Tools suite",
+      "Account initialized with 5 free generation credits"
     ]
   },
   "user_premium_01": {
@@ -150,8 +150,8 @@
       }
     ],
     "relevant_historical_changes": [
-      "Database indexing migration improved dashboard loading speed on October 5, 2026",
-      "BullMQ asynchronous queue and Socket.IO notifications deployed on October 7, 2026"
+      "Access enabled for Quick.AI Career Tools suite",
+      "Account initialized with 5 free generation credits"
     ]
   }
 }

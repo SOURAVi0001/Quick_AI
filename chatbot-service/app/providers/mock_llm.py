@@ -45,7 +45,7 @@ class MockLLMProvider(BaseLLMProvider):
             return self._mock_rewriting(user_msg)
 
         # 3. Answer Evaluation check
-        if "evaluat" in system_msg.lower() or "llm-as-a-judge" in system_msg.lower():
+        if ("evaluat" in system_msg.lower() and ("candidate" in system_msg.lower() or "judge" in system_msg.lower() or "score" in system_msg.lower() or "impartial" in system_msg.lower())) or "llm-as-a-judge" in system_msg.lower():
             return self._mock_evaluation(user_msg)
 
         # 4. Default: Answer Generation grounded in context
@@ -57,34 +57,92 @@ class MockLLMProvider(BaseLLMProvider):
 
         # Strict Guardrails: Reject server, backend, frontend, code, and internal functionality
         forbidden_internal_cues = [
-            "server", "backend", "frontend", "internal code", "source code", "codebase",
-            "database migration", "migration", "migrations", "redis", "bullmq", "socket.io",
-            "api endpoint", "how is this built", "show me the code", "chatbot service",
-            "schema", "database", "sql", "postgres", "neon db", "controller", "middleware",
-            "docker", "kubernetes", "k8s", "deploy.yml", "route.js", "express",
-            "binary search", "bubble sort", "solve leetcode", "write code", "write a function",
-            "python script", "dsa problem", "sorting algorithm", "cricket", "poem", "capital of france",
-            "joke", "paris", "weather", "football", "president", "recipe", "cook", "tell me a joke"
+            "backend server", "backend code", "internal code", "source code", "codebase",
+            "backend architecture", "frontend code", "database migration", "migration",
+            "migrations", "how is this built", "show me the code", "chatbot service",
+            "internal schema", "api endpoint", "express controller", "server controller",
+            "docker container", "kubernetes cluster", "deploy.yml",
+            "binary search", "bubble sort", "solve leetcode", "leetcode", "write code",
+            "write a function", "python script", "dsa problem", "sorting algorithm",
+            "hc question", "hackerrank", "write a program", "write code for",
+            "code problem", "coding question", "solve this code",
+            "system prompt", "ignore previous instructions", "jailbreak", "bypass guardrails",
+            "admin mode", "developer mode", "override instructions",
+            "cricket", "poem", "capital of france", "joke", "paris", "weather",
+            "football", "president", "recipe", "cook", "tell me a joke"
         ]
         if any(cue in lower_prompt for cue in forbidden_internal_cues):
             result = {
                 "is_relevant": False,
                 "category": "out_of_scope",
-                "reason": "The bot operates under strict guardrails and has NO access to server, backend, frontend, code, or internal application functionality.",
+                "intent": "out_of_scope",
+                "requires_db": False,
+                "suggested_redirect": None,
+                "reason": "The query is outside Quick.AI career scope. The bot operates under strict guardrails and has NO access to code or general knowledge.",
                 "confidence": 0.99,
             }
             return json.dumps(result)
 
+        intent = "general_help"
+        suggested_redirect = None
+        requires_db = False
+        extracted_entities = {}
+
+        if ("tailor" in lower_prompt and "resume" in lower_prompt) or "resume tailor" in lower_prompt:
+            intent = "resume_tailor"
+            suggested_redirect = "/ai/resume-tailor"
+            if "jd:" in lower_prompt:
+                jd_idx = lower_prompt.find("jd:") + 3
+                extracted_entities["job_description"] = prompt[jd_idx:].strip()
+        elif ("review" in lower_prompt and "resume" in lower_prompt) or "resume review" in lower_prompt or "ats" in lower_prompt:
+            intent = "resume_review"
+            suggested_redirect = "/ai/review-resume"
+        elif "career score" in lower_prompt or "profile score" in lower_prompt or "credit score" in lower_prompt:
+            intent = "career_score"
+            requires_db = True
+            if "average" in lower_prompt:
+                extracted_entities["calculation_type"] = "average"
+            if "recalculate" in lower_prompt:
+                suggested_redirect = "/ai/career-score"
+        elif "job tracker" in lower_prompt or "applied to" in lower_prompt or "applied" in lower_prompt:
+            intent = "job_tracker"
+            requires_db = True
+            suggested_redirect = "/ai/job-tracker"
+        elif "write email" in lower_prompt or "email writer" in lower_prompt or "e-right email" in lower_prompt or "eright email" in lower_prompt:
+            intent = "write_email"
+            suggested_redirect = "/ai/write-email"
+        elif "linkedin" in lower_prompt:
+            intent = "linkedin_optimizer"
+            suggested_redirect = "/ai/linkedin-optimizer"
+        elif "recruiter" in lower_prompt:
+            intent = "recruiter_outreach"
+            suggested_redirect = "/ai/recruiter-outreach"
+        elif "interview" in lower_prompt:
+            intent = "interview_coach"
+            suggested_redirect = "/ai/interview-coach"
+            if "weakness" in lower_prompt or "strength" in lower_prompt:
+                requires_db = True
+        elif "dashboard" in lower_prompt:
+            intent = "dashboard_analytics"
+            requires_db = True
+            suggested_redirect = "/dashboard"
+
         if ("my" in lower_prompt or "mine" in lower_prompt or "i have" in lower_prompt or "i created" in lower_prompt or "i did" in lower_prompt) and not ("system" in lower_prompt or "platform" in lower_prompt):
             category = "project_status"
+            requires_db = True
         elif any(cue in lower_prompt for cue in ["task", "alpha", "completed", "status", "progress", "plan", "quota", "usage", "creation", "creations", "past action", "past actions"]):
             category = "project_status"
+            requires_db = True
         else:
             category = "application_help"
 
         result = {
             "is_relevant": True,
             "category": category,
+            "intent": intent,
+            "requires_db": requires_db,
+            "suggested_redirect": suggested_redirect,
+            "extracted_entities": extracted_entities,
             "reason": f"The query is directly relevant to {category.replace('_', ' ')} in Quick.AI.",
             "confidence": 0.95,
         }
@@ -92,37 +150,19 @@ class MockLLMProvider(BaseLLMProvider):
 
     def _mock_rewriting(self, prompt: str) -> str:
         """Generates rewritten query JSON."""
+        # Clean prompt if it has Original Query: prefix or conversation history
+        clean_input = prompt.strip()
+        if clean_input.lower().startswith("original query:"):
+            clean_input = clean_input[len("original query:") :].strip()
+        if "recent conversation history:" in clean_input.lower():
+            clean_input = clean_input.split("Recent Conversation History:")[0].strip()
+
         lower_prompt = prompt.lower()
         if "what about this application" in lower_prompt or "features does quick.ai provide" in lower_prompt:
             rewritten = "What are the main features and AI tools provided by Quick.AI?"
             reason = "Expanded generic query to target core Quick.AI capabilities."
         elif "what changed recently" in lower_prompt or "changes were made" in lower_prompt:
-            rewritten = "What are the most recent changes and database migrations in Quick.AI?"
-            reason = "Clarified historical change log inquiry for Quick.AI."
-        elif "completed ones" in lower_prompt or "how many tasks" in lower_prompt:
-            rewritten = "How many tasks in the current project have been completed?"
-            reason = "Resolved conversational pronoun to specific task completion inquiry."
-        elif "my creations" in lower_prompt or "how many creations" in lower_prompt:
-            rewritten = "How many creations and what recent items are associated with my user account?"
-            reason = "Resolved user creation inquiry."
-        elif "pricing" in lower_prompt or "plans" in lower_prompt:
-            rewritten = "What are the differences between Free and Premium plans in Quick.AI?"
-            reason = "Formulated specific pricing and quota inquiry."
-        elif "assign" in lower_prompt:
-            rewritten = "How do users assign tasks to team members in Quick.AI?"
-            reason = "Formulated specific task assignment inquiry."
-        # Clean prompt if it has Original Query: prefix or conversation history
-        clean_input = prompt.strip()
-        if clean_input.lower().startswith("original query:"):
-            clean_input = clean_input[len("original query:"):].strip()
-        if "recent conversation history:" in clean_input.lower():
-            clean_input = clean_input.split("Recent Conversation History:")[0].strip()
-
-        if "what about this application" in lower_prompt or "features does quick.ai provide" in lower_prompt:
-            rewritten = "What are the main features and AI tools provided by Quick.AI?"
-            reason = "Expanded generic query to target core Quick.AI capabilities."
-        elif "what changed recently" in lower_prompt or "changes were made" in lower_prompt:
-            rewritten = "What are the most recent changes and database migrations in Quick.AI?"
+            rewritten = "What are the most recent changes and updates in Quick.AI?"
             reason = "Clarified historical change log inquiry for Quick.AI."
         elif "completed ones" in lower_prompt or "how many tasks" in lower_prompt:
             rewritten = "How many tasks in the current project have been completed?"
@@ -232,17 +272,17 @@ class MockLLMProvider(BaseLLMProvider):
 
         # 3. Greetings & friendly conversational opening & capability inquiries
         is_greeting = (
-            lower_query in ["hey", "hello", "hi", "hey there", "hi there", "good morning", "good evening", "good afternoon", "howdy", "what's up", "hey quickai", "hi quickai", "yo", "greetings"]
+            lower_query in ["hey", "hello", "hi", "hey there", "hi there", "good morning", "good evening", "good afternoon", "howdy", "what's up", "hey quickai", "hi quickai", "yo", "greetings", "fizzi", "fizzi ai", "hey fizzi", "hi fizzi"]
             or lower_query.startswith("hey ")
             or lower_query.startswith("hi ")
             or lower_query.startswith("hello ")
-            or any(q in lower_query for q in ["what can you do", "what are your capabilities", "who are you", "help me", "how can you help", "what do you do", "what are you", "tell me about yourself", "what is quick.ai", "what is quick ai"])
+            or any(q in lower_query for q in ["what can you do", "what are your capabilities", "who are you", "help me", "how can you help", "what do you do", "what are you", "tell me about yourself", "what is quick.ai", "what is quick ai", "who is fizzi", "what is fizzi"])
         )
         if is_greeting:
             greeting_name = user_name if user_name and user_name != "there" else ""
             name_str = f" {greeting_name}" if greeting_name else ""
             return (
-                f"Hello{name_str}! 👋 I am your Quick.AI career assistant.\n\n"
+                f"Hello{name_str}! 👋 I am Fizzi AI, your Quick.AI career assistant.\n\n"
                 "I can help you explore Quick.AI and accelerate your job search with our 7 core career tools:\n"
                 "- **01 Smart Email Writer**: Draft professional, persuasive emails in seconds\n"
                 "- **02 Resume Reviewer**: Get blunt, actionable feedback on your resume before you hit send\n"

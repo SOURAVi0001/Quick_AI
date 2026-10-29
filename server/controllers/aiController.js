@@ -159,8 +159,17 @@ export const resumeReview = async (req, res, next) => {
     }
 
     try {
-      await sql`INSERT INTO creations (user_id, prompt, content, type) 
-                VALUES (${userId}, 'Resume Review', ${content}, 'resume-review')`;
+      await sql`INSERT INTO creations (user_id, prompt, content, type, source_resume)
+                VALUES (${userId}, 'Resume Review', ${content}, 'resume-review', ${pdfText})`;
+      await sql`
+        UPDATE creations SET source_resume = NULL
+        WHERE user_id = ${userId} AND type = 'resume-review'
+          AND id NOT IN (
+            SELECT id FROM creations
+            WHERE user_id = ${userId} AND type = 'resume-review'
+            ORDER BY created_at DESC LIMIT 5
+          )
+      `;
       await safeDel(`user:creations:${userId}`);
     } catch (dbError) {
       if (fs.existsSync(resume.path)) fs.unlinkSync(resume.path);
