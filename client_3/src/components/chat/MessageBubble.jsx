@@ -1,38 +1,123 @@
 import { ArrowUpRight, Ban, Info } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github-dark.css";
 import { cn } from "../../utils/cn";
 
-/** Renders **bold** and line breaks without pulling a markdown lib. */
-function renderInline(text) {
-  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
-  return parts.map((part, i) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
+const markdownComponents = {
+  h1: ({ children, ...props }) => (
+    <h1 className="mt-3 mb-1.5 text-[15px] font-bold text-white tracking-tight first:mt-0" {...props}>
+      {children}
+    </h1>
+  ),
+  h2: ({ children, ...props }) => (
+    <h2 className="mt-2.5 mb-1.5 text-[14px] font-semibold text-white tracking-tight first:mt-0" {...props}>
+      {children}
+    </h2>
+  ),
+  h3: ({ children, ...props }) => (
+    <h3 className="mt-2 mb-1 text-[13.5px] font-semibold text-ember-300 first:mt-0" {...props}>
+      {children}
+    </h3>
+  ),
+  h4: ({ children, ...props }) => (
+    <h4 className="mt-2 mb-1 text-[13px] font-medium text-white/95 first:mt-0" {...props}>
+      {children}
+    </h4>
+  ),
+  p: ({ children, ...props }) => (
+    <p className="mb-2 last:mb-0 leading-relaxed text-[13.5px] text-[#e7e1da]" {...props}>
+      {children}
+    </p>
+  ),
+  ul: ({ children, ...props }) => (
+    <ul className="mb-2 list-disc list-outside pl-4 space-y-1 text-[13.5px] leading-relaxed text-[#e7e1da] marker:text-ember-400 last:mb-0" {...props}>
+      {children}
+    </ul>
+  ),
+  ol: ({ children, ...props }) => (
+    <ol className="mb-2 list-decimal list-outside pl-4 space-y-1 text-[13.5px] leading-relaxed text-[#e7e1da] marker:text-ember-400 marker:font-medium last:mb-0" {...props}>
+      {children}
+    </ol>
+  ),
+  li: ({ children, ...props }) => (
+    <li className="pl-0.5 leading-relaxed" {...props}>
+      {children}
+    </li>
+  ),
+  strong: ({ children, ...props }) => (
+    <strong className="font-semibold text-white" {...props}>
+      {children}
+    </strong>
+  ),
+  em: ({ children, ...props }) => (
+    <em className="italic text-white/90" {...props}>
+      {children}
+    </em>
+  ),
+  a: ({ href, children, ...props }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-ember-400 underline underline-offset-2 hover:text-ember-300 transition-colors break-words font-medium"
+      {...props}
+    >
+      {children}
+    </a>
+  ),
+  blockquote: ({ children, ...props }) => (
+    <blockquote className="my-2 border-l-2 border-ember-400/70 pl-3 italic text-white/75" {...props}>
+      {children}
+    </blockquote>
+  ),
+  pre: ({ children, ...props }) => (
+    <pre className="my-2.5 overflow-x-auto rounded-xl border border-white/10 bg-[#0c0d14] p-3 text-[12px] font-mono leading-normal text-white/90 shadow-inner" {...props}>
+      {children}
+    </pre>
+  ),
+  code: ({ node, className, children, ...props }) => {
+    const isBlock = /language-/.test(className || "") || String(children).includes("\n");
+    if (isBlock) {
       return (
-        <strong key={i} className="font-semibold text-white">
-          {part.slice(2, -2)}
-        </strong>
-      );
-    }
-    if (part.startsWith("`") && part.endsWith("`")) {
-      return (
-        <code key={i} className="rounded bg-white/10 px-1 py-0.5 font-mono text-[11px] text-ember-300">
-          {part.slice(1, -1)}
+        <code className={cn("font-mono text-[12px]", className)} {...props}>
+          {children}
         </code>
       );
     }
-    return <span key={i}>{part}</span>;
-  });
-}
-
-function renderContent(text) {
-  return text.split("\n").map((line, i) => {
-    const isBullet = line.trimStart().startsWith("• ");
     return (
-      <p key={i} className={cn("min-h-[1em]", isBullet && "pl-3 -indent-3 mt-1")}>
-        {renderInline(line)}
-      </p>
+      <code className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11.5px] text-ember-300" {...props}>
+        {children}
+      </code>
     );
-  });
-}
+  },
+  hr: ({ ...props }) => (
+    <hr className="my-2.5 border-t border-white/10" {...props} />
+  ),
+  table: ({ children, ...props }) => (
+    <div className="my-2.5 w-full overflow-x-auto rounded-lg border border-white/10">
+      <table className="w-full border-collapse text-left text-[12px]" {...props}>
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children, ...props }) => (
+    <thead className="border-b border-white/10 bg-white/[0.04] text-white font-medium" {...props}>
+      {children}
+    </thead>
+  ),
+  th: ({ children, ...props }) => (
+    <th className="px-2.5 py-1.5 font-semibold text-white/90" {...props}>
+      {children}
+    </th>
+  ),
+  td: ({ children, ...props }) => (
+    <td className="border-t border-white/[0.06] px-2.5 py-1.5 text-white/80" {...props}>
+      {children}
+    </td>
+  ),
+};
 
 export function MessageBubble({ message, onNavigate }) {
   const isUser = message.role === "user";
@@ -86,7 +171,15 @@ export function MessageBubble({ message, onNavigate }) {
               {kind === "rejected" ? "Out of scope" : "Not in my sources"}
             </div>
           )}
-          {renderContent(message.content)}
+          <div className="markdown-content">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+              components={markdownComponents}
+            >
+              {message.content}
+            </ReactMarkdown>
+          </div>
         </div>
 
         {message.links && message.links.length > 0 && (
@@ -101,19 +194,6 @@ export function MessageBubble({ message, onNavigate }) {
                 {l.label}
                 <ArrowUpRight className="h-3 w-3 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </button>
-            ))}
-          </div>
-        )}
-
-        {message.sources && message.sources.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 pl-1">
-            {message.sources.map((s) => (
-              <span
-                key={s}
-                className="rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-white/35 ring-1 ring-white/[0.08]"
-              >
-                {s}
-              </span>
             ))}
           </div>
         )}

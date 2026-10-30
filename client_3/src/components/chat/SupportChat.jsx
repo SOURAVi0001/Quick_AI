@@ -9,13 +9,10 @@ import {
   Info,
   Lock,
   LogIn,
-  RefreshCw,
   RotateCcw,
   ShieldCheck,
   Sparkles,
   UserCheck,
-  Wifi,
-  WifiOff,
   X,
 } from "lucide-react";
 import {
@@ -150,19 +147,6 @@ async function defaultQuickAiTransport({ message, history, user, conversationId 
     }
   }
 
-  // Filter out internal user context IDs so raw user IDs are not leaked as source chips
-  const rawSources = (data.sources || []).filter(
-    (s) => s.source !== "user_context" && !s.document_id?.startsWith("user_context")
-  );
-
-  const sources = rawSources
-    .map((s) => {
-      if (s.metadata?.category) return s.metadata.category.replace(/_/g, " ");
-      if (s.document_id) return s.document_id.replace(/^doc_/, "").replace(/^change_/, "changelog: ").replace(/_/g, " ");
-      return s.source || "knowledge_base";
-    })
-    .slice(0, 3);
-
   let kind = "answer";
   if (data.status === "rejected") kind = "rejected";
   else if (data.status === "insufficient_context") kind = "unavailable";
@@ -172,7 +156,6 @@ async function defaultQuickAiTransport({ message, history, user, conversationId 
     content: data.answer,
     kind,
     links: detectedLinks.length > 0 ? detectedLinks.slice(0, 3) : undefined,
-    sources: sources.length > 0 ? Array.from(new Set(sources)) : undefined,
   };
 }
 
@@ -365,8 +348,6 @@ export function SupportChat({
   // Live Backend Connection State & Details
   const [connStatus, setConnStatus] = useState("checking");
   const [connInfo, setConnInfo] = useState(null);
-  const [connLatency, setConnLatency] = useState(null);
-  const [showConnDetail, setShowConnDetail] = useState(false);
 
   const checkConnection = useCallback(async () => {
     setConnStatus("checking");
@@ -407,8 +388,7 @@ export function SupportChat({
       return;
     }
 
-    const elapsed = Math.round(performance.now() - start);
-    setConnLatency(elapsed);
+    // Endpoint reachable
 
     let info = null;
     try {
@@ -552,7 +532,6 @@ export function SupportChat({
             content: reply.content,
             kind: reply.kind ?? "answer",
             links: reply.links,
-            sources: reply.sources,
             createdAt: Date.now(),
           },
         ]);
@@ -602,12 +581,6 @@ export function SupportChat({
     }
     inputRef.current?.focus();
   };
-
-  const remaining = currentUser ? Math.max(currentUser.freeLimit - currentUser.freeUsage, 0) : null;
-  const quotaPct =
-    currentUser && currentUser.plan === "free"
-      ? Math.min((currentUser.freeUsage / currentUser.freeLimit) * 100, 100)
-      : 0;
 
   const side = position === "bottom-left" ? "left-4 sm:left-6" : "right-4 sm:right-6";
   const origin = position === "bottom-left" ? "origin-bottom-left" : "origin-bottom-right";
@@ -660,58 +633,12 @@ export function SupportChat({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <h2 className="truncate text-[14px] font-semibold text-white">{title}</h2>
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em]",
-                      currentUser
-                        ? "border border-white/[0.08] bg-white/[0.04] text-white/50"
-                        : "border border-amber-500/30 bg-amber-500/10 text-amber-300",
-                    )}
-                  >
-                    <Lock className="h-2 w-2" />
-                    {currentUser ? "RAG" : "Auth Req"}
-                  </span>
-                </div>
-
-                {/* Connection status pill with interactive detail toggle */}
-                <div className="mt-0.5 flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setShowConnDetail((prev) => !prev)}
-                    className={cn(
-                      "group inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-medium transition",
-                      connStatus === "connected"
-                        ? "bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
-                        : connStatus === "checking"
-                          ? "bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
-                          : "bg-red-500/10 text-red-300 hover:bg-red-500/20",
-                    )}
-                    title="Click to view backend connection & pipeline details"
-                  >
-                    {connStatus === "connected" ? (
-                      <Wifi className="h-2.5 w-2.5" />
-                    ) : connStatus === "checking" ? (
-                      <RefreshCw className="h-2.5 w-2.5 animate-spin" />
-                    ) : (
-                      <WifiOff className="h-2.5 w-2.5" />
-                    )}
-                    <span>
-                      {connStatus === "connected"
-                        ? `${connInfo?.provider || "mock"} llm`
-                        : connStatus === "checking"
-                          ? "connecting…"
-                          : "service offline"}
+                  {!currentUser && (
+                    <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] text-amber-300">
+                      <Lock className="h-2 w-2" />
+                      Auth Req
                     </span>
-                    {connLatency !== null && (
-                      <span className="text-white/40">· {connLatency}ms</span>
-                    )}
-                    <ChevronDown
-                      className={cn(
-                        "h-2.5 w-2.5 opacity-60 transition-transform",
-                        showConnDetail && "rotate-180",
-                      )}
-                    />
-                  </button>
+                  )}
                 </div>
               </div>
 
@@ -730,113 +657,7 @@ export function SupportChat({
                 </IconBtn>
               </div>
             </div>
-
-            {/* Connection Detail Dropdown */}
-            {showConnDetail && (
-              <div className="mt-3 rounded-xl border border-white/10 bg-black/40 p-3 text-[11px] text-white/70 backdrop-blur-md animate-fade-up">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2">
-                  <div className="flex items-center gap-1.5 font-semibold text-white">
-                    <Database className="h-3.5 w-3.5 text-ember-400" />
-                    <span>Chatbot Microservice Detail</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={checkConnection}
-                    className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-ember-300 hover:bg-white/10"
-                  >
-                    <RefreshCw className="h-3 w-3" />
-                    Ping
-                  </button>
-                </div>
-
-                <div className="space-y-1.5">
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Service Status:</span>
-                    <span
-                      className={cn(
-                        "font-medium",
-                        connStatus === "connected" ? "text-emerald-300" : "text-red-400",
-                      )}
-                    >
-                      {connStatus === "connected" ? "Healthy & Operational" : "Disconnected"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Service Target:</span>
-                    <span className="font-mono text-[10.5px] text-white/80">
-                      {connInfo?.endpoint || "http://127.0.0.1:8000/api/v1/chat"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Engine / Provider:</span>
-                    <span className="text-white/80 capitalize">{connInfo?.provider || "mock"} LLM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Session Thread ID:</span>
-                    <span className="font-mono text-[10px] text-ember-300/90">{conversationId}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Chat Turns History:</span>
-                    <span className="text-white/80">{messages.length} turns in storage</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Creations Synced:</span>
-                    <span className="text-white/80">
-                      {currentUser?.recentCreations?.length ?? 0} creations linked
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-white/40">Auth Status:</span>
-                    <span className={cn("font-medium", currentUser ? "text-emerald-300" : "text-amber-300")}>
-                      {currentUser ? `Authenticated (${currentUser.name})` : "Unauthenticated"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
           </header>
-
-          {/* Account & Quota strip (Shown only when authenticated) */}
-          {currentUser && (
-            <div className="relative flex items-center gap-3 border-b border-white/[0.06] bg-white/[0.02] px-4 py-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full border border-ember-500/40 bg-ember-500/10 font-serif text-[13px] text-ember-300">
-                {currentUser.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2 text-[11.5px]">
-                  <span className="truncate text-white/80">{currentUser.name}</span>
-                  <span
-                    className={cn(
-                      "shrink-0 rounded-full px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-[0.14em]",
-                      currentUser.plan === "premium"
-                        ? "bg-ember-500/15 text-ember-300 ring-1 ring-ember-500/40"
-                        : "bg-white/[0.05] text-white/55 ring-1 ring-white/10",
-                    )}
-                  >
-                    {currentUser.plan}
-                  </span>
-                </div>
-                {currentUser.plan === "free" ? (
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.07]">
-                      <div
-                        className={cn(
-                          "h-full rounded-full transition-all",
-                          quotaPct >= 80 ? "bg-red-400" : "bg-ember-gradient",
-                        )}
-                        style={{ width: `${quotaPct}%` }}
-                      />
-                    </div>
-                    <span className="shrink-0 text-[10.5px] tabular-nums text-white/45">
-                      {remaining} of {currentUser.freeLimit} left
-                    </span>
-                  </div>
-                ) : (
-                  <p className="mt-0.5 text-[10.5px] text-white/40">Unlimited generations</p>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* ---------- Body: Auth Gate VS Chat Conversation ---------- */}
           {!currentUser ? (
@@ -1075,8 +896,14 @@ function IconBtn({
 function TypingIndicator() {
   return (
     <div className="flex items-end gap-2 animate-fade-up">
-      <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-ember-500/30 bg-ember-500/10">
-        <Sparkles className="h-3 w-3 text-ember-400" strokeWidth={2.2} />
+      <div className="mb-0.5 flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-[#08080d]">
+        <img
+          src="/chatbot.png"
+          alt=""
+          aria-hidden="true"
+          className="max-w-none shrink-0"
+          style={{ width: 96, height: 72 }}
+        />
       </div>
       <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-white/[0.07] bg-white/[0.04] px-3.5 py-3">
         {[0, 1, 2].map((i) => (
