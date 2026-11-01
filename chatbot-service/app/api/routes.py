@@ -13,6 +13,7 @@ from app.services.chatbot import ChatbotService
 from app.providers.llm_base import BaseLLMProvider
 from app.providers.mock_llm import MockLLMProvider
 from app.providers.lm_studio import LMStudioProvider
+from app.providers.openrouter import OpenRouterProvider
 from app.utils.logging import logger
 
 
@@ -24,11 +25,24 @@ api_router = APIRouter()
 # ------------------------------------------------------------------------------
 
 def get_llm_provider() -> BaseLLMProvider:
-    """Dependency provider yielding the configured LLM implementation."""
+    """Dependency provider yielding the configured LLM implementation with resilient fallback.
+
+    Priority Hierarchy:
+    1. OpenRouter (Primary, using OPENROUTER_MODEL e.g. 'openrouter/free' with streaming)
+    2. LM Studio / Local LLM (Secondary failover if OpenRouter encounters error/timeout)
+    3. Mock LLM (Tertiary failover for deterministic offline safety)
+    """
     provider_type = settings.LLM_PROVIDER.lower().strip()
+    mock_fallback = MockLLMProvider()
+    local_fallback = LMStudioProvider(fallback_provider=mock_fallback)
+
+    if provider_type == "mock":
+        return mock_fallback
     if provider_type == "lm_studio":
-        return LMStudioProvider(fallback_provider=MockLLMProvider())
-    return MockLLMProvider()
+        return local_fallback
+
+    # Default & primary: OpenRouter with LM Studio and Mock fallbacks
+    return OpenRouterProvider(fallback_provider=local_fallback)
 
 
 def get_chatbot_service(
