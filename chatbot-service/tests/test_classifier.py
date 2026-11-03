@@ -187,3 +187,30 @@ async def test_classify_strictly_prohibited_queries(
     assert result.category == "out_of_scope"
     assert result.intent == "out_of_scope"
 
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "greeting_query",
+    [
+        "Hey",
+        "Hello",
+        "How are you",
+        "How are you doing?",
+        "Good morning",
+        "Hey there",
+        "Hi Fizzi",
+        "what's up",
+    ],
+)
+async def test_classify_greeting_queries(
+    classifier: QueryClassifier, greeting_query: str
+):
+    """Verifies conversational greetings are classified as greeting intent and category."""
+    result = await classifier.classify_query(greeting_query)
+
+    assert result.is_relevant is True
+    assert result.intent == "greeting"
+    assert result.category == "greeting"
+    assert result.requires_db is False
+
+

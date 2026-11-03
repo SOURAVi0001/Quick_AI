@@ -23,12 +23,16 @@ class Settings(BaseSettings):
     SUPPORTED_APPLICATION_ID: str = "quickai"
 
     # LLM Provider settings
-    # Options: "mock" (default, zero external dependency) or "lm_studio"
-    LLM_PROVIDER: str = "mock"
+    # Options: "openrouter" (primary), "lm_studio" (local fallback), or "mock" (offline fallback)
+    LLM_PROVIDER: str = "openrouter"
     LLM_BASE_URL: str = "http://localhost:1234/v1"
     LLM_API_KEY: str = "lm-studio"
     LLM_MODEL: str = "local-model"
     LLM_REQUEST_TIMEOUT_SECONDS: float = 30.0
+
+    # OpenRouter LLM settings
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    OPENROUTER_MODEL: str = "openrouter/free"
 
     # Pipeline retry & retrieval bounds
     MAX_RETRIES: int = 2

@@ -421,6 +421,49 @@ def test_greeting_and_capability_response(client: TestClient, greeting_query: st
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "success"
-    # Must describe capabilities and 7 career tools / account info rather than rejecting as out_of_scope
     lower_ans = data["answer"].lower()
     assert "smart email writer" in lower_ans or "career" in lower_ans or "help" in lower_ans
+
+
+@pytest.mark.parametrize(
+    "greeting_query",
+    [
+        "Hey",
+        "Hello",
+        "How are you",
+        "How are you doing?",
+        "Hey there",
+        "Good morning",
+    ],
+)
+def test_greeting_and_how_are_you_static_response(client: TestClient, greeting_query: str):
+    """Verifies greetings and check-ins return static response greeting back and asking how to help."""
+    payload = {
+        "request_id": "req_greet_static_01",
+        "user_id": "user_2yMX02PRbyMtQK6PebpjnxvRNIA",
+        "application_id": "quickai",
+        "query": greeting_query,
+        "user_info": {
+            "user_id": "user_2yMX02PRbyMtQK6PebpjnxvRNIA",
+            "application_id": "quickai",
+            "full_name": "Alex Johnson",
+        },
+    }
+    response = client.post("/api/v1/chat", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["status"] == "success"
+    assert data["sources"] == []
+    assert data["retry_count"] == 0
+
+    lower_ans = data["answer"].lower()
+    # Greets the user back
+    assert "hello alex" in lower_ans or "hello" in lower_ans
+    # Asks how I can help you today
+    assert "how can i help you today" in lower_ans
+
+    # If it was a 'how are you' inquiry, it specifically acknowledges it
+    if "how are you" in greeting_query.lower():
+        assert "doing great" in lower_ans or "thank you for asking" in lower_ans
+

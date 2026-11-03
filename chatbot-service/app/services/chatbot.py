@@ -271,6 +271,13 @@ class ChatbotService:
             return rejection_response
 
         # ----------------------------------------------------------------------
+        # Fast Path: Static Greeting Handler (intent: "greeting")
+        # ----------------------------------------------------------------------
+        if classification.intent == "greeting" or classification.category == "greeting":
+            logger.info("Query '%s' dispatched via static greeting handler.", request.query)
+            return self._handle_greeting_response(request, classification, tracer)
+
+        # ----------------------------------------------------------------------
         # Step 4: Conversational Query Rewriting
         # ----------------------------------------------------------------------
         t0 = time.time()
@@ -638,3 +645,100 @@ class ChatbotService:
             evaluation=None,
             retry_count=0,
         )
+
+    def _handle_greeting_response(
+        self,
+        request: ChatRequest,
+        classification: ClassificationResult,
+        tracer: Optional[ExecutionTracer] = None,
+    ) -> ChatResponse:
+        """Constructs and returns an instant static greeting response without RAG/evaluator latency."""
+        lower_q = request.query.lower().strip()
+        user_name = ""
+        if request.user_info:
+            if isinstance(request.user_info, dict):
+                full_name = request.user_info.get("full_name") or ""
+            else:
+                full_name = getattr(request.user_info, "full_name", "") or ""
+            if full_name:
+                first = full_name.strip().split()[0]
+                if first and first.lower() not in {"there", "user", "guest"}:
+                    user_name = f" {first}"
+
+        # Differentiate conversational check-ins ("how are you") from general greetings ("hey", "hello")
+        is_check_in = any(
+            phrase in lower_q
+            for phrase in [
+                "how are you",
+                "how r u",
+                "how are u",
+                "how's it going",
+                "hows it going",
+                "how is it going",
+                "how have you been",
+                "how do you do",
+            ]
+        )
+
+        if is_check_in:
+            greeting_prefix = f"Hello{user_name}! I'm doing great, thank you for asking! 😊 How can I help you today?"
+        else:
+            greeting_prefix = f"Hello{user_name}! 👋 How can I help you today?"
+
+        greeting_text = (
+            f"{greeting_prefix}\n\n"
+            "I'm Fizzi AI, your Quick.AI career assistant. I can help you with:\n"
+            "- **Resume Reviewer**: Get blunt, actionable feedback and ATS scores for your resume [Open Reviewer](/ai/review-resume)\n"
+            "- **Resume Tailor**: Tailor and align your resume with specific job descriptions [Open Tailor](/ai/resume-tailor)\n"
+            "- **Career Profile Score**: Benchmark your career profile across skills, experience, and impact [View Score](/ai/career-score)\n"
+            "- **Job Tracker**: Organize and track your job applications and interview stages [Open Tracker](/ai/job-tracker)\n"
+            "- **Smart Email Writer**: Draft professional networking and job search emails [Write Email](/ai/write-email)\n"
+            "- **Recruiter Outreach**: Connect directly with recruiters and hiring managers [Open Outreach](/ai/recruiter-outreach)\n"
+            "- **LinkedIn Optimizer**: Sharpen your headline, about section, and keywords [Optimize Profile](/ai/linkedin-optimizer)\n"
+            "- **AI Interview Coach**: Practice role-specific mock interview questions with instant feedback [Start Practice](/ai/interview-coach)\n\n"
+            "You can also ask me about your account status, remaining free quota, or past creations history.\n\n"
+            "What would you like to work on today?"
+        )
+
+        greeting_response = ChatResponse(
+            request_id=request.request_id,
+            conversation_id=request.conversation_id,
+            status="success",
+            original_query=request.query,
+            rewritten_query=None,
+            answer=greeting_text,
+            sources=[],
+            evaluation=EvaluationSummary(
+                is_satisfactory=True,
+                relevance_score=1.0,
+                grounding_score=1.0,
+                reason="Static greeting response dispatched directly for greeting intent.",
+            ),
+            retry_count=0,
+        )
+
+        if tracer:
+            tracer.record(
+                node_id="node_greeting_handler",
+                name="Static Greeting Dispatcher",
+                file_path="app/services/chatbot.py",
+                function_name="ChatbotService._handle_greeting_response()",
+                status="completed",
+                description="Classified as greeting intent. Dispatched instant static greeting response without RAG/evaluator latency.",
+                input_data={"query": request.query, "intent": classification.intent},
+                output_data={"status": "success", "type": "static_greeting"},
+                duration_ms=0.5,
+            )
+            tracer.record(
+                node_id="node_final_response",
+                name="Final Response Assembly",
+                file_path="app/services/chatbot.py",
+                function_name="ChatbotService.process_chat_request()",
+                status="completed",
+                description="Assembled static greeting response.",
+                input_data={"status": "success"},
+                output_data=greeting_response.model_dump(),
+                duration_ms=0.5,
+            )
+
+        return greeting_response

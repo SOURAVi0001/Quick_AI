@@ -5,6 +5,9 @@ const apiKey = process.env.OPENROUTER_API_KEY;
 
 export const openrouter = new OpenRouter({
   apiKey: apiKey || '',
+  defaultHeaders: {
+    'X-OpenRouter-Cache': 'true',
+  },
 });
 
 /**
@@ -26,6 +29,10 @@ export async function generateChatResponse(messages) {
           content: m.content,
         })),
         stream: true,
+      },
+    }, {
+      headers: {
+        'X-OpenRouter-Cache': 'true',
       },
     });
 

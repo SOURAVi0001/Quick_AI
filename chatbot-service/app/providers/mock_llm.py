@@ -1,6 +1,7 @@
 """Mock LLM provider for zero-dependency local testing and deterministic demonstrations."""
 
 import json
+import re
 from typing import Dict, List, Optional
 from app.providers.llm_base import BaseLLMProvider
 from app.utils.logging import logger
@@ -53,7 +54,8 @@ class MockLLMProvider(BaseLLMProvider):
 
     def _mock_classification(self, prompt: str) -> str:
         """Generates classification JSON based on query contents with strict guardrails."""
-        lower_prompt = prompt.lower()
+        query_part = prompt.split("Classify this query:")[-1].strip() if "Classify this query:" in prompt else prompt
+        lower_prompt = query_part.lower()
 
         # Strict Guardrails: Reject server, backend, frontend, code, and internal functionality
         forbidden_internal_cues = [
@@ -126,8 +128,22 @@ class MockLLMProvider(BaseLLMProvider):
             intent = "dashboard_analytics"
             requires_db = True
             suggested_redirect = "/dashboard"
+        elif any(re.search(pat, lower_prompt) for pat in [
+            r"\b(hi|hello|hey|howdy|sup|yo|greetings|hola)\b",
+            r"\bgood\s+(morning|afternoon|evening|day)\b",
+            r"\bhow\s+are\s+you\b",
+            r"\bhow\s+are\s+you\s+doing\b",
+            r"\bhows\s+it\s+going\b",
+            r"\bwhats\s+up\b",
+        ]) and not any(w in lower_prompt for w in [
+            "feature", "resume", "score", "tracker", "applied", "email",
+            "linkedin", "interview", "dashboard", "quota", "plan", "migration", "server"
+        ]):
+            intent = "greeting"
 
-        if ("my" in lower_prompt or "mine" in lower_prompt or "i have" in lower_prompt or "i created" in lower_prompt or "i did" in lower_prompt) and not ("system" in lower_prompt or "platform" in lower_prompt):
+        if intent == "greeting":
+            category = "greeting"
+        elif ("my" in lower_prompt or "mine" in lower_prompt or "i have" in lower_prompt or "i created" in lower_prompt or "i did" in lower_prompt) and not ("system" in lower_prompt or "platform" in lower_prompt):
             category = "project_status"
             requires_db = True
         elif any(cue in lower_prompt for cue in ["task", "alpha", "completed", "status", "progress", "plan", "quota", "usage", "creation", "creations", "past action", "past actions"]):
@@ -272,18 +288,23 @@ class MockLLMProvider(BaseLLMProvider):
 
         # 3. Greetings & friendly conversational opening & capability inquiries
         is_greeting = (
-            lower_query in ["hey", "hello", "hi", "hey there", "hi there", "good morning", "good evening", "good afternoon", "howdy", "what's up", "hey quickai", "hi quickai", "yo", "greetings", "fizzi", "fizzi ai", "hey fizzi", "hi fizzi"]
+            lower_query in ["hey", "hello", "hi", "hey there", "hi there", "how are you", "how are you doing", "how's it going", "good morning", "good evening", "good afternoon", "howdy", "what's up", "hey quickai", "hi quickai", "yo", "greetings", "fizzi", "fizzi ai", "hey fizzi", "hi fizzi"]
             or lower_query.startswith("hey ")
             or lower_query.startswith("hi ")
             or lower_query.startswith("hello ")
+            or lower_query.startswith("how are you")
             or any(q in lower_query for q in ["what can you do", "what are your capabilities", "who are you", "help me", "how can you help", "what do you do", "what are you", "tell me about yourself", "what is quick.ai", "what is quick ai", "who is fizzi", "what is fizzi"])
         )
         if is_greeting:
             greeting_name = user_name if user_name and user_name != "there" else ""
             name_str = f" {greeting_name}" if greeting_name else ""
+            if "how are you" in lower_query or "how's it going" in lower_query:
+                prefix = f"Hello{name_str}! I'm doing great, thank you for asking! 😊 How can I help you today?"
+            else:
+                prefix = f"Hello{name_str}! 👋 How can I help you today?"
             return (
-                f"Hello{name_str}! 👋 I am Fizzi AI, your Quick.AI career assistant.\n\n"
-                "I can help you explore Quick.AI and accelerate your job search with our 7 core career tools:\n"
+                f"{prefix}\n\n"
+                "I am Fizzi AI, your Quick.AI career assistant. I can help you explore Quick.AI and accelerate your job search with our 7 core career tools:\n"
                 "- **01 Smart Email Writer**: Draft professional, persuasive emails in seconds\n"
                 "- **02 Resume Reviewer**: Get blunt, actionable feedback on your resume before you hit send\n"
                 "- **03 Resume Tailor**: Rewrite your resume for a specific job description\n"
@@ -393,9 +414,9 @@ class MockLLMProvider(BaseLLMProvider):
 
             rating_advice = (
                 "**How to rate and improve your career materials:**\n"
-                "- **Resume Reviewer** (/ai/review-resume): Upload your resume PDF for an instant ATS compatibility score, formatting analysis, and impact rating.\n"
-                "- **Career Score** (/ai/career-score): Receive a comprehensive 360° career score evaluating your profile readiness across experience, skills, and outreach.\n"
-                "- **Resume Tailor** (/ai/resume-tailor): Align your resume bullet points directly with target job requirements."
+                "- **Resume Reviewer** [Open Reviewer](/ai/review-resume): Upload your resume PDF for an instant ATS compatibility score, formatting analysis, and impact rating.\n"
+                "- **Career Score** [View Score](/ai/career-score): Receive a comprehensive 360° career score evaluating your profile readiness across experience, skills, and outreach.\n"
+                "- **Resume Tailor** [Open Tailor](/ai/resume-tailor): Align your resume bullet points directly with target job requirements."
             )
             return f"{creations_summary}{rating_advice}"
 
@@ -421,25 +442,25 @@ class MockLLMProvider(BaseLLMProvider):
                     f"{sender_name}\n"
                     "[Your Contact Info | LinkedIn Profile | Portfolio]\n\n"
                     "---\n"
-                    "💡 *You can customize tones (Casual, Formal, Enthusiastic) and generate tailored outreach drafts using our **Recruiter Outreach** tool at /ai/recruiter-outreach.*"
+                    "💡 *You can customize tones (Casual, Formal, Enthusiastic) and generate tailored outreach drafts using our **Recruiter Outreach** tool [Open Outreach](/ai/recruiter-outreach).*"
                 )
             return (
-                "Quick.AI features the **Recruiter Outreach** tool (/ai/recruiter-outreach) designed to draft high-converting emails for your job search:\n\n"
+                "Quick.AI features the **Recruiter Outreach** tool [Open Outreach](/ai/recruiter-outreach) designed to draft high-converting emails for your job search:\n\n"
                 "1. **Referral Request Emails**: Politely request internal referrals from employees and HR.\n"
                 "2. **Cold Outreach to Recruiters**: Stand out to hiring managers with concise, tailored value propositions.\n"
                 "3. **Follow-Up Emails**: Follow up professionally after submitting an application or completing an interview.\n\n"
-                "You can generate custom outreach drafts directly at /ai/recruiter-outreach, or tell me the target role and company and I'll draft one right here!"
+                "You can generate custom outreach drafts directly at [Recruiter Outreach](/ai/recruiter-outreach), or tell me the target role and company and I'll draft one right here!"
             )
 
         # 8. Guidance / "How" queries
         if lower_query in ["how ?", "how?", "how", "how does it work", "how do i use it", "how to use"]:
             return (
                 "Here is how you can use Quick.AI step-by-step to accelerate your job search:\n\n"
-                "1. **Analyze Your Resume**: Upload your resume PDF at **Resume Reviewer** (/ai/review-resume) to get an instant ATS score and bullet point feedback.\n"
-                "2. **Tailor for Job Postings**: Paste any target job description into **Resume Tailor** (/ai/resume-tailor) to automatically tailor your keywords.\n"
-                "3. **Reach Out to Recruiters**: Generate referral and cold outreach emails using **Recruiter Outreach** (/ai/recruiter-outreach).\n"
-                "4. **Practice Interviews**: Simulate realistic behavioral and role-specific questions with the **Interview Coach** (/ai/interview-coach).\n"
-                "5. **Track Applications**: Manage deadlines and interview stages on the **Job Tracker** (/ai/job-tracker).\n\n"
+                "1. **Analyze Your Resume**: Upload your resume PDF at **Resume Reviewer** [Open Reviewer](/ai/review-resume) to get an instant ATS score and bullet point feedback.\n"
+                "2. **Tailor for Job Postings**: Paste any target job description into **Resume Tailor** [Open Tailor](/ai/resume-tailor) to automatically tailor your keywords.\n"
+                "3. **Reach Out to Recruiters**: Generate referral and cold outreach emails using **Recruiter Outreach** [Open Outreach](/ai/recruiter-outreach).\n"
+                "4. **Practice Interviews**: Simulate realistic behavioral and role-specific questions with the **Interview Coach** [Start Practice](/ai/interview-coach).\n"
+                "5. **Track Applications**: Manage deadlines and interview stages on the **Job Tracker** [Open Tracker](/ai/job-tracker).\n\n"
                 "Which tool would you like to start with?"
             )
 

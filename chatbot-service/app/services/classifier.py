@@ -35,7 +35,7 @@ class ClassificationResult(BaseModel):
     is_relevant: bool = Field(..., description="True if query is within Quick.AI career scope")
     category: str = Field(
         ...,
-        description="Category: 'application_help', 'application_changes', 'project_status', or 'out_of_scope'",
+        description="Category: 'application_help', 'application_changes', 'project_status', 'greeting', or 'out_of_scope'",
     )
     reason: str = Field(..., description="Explanation for classification verdict")
     confidence: Optional[float] = Field(default=0.9, description="Confidence score (0.0 to 1.0)")
@@ -63,6 +63,26 @@ class ClassificationResult(BaseModel):
         default_factory=dict,
         description="Extracted entities such as job description, calculation type, or company name",
     )
+
+
+GREETING_PATTERNS = [
+    re.compile(r"^(hi|hello|hey|howdy|sup|yo|greetings|hola)(\s+(there|all|fizzi|quickai|bot|assistant|friend))?$"),
+    re.compile(r"^(good\s+(morning|afternoon|evening|day))(\s+(there|all|fizzi|quickai|bot))?$"),
+    re.compile(r"^(how\s+are\s+you(\s+doing)?|how\s+r\s+u|hows\s+it\s+going|how\s+is\s+it\s+going|how\s+have\s+you\s+been|how\s+do\s+you\s+do)(\s+today)?$"),
+    re.compile(r"^(whats\s+up|what\s+is\s+up)(\s+there)?$"),
+    re.compile(r"^(hi|hello|hey|greetings)[,\s]+(how\s+are\s+you(\s+doing)?|how\s+r\s+u|hows\s+it\s+going|how\s+is\s+it\s+going|hope\s+you\s+are\s+well)(\s+today)?$"),
+    re.compile(r"^(how\s+are\s+you|hope\s+you\s+are\s+doing\s+well)[,\s]+(fizzi|quickai|bot)?$"),
+]
+
+
+def is_pure_greeting(query: str) -> bool:
+    """Detects if query is a pure conversational greeting or check-in without specific task instructions."""
+    cleaned = re.sub(r"[^\w\s]", "", query).strip().lower()
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    if not cleaned:
+        return False
+
+    return any(pattern.match(cleaned) for pattern in GREETING_PATTERNS)
 
 
 CLASSIFIER_SYSTEM_PROMPT = """You are the specialized query intent and security classifier for Fizzi AI, the career assistant in Quick.AI.
@@ -130,14 +150,15 @@ Quick.AI is an AI-powered career platform providing core career tools, job track
     - Inquiries about subscription plan, remaining free quota, credits, or tier limits.
     - requires_db: true.
 
-11. Greetings & Capabilities (intent: "greeting" or "general_help", category: "application_help"):
-    - Conversational greetings ("hi", "hello") or asking what Fizzi AI can do.
-    - requires_db: false.
+11. Conversational Greetings & Capabilities (intent: "greeting", category: "greeting"):
+    - Conversational greetings ("hi", "hello", "hey", "how are you", "how are you doing", "good morning", "what's up", "hey there", "greetings") or asking what Fizzi AI can do.
+    - Classify as is_relevant: true, category: "greeting", intent: "greeting", requires_db: false.
+    - NEVER classify friendly greetings or check-ins as out_of_scope.
 
 ### 3. OUTPUT SPECIFICATION
 Return ONLY a valid JSON object with the following fields:
 - "is_relevant": boolean (false for out_of_scope, true for all in-scope categories)
-- "category": string, exactly one of ["application_help", "application_changes", "project_status", "out_of_scope"]
+- "category": string, exactly one of ["application_help", "application_changes", "project_status", "greeting", "out_of_scope"]
 - "intent": string, exactly one of ["resume_review", "resume_tailor", "career_score", "job_tracker", "write_email", "linkedin_optimizer", "recruiter_outreach", "interview_coach", "dashboard_analytics", "account_status", "general_help", "greeting", "out_of_scope"]
 - "requires_db": boolean (true if database access is needed to answer or calculate the result)
 - "needs_multi_db": boolean (true if the query involves, correlates, or compares multiple database tables/tools)
@@ -157,8 +178,24 @@ class QueryClassifier:
         self.llm_provider = llm_provider
 
     async def classify_query(self, query: str) -> ClassificationResult:
-        """Determines query intent and application scope using the LLM."""
-        logger.info("Classifying query via LLM: '%s'", query)
+        """Determines query intent and application scope using pattern heuristics and LLM inference."""
+        logger.info("Classifying query: '%s'", query)
+
+        # Fast path: deterministic greeting detection
+        if is_pure_greeting(query):
+            logger.info("Query '%s' classified as greeting intent via deterministic heuristic", query)
+            return ClassificationResult(
+                is_relevant=True,
+                category="greeting",
+                reason="Conversational greeting or check-in.",
+                confidence=1.0,
+                intent="greeting",
+                requires_db=False,
+                needs_multi_db=False,
+                required_tables=[],
+                suggested_redirect=None,
+                extracted_entities={},
+            )
 
         try:
             messages = [
@@ -327,14 +364,14 @@ class QueryClassifier:
                 reason=f"Fallback matched Dashboard intent: {error_msg}".strip(),
                 confidence=0.8,
             )
-        if any(w in lower_q for w in ["hi", "hello", "hey", "help", "who are you", "what can you do"]):
+        if any(w in lower_q for w in ["hi", "hello", "hey", "how are you", "how are you doing", "greetings", "good morning", "good evening", "good afternoon", "hey there", "hello there", "what's up", "whats up"]):
             return ClassificationResult(
                 is_relevant=True,
-                category="application_help",
+                category="greeting",
                 intent="greeting",
                 requires_db=False,
                 reason=f"Fallback matched greeting intent: {error_msg}".strip(),
-                confidence=0.8,
+                confidence=0.9,
             )
 
         return ClassificationResult(
