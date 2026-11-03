@@ -196,6 +196,11 @@ class OpenRouterEmbeddingModel(BaseEmbeddingModel):
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=self.api_key,
+            default_headers={
+                "HTTP-Referer": "https://quickai.app",
+                "X-Title": "Quick.AI Embeddings",
+                "X-OpenRouter-Cache": "true",
+            },
         )
         self._dim = 1024
 
@@ -219,6 +224,9 @@ class OpenRouterEmbeddingModel(BaseEmbeddingModel):
                 model=self.model,
                 input=texts,
                 encoding_format="float",
+                extra_headers={
+                    "X-OpenRouter-Cache": "true",
+                },
             )
             vectors = [item.embedding for item in res.data]
             arr = np.asarray(vectors, dtype=np.float32)

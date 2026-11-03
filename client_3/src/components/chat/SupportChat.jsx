@@ -39,17 +39,6 @@ const DEFAULT_SUGGESTIONS = [
 const CHAT_STORAGE_KEY = "quickai_support_chat_history";
 const CONV_STORAGE_KEY = "quickai_support_conversation_id";
 
-const FEATURE_LINKS = [
-  { label: "Smart Email Writer", href: "/ai/write-email" },
-  { label: "Resume Reviewer", href: "/ai/review-resume" },
-  { label: "Resume Tailor", href: "/ai/resume-tailor" },
-  { label: "Career Score", href: "/ai/career-score" },
-  { label: "LinkedIn Optimizer", href: "/ai/linkedin-optimizer" },
-  { label: "Recruiter Outreach", href: "/ai/recruiter-outreach" },
-  { label: "AI Interview Coach", href: "/ai/interview-coach" },
-  { label: "Job Tracker", href: "/ai/job-tracker" },
-];
-
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
 /**
@@ -152,10 +141,17 @@ async function defaultQuickAiTransport({ message, history, user, conversationId 
   else if (data.status === "insufficient_context") kind = "unavailable";
   else if (data.status === "error") kind = "error";
 
+  const hasInlineMarkdownLinks = /\[.*?\]\(\/ai\/[a-zA-Z0-9_-]+\)/.test(data.answer || "");
+  const relevantLinks = hasInlineMarkdownLinks
+    ? undefined
+    : detectedLinks.length > 0
+      ? detectedLinks.slice(0, 3)
+      : undefined;
+
   return {
     content: data.answer,
     kind,
-    links: detectedLinks.length > 0 ? detectedLinks.slice(0, 3) : undefined,
+    links: relevantLinks,
   };
 }
 
@@ -431,7 +427,7 @@ export function SupportChat({
     () =>
       welcome ??
       (currentUser
-        ? `Hi ${currentUser.name.split(" ")[0]} — I'm Fizzi AI, focused on Quick.AI. I can answer questions about your career activity and help you choose a tool. Select a feature below or tell me what you want to do.`
+        ? `Hi ${currentUser.name.split(" ")[0]} — I'm Fizzi AI, your Quick.AI career assistant. How can I help you today? You can select a feature below or ask me about your resume, applications, career score, or quota.`
         : "Hi — please sign in to access Fizzi AI."),
     [welcome, currentUser],
   );
@@ -731,24 +727,6 @@ export function SupportChat({
                 message={{ id: "welcome", role: "assistant", content: greeting, createdAt: 0 }}
                 onNavigate={navigate}
               />
-
-              {messages.length === 0 && (
-                <div className="animate-fade-up space-y-2 pl-8 pt-1">
-                  <p className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-white/35">Quick links</p>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {FEATURE_LINKS.map((feature) => (
-                      <button
-                        key={feature.href}
-                        type="button"
-                        onClick={() => navigate(feature.href)}
-                        className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-2.5 py-2 text-left text-[11px] text-white/75 transition hover:border-ember-500/40 hover:bg-ember-500/10 hover:text-ember-200"
-                      >
-                        {feature.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {messages.length === 0 && (
                 <div className="animate-fade-up space-y-1.5 pl-8 pt-1">

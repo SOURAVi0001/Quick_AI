@@ -56,6 +56,15 @@ async def test_openrouter_streaming_accumulation():
     call_kwargs = mock_client.chat.completions.create.call_args.kwargs
     assert call_kwargs["stream"] is True
     assert call_kwargs["model"] == "openrouter/free"
+    assert call_kwargs["extra_headers"] == {"X-OpenRouter-Cache": "true"}
+
+
+@pytest.mark.asyncio
+async def test_openrouter_cache_headers():
+    """Verifies that OpenRouter client initializes with X-OpenRouter-Cache: true header."""
+    provider = OpenRouterProvider(api_key="sk-test-key", model="openrouter/free")
+    client = provider._get_client()
+    assert client.default_headers.get("X-OpenRouter-Cache") == "true"
 
 
 @pytest.mark.asyncio

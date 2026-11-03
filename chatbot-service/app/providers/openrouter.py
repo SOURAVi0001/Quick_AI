@@ -53,6 +53,7 @@ class OpenRouterProvider(BaseLLMProvider):
                 default_headers={
                     "HTTP-Referer": "https://quickai.app",
                     "X-Title": "Quick.AI Chatbot",
+                    "X-OpenRouter-Cache": "true",
                 },
             )
         return self._client
@@ -98,6 +99,9 @@ class OpenRouterProvider(BaseLLMProvider):
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stream=True,
+                extra_headers={
+                    "X-OpenRouter-Cache": "true",
+                },
             )
 
             accumulated_content: List[str] = []
