@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:client": "cd client_3 && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "dev:chatbot": "cd chatbot-service && uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload",
     "format": "prettier --write .",
     "pretty": "prettier --write .",
     "check": "node --check server.js && node -e \"import('./server.js')\" && npx prettier . --check"

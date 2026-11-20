@@ -16,6 +16,7 @@ import InterviewCoach from './pages/InterviewCoach';
 import RecruiterOutreach from './pages/RecruiterOutreach';
 import JobTracker from './pages/JobTracker';
 import { Toaster } from 'react-hot-toast';
+import { SupportChat } from './components/chat';
 
 const App = () => {
   return (
@@ -61,6 +62,7 @@ const App = () => {
           {/* <Route path="community" element={<Community />} /> */}
         </Route>
       </Routes>
+      <SupportChat />
     </div>
   );
 };

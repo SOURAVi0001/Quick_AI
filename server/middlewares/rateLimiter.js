@@ -3,8 +3,8 @@ import redisClient, { isConnected } from '../configs/redis.js';
 import memCache from '../configs/memcache.js';
 
 const RATE_LIMITS = {
-  free: { maxRequests: 2, windowSeconds: 60 },
-  premium: { maxRequests: 20, windowSeconds: 60 },
+  free: { maxRequests: 20, windowSeconds: 60 },
+  premium: { maxRequests: 60, windowSeconds: 60 },
 };
 
 export const rateLimiter = async (req, res, next) => {

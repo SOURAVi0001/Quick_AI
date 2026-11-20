@@ -8,6 +8,7 @@ import cors from 'cors';
 import aiRouter from './routes/aiRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import jobApplicationRouter from './routes/jobApplicationRoutes.js';
+import chatbotRouter from './routes/chatbotRoutes.js';
 import connectionCloudinary from './configs/cloudinary.js';
 import redisClient from './configs/redis.js';
 import { startWorker } from './configs/queue.js';
@@ -154,6 +155,7 @@ app.use(clerkMiddleware());
 app.use('/api/ai', aiRouter);
 app.use('/api/user', userRouter);
 app.use('/api/job-applications', jobApplicationRouter);
+app.use('/api/chatbot', chatbotRouter);
 
 // ─── 404 Catch-All ──────────────────────────────────────────────────
 app.all('/*splat', (req, res) => res.status(404).json({ success: false, message: 'Not Found' }));

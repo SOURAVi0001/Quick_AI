@@ -26,8 +26,17 @@ export async function handleResumeTask(job) {
         }
       }
 
-      await sql`INSERT INTO creations (user_id, prompt, content, type) 
-                VALUES (${userId}, 'Resume Review', ${content}, 'resume-review')`;
+      await sql`INSERT INTO creations (user_id, prompt, content, type, source_resume)
+                VALUES (${userId}, 'Resume Review', ${content}, 'resume-review', ${pdfText || ''})`;
+      await sql`
+        UPDATE creations SET source_resume = NULL
+        WHERE user_id = ${userId} AND type = 'resume-review'
+          AND id NOT IN (
+            SELECT id FROM creations
+            WHERE user_id = ${userId} AND type = 'resume-review'
+            ORDER BY created_at DESC LIMIT 5
+          )
+      `;
       await safeDel(`user:creations:${userId}`);
       break;
     }
@@ -168,8 +177,20 @@ Return ONLY valid JSON matching this exact structure:
         demo = true;
       }
 
-      await sql`INSERT INTO creations (user_id, prompt, content, type) 
-                VALUES (${userId}, 'Resume Tailor', ${JSON.stringify(content)}, 'resume-tailor')`;
+      await sql`INSERT INTO creations (
+        user_id, prompt, content, type, source_resume, resume_job_description
+      ) VALUES (
+        ${userId}, 'Resume Tailor', ${JSON.stringify(content)}, 'resume-tailor', ${pdfText || ''}, ${jobDescription || ''}
+      )`;
+      await sql`
+        UPDATE creations SET source_resume = NULL, resume_job_description = NULL
+        WHERE user_id = ${userId} AND type = 'resume-tailor'
+          AND id NOT IN (
+            SELECT id FROM creations
+            WHERE user_id = ${userId} AND type = 'resume-tailor'
+            ORDER BY created_at DESC LIMIT 5
+          )
+      `;
       await safeDel(`user:creations:${userId}`);
       break;
     }

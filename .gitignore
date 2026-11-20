@@ -6,3 +6,4 @@ node_modules
 !*secret*.example.yaml
 K8s/secret.yaml
 full context project devops , code.md
+*.code-workspace
